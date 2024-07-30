@@ -7,7 +7,7 @@
                         <div class="card-body" wire:ignore>
                             <h4 class="card-title">Requests</h4>
                             <div class="table-responsive">
-                                <table id="dashboardRequestTable" class="table table-hover">
+                                <table class="table table-hover">
                                     <thead>
                                         <tr>
                                             <th class="fw-bold">Request Date</th>
@@ -68,7 +68,7 @@
                         <div class="card-body" wire:ignore>
                             <h4 class="card-title">Documents</h4>
                             <div class="table-responsive">
-                                <table id="dashboardDocumentsTable" class="table table-hover">
+                                <table class="table table-hover">
                                     <thead>
                                         <tr>
                                             <th class="fw-bold">Category</th>

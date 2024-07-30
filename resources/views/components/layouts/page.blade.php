@@ -22,10 +22,13 @@
     <!-- endinject -->
     <link rel="shortcut icon" href="{{ asset('images/favicon.png') }}" />
 
-    <!-- Datatables -->
-    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css"> -->
-    <!-- <link rel="stylesheet" href="https://cdn.datatables.net/2.1.2/css/dataTables.bootstrap5.css"> -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.2/css/dataTables.dataTables.min.css">
+    <!-- SweetAlert2 -->
+    <script src="{{ asset('plugins/sweetalert2/sweetalert2.min.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset('plugins/sweetalert2/sweetalert2.min.css') }}">
+
+    <!-- Virtual Select -->
+    <link rel="stylesheet" href="{{ asset('plugins/virtual-select/virtual-select.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('plugins/virtual-select/tooltip.min.css') }}">
 
     <style>
         .custom-invalid-feedback {
@@ -97,10 +100,49 @@
     <script src="{{ asset('js/dashboard.js') }}"></script>
     <!-- End custom js for this page-->
 
-    <!-- Datatables -->
-    <!-- <script src="https://cdn.datatables.net/2.1.2/js/dataTables.js"></script> -->
-    <!-- <script src="https://cdn.datatables.net/2.1.2/js/dataTables.bootstrap5.js"></script> -->
-    <script src="https://cdn.datatables.net/2.1.2/js/dataTables.min.js"></script>
+    <!-- Virtual Select -->
+    <script src="{{ asset('plugins/virtual-select/virtual-select.min.js') }}"></script>
+    <script src="{{ asset('plugins/virtual-select/tooltip.min.js') }}"></script>
+
+    <script>
+        document.addEventListener('livewire:init', () => {
+            Livewire.on('show-success-save-message-toast', (event) => {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: "top-end",
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.onmouseenter = Swal.stopTimer;
+                        toast.onmouseleave = Swal.resumeTimer;
+                    }
+                });
+                Toast.fire({
+                    icon: "success",
+                    title: "Saved successfully."
+                });
+            });
+
+            Livewire.on('show-success-update-message-toast', (event) => {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: "top-end",
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.onmouseenter = Swal.stopTimer;
+                        toast.onmouseleave = Swal.resumeTimer;
+                    }
+                });
+                Toast.fire({
+                    icon: "success",
+                    title: "Updated successfully."
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>
