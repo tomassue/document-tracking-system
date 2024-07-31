@@ -14,7 +14,6 @@
                                                     document.getElementById('logout-form').submit();">
                             Logout
                         </a>
-
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                             @csrf
                         </form>
@@ -41,7 +40,7 @@
             </a>
             <div class="collapse" id="ui-basic">
                 <ul class="nav flex-column sub-menu">
-                    <li class="nav-item"> <a class="nav-link" href="#">Requests</a></li>
+                    <li class="nav-item"> <a class="nav-link" href="{{ route('requests') }}">Requests</a></li>
                     <li class="nav-item"> <a class="nav-link" href="#">Documents</a></li>
                 </ul>
             </div>
@@ -58,6 +57,9 @@
                 <span class="menu-title">Calendar</span>
             </a>
         </li>
+
+        <!-- /* -------------------------------------------------------------------------- */ -->
+        @if(Auth::user()->role == '0')
         <li class="nav-item">
             <a class="nav-link" data-bs-toggle="collapse" href="#settings-submenus" aria-expanded="false" aria-controls="settings-submenus">
                 <i class="mdi mdi-settings menu-icon"></i>
@@ -71,6 +73,9 @@
                 </ul>
             </div>
         </li>
+        @endif
+        <!-- /* -------------------------------------------------------------------------- */ -->
+
     </ul>
 </nav>
 <!-- partial -->

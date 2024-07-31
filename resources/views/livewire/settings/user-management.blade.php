@@ -12,10 +12,10 @@
                                 </div>
                             </div>
                             <div class="row mb-2">
-                                <div class="col-md-10">
+                                <div class="col-md-11">
                                     <input type="text" class="form-control" id="exampleInputSearch" placeholder="Search" wire:model.live="search">
                                 </div>
-                                <div class="col-md-2 text-end">
+                                <div class="col-md-1 text-end">
                                     <button type="button" class="btn btn-inverse-success btn-icon" wire:click="$dispatch('show-userManagementModal')">
                                         <i class="mdi mdi mdi-plus"></i>
                                     </button>
@@ -36,7 +36,7 @@
                                         <tr wire:key="{{ $item->id }}">
                                             <td>{{ $key+1 }}</td>
                                             <td>{{ $item->name }}</td>
-                                            <td>Office</td>
+                                            <td>{{ $item->office_name }}</td>
                                             <td>
                                                 <button type="button" class="btn btn-dark btn-icon-text" wire:click="edit({{ $item->id }})">
                                                     Edit
@@ -128,6 +128,21 @@
     //NOTE - Reset the virtual select.
     $wire.on('reset-virtual-select', () => {
         document.querySelector('#office-select').reset();
+    });
+
+    $wire.on('office_id-edit', (key) => {
+        document.querySelector('#office-select').destroy();
+
+        VirtualSelect.init({
+            ele: '#office-select',
+            options: @json($ref_offices),
+            search: true,
+            markSearchResults: true,
+            maxWidth: '100%'
+        });
+
+        document.querySelector('#office-select').setValue(key.value); //NOTE - Without key.value, it returns as an object. We used key.value to specify the item.
+        // console.log(key.value);
     });
 </script>
 @endscript

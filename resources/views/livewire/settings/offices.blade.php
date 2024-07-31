@@ -11,10 +11,10 @@
                                 </div>
                             </div>
                             <div class="row mb-2">
-                                <div class="col-md-10">
+                                <div class="col-md-11">
                                     <input type="text" class="form-control" id="exampleInputSearch" placeholder="Search" wire:model.live="search">
                                 </div>
-                                <div class="col-md-2 text-end">
+                                <div class="col-md-1 text-end">
                                     <button type="button" class="btn btn-inverse-success btn-icon" wire:click="$dispatch('show-officeModal')">
                                         <i class="mdi mdi mdi-plus"></i>
                                     </button>
