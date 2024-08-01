@@ -30,12 +30,31 @@
     <link rel="stylesheet" href="{{ asset('plugins/virtual-select/virtual-select.min.css') }}">
     <link rel="stylesheet" href="{{ asset('plugins/virtual-select/tooltip.min.css') }}">
 
+    <!-- Tiny MCE -->
+    <script src="https://cdn.tiny.cloud/1/oesmgpb85r1zhz03towvnev67dhrse0olv9o0ai5146b77g6/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+
+    <!-- pickadate -->
+    <link rel="stylesheet" href="{{ asset('plugins/pickadate.js-3.6.2/lib/themes/classic.css') }}">
+    <link rel="stylesheet" href="{{ asset('plugins/pickadate.js-3.6.2/lib/themes/classic.date.css') }}">
+    <link rel="stylesheet" href="{{ asset('plugins/pickadate.js-3.6.2/lib/themes/classic.time.css') }}">
+
     <style>
         .custom-invalid-feedback {
             width: 100%;
             margin-top: .25rem;
             font-size: .875em;
             color: #dc3545;
+        }
+
+        /* NOTE - Virtual-select custom CSS */
+        .vscomp-toggle-button {
+            border: 1px solid #f3f3f3 !important;
+            height: 50px;
+        }
+
+        /* pickadate */
+        .picker__holder {
+            width: 30%;
         }
     </style>
 </head>
@@ -103,6 +122,11 @@
     <!-- Virtual Select -->
     <script src="{{ asset('plugins/virtual-select/virtual-select.min.js') }}"></script>
     <script src="{{ asset('plugins/virtual-select/tooltip.min.js') }}"></script>
+
+    <!-- pickadate -->
+    <script src="{{ asset('plugins/pickadate.js-3.6.2/lib/picker.js') }}"></script>
+    <script src="{{ asset('plugins/pickadate.js-3.6.2/lib/picker.date.js') }}"></script>
+    <script src="{{ asset('plugins/pickadate.js-3.6.2/lib/picker.time.js') }}"></script>
 
     <script>
         document.addEventListener('livewire:init', () => {

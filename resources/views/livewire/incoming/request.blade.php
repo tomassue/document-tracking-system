@@ -52,14 +52,14 @@
 
     <!-- requestModal -->
     <div class="modal fade" id="requestModal" tabindex="-1" aria-labelledby="requestModalLabel" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" wire:ignore.self>
-        <div class="modal-dialog modal-xl">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="requestModalLabel">{{ $editMode ? 'Edit' : 'Add' }} Request</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" wire:click="clear"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form class="form-sample">
+                    <form class="form-sample" wire:submit="{{ $editMode ? 'update' : 'add' }}">
                         <p class="card-description">
                             Personal info
                         </p>
@@ -79,15 +79,15 @@
                                 <div class="form-group row">
                                     <label class="col-sm-3 col-form-label" style="padding-top: 0px;padding-bottom: 0px;">Office/Barangay/Organization</label>
                                     <div class="col-sm-9">
-                                        <input type="text" class="form-control">
+                                        <input type="text" class="form-control" wire:model="office_barangay_organization">
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group row">
                                     <label class="col-sm-3 col-form-label">Request Date</label>
-                                    <div class="col-sm-9">
-                                        <input type="date" class="form-control">
+                                    <div class="col-sm-9" wire:ignore>
+                                        <input class="form-control request-date"></input>
                                     </div>
                                 </div>
                             </div>
@@ -97,28 +97,28 @@
                                 <div class="form-group row">
                                     <label class="col-sm-3 col-form-label">Category</label>
                                     <div class="col-sm-9">
-                                        <select class="form-control">
-                                            <option>Catgeory</option>
-                                            <option>Catgeory</option>
-                                        </select>
+                                        <div id="category-select" wire:ignore></div>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group row">
                                     <label class="col-sm-3 col-form-label">Time</label>
-                                    <div class="col-sm-9">
-                                        <input class="form-control" placeholder="dd/mm/yyyy">
+                                    <div class="col-sm-4" wire:ignore>
+                                        <input class="form-control from-time" placeholder="From">
+                                    </div>
+                                    <div class="col-sm-4" wire:ignore>
+                                        <input class="form-control end-time" placeholder="To">
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label">Description</label>
-                                    <div class="col-sm-9">
-                                        <input class="form-control" placeholder="dd/mm/yyyy">
+                                    <label class="col-sm-2 col-form-label">Description</label>
+                                    <div class="col-sm-12" wire:ignore>
+                                        <input id="myeditorinstance"></input>
                                     </div>
                                 </div>
                             </div>
@@ -128,14 +128,14 @@
                                 <div class="form-group row">
                                     <label class="col-sm-3 col-form-label">Attachment</label>
                                     <div class="col-sm-9">
-                                        <input type="file" class="form-control">
+                                        <input type="file" class="form-control" wire:model="attachment">
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" wire:click="clear">Close</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             <button type="submit" class="btn btn-primary">{{ $editMode ? 'Save Changes' : 'Save' }}</button>
 
                     </form>
@@ -149,6 +149,83 @@
 <script>
     $wire.on('show-requestModal', () => {
         $('#requestModal').modal('show');
+    });
+
+    tinymce.init({
+        selector: 'input#myeditorinstance', // Replace this CSS selector to match the placeholder element for TinyMCE
+        plugins: 'code table lists',
+        toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | indent outdent | bullist numlist | code | table',
+        setup: function(editor) {
+            editor.on('Change', function(e) {
+                let description = editor.getContent();
+                @this.set('description', description);
+            });
+        }
+    });
+
+    VirtualSelect.init({
+        ele: '#category-select',
+        options: [{
+                label: 'Equipment',
+                value: 'equipment'
+            },
+            {
+                label: 'Vehicle',
+                value: 'vehicle'
+            },
+            {
+                label: 'Band',
+                value: 'band'
+            },
+            {
+                label: 'Others',
+                value: 'others'
+            }
+        ],
+        maxWidth: '100%',
+        zIndex: 10,
+        popupDropboxBreakpoint: '3000px',
+    });
+
+    let category = document.querySelector('#category-select');
+    category.addEventListener('change', () => {
+        let data = category.value;
+        @this.set('category', data);
+    });
+
+    $('.request-date').pickadate({
+        klass: {
+            holder: 'picker__holder',
+        }
+    });
+
+    // Handling Pickadate (.request-date) change event
+    $('.request-date').on('change', function(event) {
+        let picker = $(this).pickadate('picker');
+        let selectedDate = picker.get('select', 'yyyy-mm-dd'); // Adjust format as needed
+        @this.set('request_date', selectedDate);
+    });
+
+    $('.from-time').pickatime({
+        editable: true,
+        interval: 1
+    });
+
+    $('.from-time').on('change', function(event) {
+        let picker = $(this).pickatime('picker');
+        let selectedFromTime = picker.get('select', 'HH:i');
+        @this.set('start_time', selectedFromTime);
+    });
+
+    $('.end-time').pickatime({
+        editable: true,
+        interval: 1
+    });
+
+    $('.end-time').on('change', function(event) {
+        let picker = $(this).pickatime('picker');
+        let selectedEndTime = picker.get('select', 'HH:i');
+        @this.set('end_time', selectedEndTime);
     });
 </script>
 @endscript

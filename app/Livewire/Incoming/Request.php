@@ -3,13 +3,14 @@
 namespace App\Livewire\Incoming;
 
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 
 class Request extends Component
 {
-    use WithPagination;
+    use WithPagination, WithFileUploads;
 
-    public $search;
+    public $search, $office_barangay_organization, $request_date, $category, $start_time, $end_time, $description, $attachment;
     public $editMode;
 
     public function render()
@@ -21,5 +22,10 @@ class Request extends Component
     {
         $this->reset();
         $this->resetValidation();
+    }
+
+    public function add()
+    {
+        dd($this);
     }
 }
