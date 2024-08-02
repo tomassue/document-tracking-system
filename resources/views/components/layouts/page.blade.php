@@ -38,6 +38,9 @@
     <link rel="stylesheet" href="{{ asset('plugins/pickadate.js-3.6.2/lib/themes/classic.date.css') }}">
     <link rel="stylesheet" href="{{ asset('plugins/pickadate.js-3.6.2/lib/themes/classic.time.css') }}">
 
+    <!-- FilePond -->
+    <link href="{{ asset('plugins/jquery-filepond-master/filepond.css') }}" rel="stylesheet" />
+
     <style>
         .custom-invalid-feedback {
             width: 100%;
@@ -127,6 +130,12 @@
     <script src="{{ asset('plugins/pickadate.js-3.6.2/lib/picker.js') }}"></script>
     <script src="{{ asset('plugins/pickadate.js-3.6.2/lib/picker.date.js') }}"></script>
     <script src="{{ asset('plugins/pickadate.js-3.6.2/lib/picker.time.js') }}"></script>
+
+    <!-- FilePond -->
+    <script src="{{ asset('plugins/jquery-filepond-master/filepond.min.js') }}"></script>
+    <script src="{{ asset('plugins/jquery-filepond-master/filepond.jquery.js') }}"></script>
+    <script src="{{ asset('plugins/jquery-filepond-master/filepond-plugin-file-validate-type.js') }}"></script>
+    <script src="{{ asset('plugins/jquery-filepond-master/filepond.js') }}"></script>
 
     <script>
         document.addEventListener('livewire:init', () => {

@@ -77,6 +77,7 @@
                         <div class="row pt-5">
                             <div class="col-md-6">
                                 <div class="form-group row">
+                                    @error('office_barangay_organization') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                     <label class="col-sm-3 col-form-label" style="padding-top: 0px;padding-bottom: 0px;">Office/Barangay/Organization</label>
                                     <div class="col-sm-9">
                                         <input type="text" class="form-control" wire:model="office_barangay_organization">
@@ -85,9 +86,10 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group row">
+                                    @error('request_date') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                     <label class="col-sm-3 col-form-label">Request Date</label>
                                     <div class="col-sm-9" wire:ignore>
-                                        <input class="form-control request-date"></input>
+                                        <input class="form-control request-date" required></input>
                                     </div>
                                 </div>
                             </div>
@@ -95,6 +97,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group row">
+                                    @error('category') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                     <label class="col-sm-3 col-form-label">Category</label>
                                     <div class="col-sm-9">
                                         <div id="category-select" wire:ignore></div>
@@ -103,12 +106,19 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group row">
+                                    @php
+                                    $timeError = $errors->first('start_time') ?: $errors->first('end_time');
+                                    @endphp
+
+                                    @if ($timeError)
+                                    <span class="custom-invalid-feedback">{{ $timeError }}</span>
+                                    @endif
                                     <label class="col-sm-3 col-form-label">Time</label>
                                     <div class="col-sm-4" wire:ignore>
-                                        <input class="form-control from-time" placeholder="From">
+                                        <input class="form-control from-time" placeholder="From" required>
                                     </div>
                                     <div class="col-sm-4" wire:ignore>
-                                        <input class="form-control end-time" placeholder="To">
+                                        <input class="form-control end-time" placeholder="To" required>
                                     </div>
                                 </div>
                             </div>
@@ -116,6 +126,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group row">
+                                    @error('description') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                     <label class="col-sm-2 col-form-label">Description</label>
                                     <div class="col-sm-12" wire:ignore>
                                         <input id="myeditorinstance"></input>
@@ -124,11 +135,12 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label">Attachment</label>
-                                    <div class="col-sm-9">
-                                        <input type="file" class="form-control" wire:model="attachment">
+                                    @error('attachment') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
+                                    <label class="col-sm-2 col-form-label">Attachment</label>
+                                    <div class="col-sm-10" wire:ignore>
+                                        <input type="file" class="form-control my-pond-attachment" multiple data-allow-reorder="true">
                                     </div>
                                 </div>
                             </div>
@@ -136,7 +148,7 @@
 
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">{{ $editMode ? 'Save Changes' : 'Save' }}</button>
+                            <button type="submit" class="btn btn-primary" wire:loading.attr="disabled">{{ $editMode ? 'Save Changes' : 'Save' }}</button>
 
                     </form>
                 </div>
@@ -151,10 +163,14 @@
         $('#requestModal').modal('show');
     });
 
+    $wire.on('hide-requestModal', () => {
+        $('#requestModal').modal('hide');
+    });
+
     tinymce.init({
         selector: 'input#myeditorinstance', // Replace this CSS selector to match the placeholder element for TinyMCE
-        plugins: 'code table lists',
-        toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | indent outdent | bullist numlist | code | table',
+        // plugins: 'table lists fullscreen',
+        // toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | indent outdent | bullist numlist | table | fullscreen',
         setup: function(editor) {
             editor.on('Change', function(e) {
                 let description = editor.getContent();
@@ -207,7 +223,6 @@
     });
 
     $('.from-time').pickatime({
-        editable: true,
         interval: 1
     });
 
@@ -218,7 +233,6 @@
     });
 
     $('.end-time').pickatime({
-        editable: true,
         interval: 1
     });
 
@@ -226,6 +240,38 @@
         let picker = $(this).pickatime('picker');
         let selectedEndTime = picker.get('select', 'HH:i');
         @this.set('end_time', selectedEndTime);
+    });
+
+    // Turn input element into a pond with configuration options
+    $('.my-pond-attachment').filepond({
+        required: true,
+        acceptedFileTypes: ['application/pdf'],
+        server: {
+            // This will assign the data to the attachment[] property.
+            process: (fieldName, file, metadata, load, error, progress, abort) => {
+                @this.upload('attachment', file, load, error, progress);
+            },
+            revert: (uniqueFileId, load, error) => {
+                @this.removeUpload('attachment', uniqueFileId, load, error);
+            }
+        }
+    });
+
+    // Clear plugins
+    $wire.on('clear-plugins', () => {
+        document.querySelector('#category-select').reset();
+
+        tinyMCE.activeEditor.setContent('');
+
+        var requestDate = $('.request-date').pickadate();
+        var fromTime = $('.from-time').pickatime();
+        var endTime = $('.end-time').pickatime();
+
+        requestDate.clear();
+        fromTime.clear();
+        endTime.clear();
+
+        console.log('Clear');
     });
 </script>
 @endscript
