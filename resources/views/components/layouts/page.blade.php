@@ -59,6 +59,31 @@
         .picker__holder {
             width: 30%;
         }
+
+        /* custom-badges */
+        .badge-danger {
+            border: 1px solid #f83e37;
+            color: #fff;
+            background-color: #f93e37;
+        }
+
+        .badge-warning {
+            border: 1px solid #ffbf36;
+            color: #fff;
+            background-color: #ffbf36;
+        }
+
+        .badge-dark {
+            border: 1px solid #282f3a;
+            color: #fff;
+            background-color: #282f3a;
+        }
+
+        .badge-success {
+            border: 1px solid #00d082;
+            color: #fff;
+            background-color: #00d082;
+        }
     </style>
 </head>
 

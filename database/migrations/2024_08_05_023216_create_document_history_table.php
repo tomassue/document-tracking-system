@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('incoming', function (Blueprint $table) {
+        Schema::create('document_history', function (Blueprint $table) {
             $table->id();
+            $table->string('document_id');
+            $table->string('status');
+            $table->string('user_id');
+            $table->string('remarks'); //NOTE - created by, updated by.
             $table->timestamps();
         });
     }
@@ -22,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('incoming');
+        Schema::dropIfExists('document_history');
     }
 };

@@ -12,11 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('incoming_request', function (Blueprint $table) {
-            $table->id();
+            // $table->id();
+            $table->string('incoming_request_id')->primary();
             $table->string('incoming_category');
             $table->string('office_or_barangay_or_organization');
             $table->string('request_date');
             $table->string('category');
+            $table->string('venue')->nullable(); //NOTE - IF category is 'venue'.
             $table->time('start_time');
             $table->time('end_time');
             $table->longText('description');

@@ -12,10 +12,12 @@ class Incoming_Request_Model extends Model
     protected $table = 'incoming_request';
 
     protected $fillable = [
+        'incoming_request_id',
         'incoming_category',
         'office_or_barangay_or_organization',
         'request_date',
         'category',
+        'venue',
         'start_time',
         'end_time',
         'description',

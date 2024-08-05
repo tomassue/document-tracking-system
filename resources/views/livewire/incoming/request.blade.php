@@ -27,15 +27,43 @@
                                         <th class="fw-bold">Office/Barangay/Organization</th>
                                         <th class="fw-bold">Category</th>
                                         <th class="fw-bold">Sub-category</th>
-                                        <th class="fw-bold">Status</th>
-                                        <th class="fw-bold">Details</th>
+                                        <th class="fw-bold text-center">Status</th>
+                                        <th class="fw-bold text-center">Details</th>
                                         <th class="fw-bold">History</th>
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    @forelse($incoming_requests as $item)
+                                    <tr wire:key="{{ $item->id }}">
+                                        <td>{{ $item->request_date }}</td>
+                                        <td>{{ $item->office_or_barangay_or_organization }}</td>
+                                        <td>{{ $item->category }}</td>
+                                        <td>{{ $item->venue }}</td>
+                                        <td class="text-center">
+                                            <span class="badge badge-pill 
+                                            @if($item->status == 'pending')
+                                            badge-success
+                                            @elseif($item->status == 'processed')
+                                            badge-warning
+                                            @elseif($item->status == 'forwarded')
+                                            badge-dark
+                                            @elseif($item->status == 'done')
+                                            badge-success
+                                            @endif
+                                            ">
+                                                {{ $item->status }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <i class="mdi mdi-file icon-md"></i>
+                                        </td>
+                                        <td>No data</td>
+                                    </tr>
+                                    @empty
                                     <tr>
                                         <td colspan="7" class="text-center">No data</td>
                                     </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>
@@ -52,11 +80,11 @@
 
     <!-- requestModal -->
     <div class="modal fade" id="requestModal" tabindex="-1" aria-labelledby="requestModalLabel" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" wire:ignore.self>
-        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="requestModalLabel">{{ $editMode ? 'Edit' : 'Add' }} Request</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" wire:click="clear"></button>
                 </div>
                 <div class="modal-body">
                     <form class="form-sample" wire:submit="{{ $editMode ? 'update' : 'add' }}">
@@ -68,7 +96,7 @@
                                 <div class="form-group row">
                                     <label class="col-sm-3 col-form-label">Category</label>
                                     <div class="col-sm-9">
-                                        <input type="text" class="form-control" placeholder="Request" disabled>
+                                        <div id="incoming-category-select" wire:ignore></div>
                                     </div>
                                 </div>
                             </div>
@@ -102,8 +130,16 @@
                                     <div class="col-sm-9">
                                         <div id="category-select" wire:ignore></div>
                                     </div>
+
+                                    <!-- NOTE - This will be initialized when an event is triggered. -->
+                                    <!-- LINK - app\Livewire\Incoming\Request.php#53 -->
+                                    <label class="col-sm-3 col-form-label"></label>
+                                    <div class="col-sm-9">
+                                        <div id="venue-select" wire:ignore></div>
+                                    </div>
                                 </div>
                             </div>
+
                             <div class="col-md-6">
                                 <div class="form-group row">
                                     @php
@@ -147,7 +183,7 @@
                         </div>
 
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" wire:click="clear">Close</button>
                             <button type="submit" class="btn btn-primary" wire:loading.attr="disabled">{{ $editMode ? 'Save Changes' : 'Save' }}</button>
 
                     </form>
@@ -159,6 +195,7 @@
 
 @script
 <script>
+    /* -------------------------------------------------------------------------- */
     $wire.on('show-requestModal', () => {
         $('#requestModal').modal('show');
     });
@@ -166,24 +203,77 @@
     $wire.on('hide-requestModal', () => {
         $('#requestModal').modal('hide');
     });
+    /* -------------------------------------------------------------------------- */
 
+    /* -------------------------------------------------------------------------- */
     tinymce.init({
         selector: 'input#myeditorinstance', // Replace this CSS selector to match the placeholder element for TinyMCE
         // plugins: 'table lists fullscreen',
         // toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | indent outdent | bullist numlist | table | fullscreen',
+        height: 150,
+        menubar: false,
+        toolbar: false,
         setup: function(editor) {
-            editor.on('Change', function(e) {
-                let description = editor.getContent();
-                @this.set('description', description);
+            // NOTE - This code inlcudes the html tags and the contents.
+            // editor.on('Change', function(e) {
+            //     let description = editor.getContent();
+            //     @this.set('description', description);
+            // });
+
+            // NOTE - This code strips out html tags in our editor. 
+            editor.on('input', function() {
+                var plainText = tinymce.activeEditor.getContent({
+                    format: 'text'
+                });
+                document.getElementById('myeditorinstance').value = plainText;
+                @this.set('description', plainText); // Update Livewire property
             });
         }
     });
+    /* -------------------------------------------------------------------------- */
 
+    /* -------------------------------------------------------------------------- */
+    VirtualSelect.init({
+        ele: '#incoming-category-select',
+        options: [{
+                label: 'Request',
+                value: 'request'
+            },
+            {
+                label: 'Meetings',
+                value: 'meeting'
+            },
+            {
+                label: 'Training',
+                value: 'training'
+            },
+            {
+                label: 'Other',
+                value: 'other'
+            }
+        ],
+        maxWidth: '100%',
+        zIndex: 10,
+        popupDropboxBreakpoint: '3000px',
+    });
+
+    let incoming_category = document.querySelector('#incoming-category-select');
+    incoming_category.addEventListener('change', () => {
+        let data = incoming_category.value;
+        @this.set('incoming_category', data);
+    });
+    /* -------------------------------------------------------------------------- */
+
+    /* -------------------------------------------------------------------------- */
     VirtualSelect.init({
         ele: '#category-select',
         options: [{
                 label: 'Equipment',
                 value: 'equipment'
+            },
+            {
+                label: 'Venue',
+                value: 'venue'
             },
             {
                 label: 'Vehicle',
@@ -209,6 +299,48 @@
         @this.set('category', data);
     });
 
+    // NOTE - This select will be initialized when the event is triggered.
+    $wire.on('initialize-venue-select', function() {
+        VirtualSelect.init({
+            ele: '#venue-select',
+            placeholder: 'Select venue',
+            options: [{
+                    label: 'Tourism Hall',
+                    value: 'tourism hall'
+                },
+                {
+                    label: 'Mini Park',
+                    value: 'mini park'
+                },
+                {
+                    label: 'Amphitheater',
+                    value: 'amphitheater'
+                },
+                {
+                    label: 'Quadrangle',
+                    value: 'quadrangle'
+                }
+            ],
+            maxWidth: '100%',
+            zIndex: 10,
+            popupDropboxBreakpoint: '3000px',
+        });
+
+        let venue = document.querySelector('#venue-select');
+        venue.addEventListener('change', () => {
+            let data = venue.value;
+            @this.set('venue', data);
+        });
+    });
+
+    // NOTE - An event will be dispatch from the component and triggers this code.
+    $wire.on('destroy-venue-select', () => {
+        document.querySelector('#venue-select').reset();
+        document.querySelector('#venue-select').destroy();
+    });
+    /* -------------------------------------------------------------------------- */
+
+    /* -------------------------------------------------------------------------- */
     $('.request-date').pickadate({
         klass: {
             holder: 'picker__holder',
@@ -221,7 +353,9 @@
         let selectedDate = picker.get('select', 'yyyy-mm-dd'); // Adjust format as needed
         @this.set('request_date', selectedDate);
     });
+    /* -------------------------------------------------------------------------- */
 
+    /* -------------------------------------------------------------------------- */
     $('.from-time').pickatime({
         interval: 1
     });
@@ -231,7 +365,9 @@
         let selectedFromTime = picker.get('select', 'HH:i');
         @this.set('start_time', selectedFromTime);
     });
+    /* -------------------------------------------------------------------------- */
 
+    /* -------------------------------------------------------------------------- */
     $('.end-time').pickatime({
         interval: 1
     });
@@ -241,7 +377,9 @@
         let selectedEndTime = picker.get('select', 'HH:i');
         @this.set('end_time', selectedEndTime);
     });
+    /* -------------------------------------------------------------------------- */
 
+    /* -------------------------------------------------------------------------- */
     // Turn input element into a pond with configuration options
     $('.my-pond-attachment').filepond({
         required: true,
@@ -256,22 +394,32 @@
             }
         }
     });
+    /* -------------------------------------------------------------------------- */
 
+    /* -------------------------------------------------------------------------- */
     // Clear plugins
     $wire.on('clear-plugins', () => {
         document.querySelector('#category-select').reset();
 
         tinyMCE.activeEditor.setContent('');
 
-        var requestDate = $('.request-date').pickadate();
-        var fromTime = $('.from-time').pickatime();
-        var endTime = $('.end-time').pickatime();
+        $('.request-date').each(function() {
+            $(this).pickadate('picker').clear();
+        });
 
-        requestDate.clear();
-        fromTime.clear();
-        endTime.clear();
+        $('.from-time').each(function() {
+            $(this).pickatime('picker').clear();
+        });
 
-        console.log('Clear');
+        $('.end-time').each(function() {
+            $(this).pickatime('picker').clear();
+        });
+
+        // Clear FilePond
+        $('.my-pond-attachment').each(function() {
+            $(this).filepond('removeFiles');
+        });
     });
+    /* -------------------------------------------------------------------------- */
 </script>
 @endscript
