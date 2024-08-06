@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
+use Livewire\Attributes\On;
 
 class Request extends Component
 {
@@ -58,7 +59,9 @@ class Request extends Component
     {
         // NOTE - When user chooses venue.
         if ($this->category == 'venue') {
-            $this->dispatch('initialize-venue-select');
+            if ($this->editMode == false) {
+                $this->dispatch('initialize-venue-select');
+            }
         } else {
             // NOTE - When user selects other options aside 'venue'.
             $this->dispatch('destroy-venue-select');
@@ -91,7 +94,7 @@ class Request extends Component
 
             $incoming_request_data = [
                 'incoming_request_id' => $this->generateUniqueNumber(),
-                'incoming_category' => 'request',
+                'incoming_category' => $this->incoming_category,
                 'office_or_barangay_or_organization' => $this->office_barangay_organization,
                 'request_date' => $this->request_date,
                 'category' => $this->category,
@@ -117,6 +120,41 @@ class Request extends Component
         }
     }
 
+    #[On('edit-mode')]
+    public function edit($key)
+    {
+        $this->editMode = true;
+
+        $incoming_request = Incoming_Request_Model::where('incoming_request_id', $key)->first();
+
+        $this->dispatch('set-incoming_category', $incoming_request->incoming_category);
+        $this->office_barangay_organization = $incoming_request->office_or_barangay_or_organization;
+        $this->dispatch('set-request-date', $incoming_request->request_date);
+        $this->dispatch('set-category', $incoming_request->category);
+        ($incoming_request->venue ? $this->dispatch('set-venue', $incoming_request->venue) : '');
+        $this->dispatch('set-from-time', $this->timeToMinutes($incoming_request->start_time));
+        $this->dispatch('set-end-time', $this->timeToMinutes($incoming_request->end_time));
+        $this->dispatch('set-myeditorinstance', $incoming_request->description);
+
+        foreach (json_decode($incoming_request->files) as $item) {
+            $file = File_Data_Model::where('id', $item)
+                ->select(
+                    'id',
+                    'file_name',
+                )
+                ->first();
+            $file->file_size = $this->convertSize($file->file_size);
+            $this->attachment[] = $file;
+        }
+
+        $this->dispatch('show-requestModal');
+    }
+
+    public function update()
+    {
+        dd($this);
+    }
+
     public function loadIncomingRequests()
     {
         $incoming_requests = DB::table('incoming_request')
@@ -129,15 +167,30 @@ class Request extends Component
                     )) AS latest_document_history'), 'latest_document_history.document_id', '=', 'incoming_request.incoming_request_id')
             ->select(
                 'incoming_request.incoming_request_id AS id',
-                'incoming_request.request_date',
+                DB::raw("DATE_FORMAT(incoming_request.request_date, '%b %d, %Y') AS request_date"),
                 'incoming_request.office_or_barangay_or_organization',
                 'incoming_request.category',
                 'incoming_request.venue',
                 'latest_document_history.status'
             )
+            ->orderBy('incoming_request.request_date', 'ASC')
             ->get();
 
         return $incoming_requests;
+    }
+
+    //NOTE - file_size in KB convert to MB 
+    public function convertSize($sizeInKB)
+    {
+        return round($sizeInKB / 1024, 2); // Convert KB to MB and round to 2 decimal places
+    }
+
+    //NOTE - This is for retrieving data from database to pickatime. To avoid errors due to format, we convert the time to minutes.
+    public function timeToMinutes($time)
+    {
+        $hours = intval(date('H', strtotime($time)));
+        $minutes = intval(date('i', strtotime($time)));
+        return [$hours, $minutes];
     }
 
     # Method to generate a unique number
