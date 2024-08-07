@@ -22,7 +22,7 @@ return new class extends Migration
             $table->time('start_time');
             $table->time('end_time');
             $table->longText('description');
-            $table->string('files');
+            $table->string('files')->nullable();
             $table->timestamps();
         });
     }

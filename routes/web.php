@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PdfController;
 use App\Livewire\Dashboard;
 use App\Livewire\Incoming\Request;
 use App\Livewire\Settings\Offices;

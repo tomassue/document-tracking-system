@@ -6,7 +6,9 @@ use App\Models\Document_History_Model;
 use App\Models\File_Data_Model;
 use App\Models\Incoming_Request_Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
@@ -16,8 +18,9 @@ class Request extends Component
 {
     use WithPagination, WithFileUploads;
 
-    public $search, $incoming_category, $office_barangay_organization, $request_date, $category, $venue, $start_time, $end_time, $description, $attachment = [];
-    public $editMode;
+    public $search, $incoming_category, $status, $office_barangay_organization, $request_date, $category, $venue, $start_time, $end_time, $description, $attachment = [];
+    public $file_title, $file_data;
+    public $editMode, $edit_document_id;
 
     public function rules()
     {
@@ -123,11 +126,15 @@ class Request extends Component
     #[On('edit-mode')]
     public function edit($key)
     {
+        // dd($key);
         $this->editMode = true;
+        $this->edit_document_id = $key;
 
         $incoming_request = Incoming_Request_Model::where('incoming_request_id', $key)->first();
+        $document_history = Document_History_Model::where('document_id', $key)->first();
 
         $this->dispatch('set-incoming_category', $incoming_request->incoming_category);
+        $this->dispatch('set-status', $document_history->status);
         $this->office_barangay_organization = $incoming_request->office_or_barangay_or_organization;
         $this->dispatch('set-request-date', $incoming_request->request_date);
         $this->dispatch('set-category', $incoming_request->category);
@@ -152,7 +159,46 @@ class Request extends Component
 
     public function update()
     {
-        dd($this);
+        //NOTE - For now, we will update the status only and record the action in our document_history
+        // dd($this->status);
+
+        $document_history = Document_History_Model::query();
+        $data = [
+            'document_id' => $this->edit_document_id,
+            'status' => $this->status,
+            'user_id' => Auth::user()->id,
+            'remarks' => 'updated_by'
+        ];
+        $document_history->create($data);
+
+        $this->clear();
+        $this->dispatch('hide-requestModal');
+        $this->dispatch('show-success-update-message-toast');
+    }
+
+    #[On('preview-attachment')]
+    public function previewAttachment($key)
+    {
+        if ($key) {
+            $file = File_Data_Model::findOrFail($key);
+
+            if ($file && $file->file) {
+                $this->file_title = $file->file_name;
+                $this->file_data = base64_encode($file->file);
+            }
+        }
+    }
+
+    #[On('history')]
+    public function history($key)
+    {
+        $document_history = Document_History_Model::join('users', 'users.id', '=', 'document_history.user_id')
+            ->where('document_history.user_id', Auth::user()->id)
+            ->where('document_history.document_id', $key)
+            ->orderBy('document_history.updated_at', 'DESC')
+            ->get();
+
+        dd($document_history);
     }
 
     public function loadIncomingRequests()
@@ -193,7 +239,7 @@ class Request extends Component
         return [$hours, $minutes];
     }
 
-    # Method to generate a unique number
+    //NOTE - Method to generate a unique number
     private function generateUniqueNumber()
     {
         // Get the current Unix timestamp
