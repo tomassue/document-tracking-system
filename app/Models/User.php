@@ -45,4 +45,21 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function user_office()
+    {
+        return $this->belongsTo(User_Offices_Model::class, 'id', 'user_id');
+    }
+
+    public function ref_office()
+    {
+        return $this->hasOneThrough(
+            Ref_Offices_Model::class,
+            User_Offices_Model::class,
+            'user_id', // Foreign key on User_Offices_Model table...
+            'id', // Foreign key on Ref_Offices_Model table...
+            'id', // Local key on User table...
+            'office_id' // Local key on User_Offices_Model table...
+        );
+    }
 }

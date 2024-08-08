@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('incoming_request', function (Blueprint $table) {
+        Schema::create('incoming_request_cpso', function (Blueprint $table) {
             // $table->id();
             $table->string('incoming_request_id')->primary();
             $table->string('incoming_category');
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('incoming_request');
+        Schema::dropIfExists('incoming_request_cpso');
     }
 };

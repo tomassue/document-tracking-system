@@ -4,11 +4,9 @@ namespace App\Livewire\Incoming;
 
 use App\Models\Document_History_Model;
 use App\Models\File_Data_Model;
-use App\Models\Incoming_Request_Model;
+use App\Models\Incoming_Request_CPSO_Model;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
@@ -16,11 +14,23 @@ use Livewire\Attributes\On;
 
 class Request extends Component
 {
+    /**
+     * NOTE
+     * A number of offices uses this system but with different system requirements but mostly of the requirements somehow seems to be similar.
+     * We will be controlling the data access through which office the user is under.
+     * 
+     * Use Auth::user()->ref_office == 'CPSO' to control it. -->EXAMPLE
+     * 
+     * LOGS
+     * - CPSO is ONGOING -> DONE
+     */
+
     use WithPagination, WithFileUploads;
 
     public $search, $incoming_category, $status, $office_barangay_organization, $request_date, $category, $venue, $start_time, $end_time, $description, $attachment = [];
     public $file_title, $file_data;
     public $editMode, $edit_document_id;
+    public $document_history = [];
 
     public function rules()
     {
@@ -45,7 +55,7 @@ class Request extends Component
     public function render()
     {
         $data = [
-            'incoming_requests' => $this->loadIncomingRequests()
+            'incoming_requests_cpso' => $this->loadIncomingRequestsCPSO()
         ];
 
         return view('livewire.incoming.request', $data);
@@ -107,7 +117,7 @@ class Request extends Component
                 'description' => $this->description,
                 'files' => json_encode($file_data_IDs)
             ];
-            $incoming_request = Incoming_Request_Model::create($incoming_request_data);
+            $incoming_request = Incoming_Request_CPSO_Model::create($incoming_request_data);
 
             $document_history_data = [
                 'document_id' => $incoming_request->incoming_request_id,
@@ -130,7 +140,7 @@ class Request extends Component
         $this->editMode = true;
         $this->edit_document_id = $key;
 
-        $incoming_request = Incoming_Request_Model::where('incoming_request_id', $key)->first();
+        $incoming_request = Incoming_Request_CPSO_Model::where('incoming_request_id', $key)->first();
         $document_history = Document_History_Model::where('document_id', $key)->first();
 
         $this->dispatch('set-incoming_category', $incoming_request->incoming_category);
@@ -160,7 +170,6 @@ class Request extends Component
     public function update()
     {
         //NOTE - For now, we will update the status only and record the action in our document_history
-        // dd($this->status);
 
         $document_history = Document_History_Model::query();
         $data = [
@@ -192,37 +201,53 @@ class Request extends Component
     #[On('history')]
     public function history($key)
     {
+        $this->document_history = []; //NOTE - Set this to empty to avoid data to stack.
+
         $document_history = Document_History_Model::join('users', 'users.id', '=', 'document_history.user_id')
             ->where('document_history.user_id', Auth::user()->id)
             ->where('document_history.document_id', $key)
+            ->select(
+                DB::raw("DATE_FORMAT(document_history.created_at, '%b %d, %Y %h:%i%p') AS history_date_time"),
+                'document_history.status',
+                DB::raw("CASE
+                WHEN document_history.remarks = 'created_by' THEN 'Created by'
+                WHEN document_history.remarks = 'updated_by' THEN 'Updated by'
+                ELSE 'Unknown'
+                END AS remarks"),
+                'users.name'
+            )
             ->orderBy('document_history.updated_at', 'DESC')
             ->get();
 
-        dd($document_history);
+        if ($document_history) {
+            $this->document_history = $document_history;
+            $this->dispatch('show-historyModal');
+        }
     }
 
-    public function loadIncomingRequests()
+    public function loadIncomingRequestsCPSO()
     {
-        $incoming_requests = DB::table('incoming_request')
+        $incoming_requests_cpso = DB::table('incoming_request_cpso')
             ->join(DB::raw('(SELECT document_id, status
                     FROM document_history
                     WHERE id IN (
                         SELECT MAX(id)
                         FROM document_history
                         GROUP BY document_id
-                    )) AS latest_document_history'), 'latest_document_history.document_id', '=', 'incoming_request.incoming_request_id')
+                    )) AS latest_document_history'), 'latest_document_history.document_id', '=', 'incoming_request_cpso.incoming_request_id')
             ->select(
-                'incoming_request.incoming_request_id AS id',
-                DB::raw("DATE_FORMAT(incoming_request.request_date, '%b %d, %Y') AS request_date"),
-                'incoming_request.office_or_barangay_or_organization',
-                'incoming_request.category',
-                'incoming_request.venue',
+                'incoming_request_cpso.incoming_request_id AS id',
+                DB::raw("DATE_FORMAT(incoming_request_cpso.request_date, '%b %d, %Y') AS request_date"),
+                'incoming_request_cpso.office_or_barangay_or_organization',
+                'incoming_request_cpso.category',
+                'incoming_request_cpso.venue',
                 'latest_document_history.status'
             )
-            ->orderBy('incoming_request.request_date', 'ASC')
-            ->get();
+            ->where('incoming_request_cpso.office_or_barangay_or_organization', 'like', '%' . $this->search . '%')
+            ->orderBy('incoming_request_cpso.request_date', 'ASC')
+            ->paginate(1, pageName: 'cpso');
 
-        return $incoming_requests;
+        return $incoming_requests_cpso;
     }
 
     //NOTE - file_size in KB convert to MB 
