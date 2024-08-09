@@ -80,9 +80,6 @@
                         </div>
                         <!-- CPSO -->
 
-                        <!-- OFFICE 2 -->
-                        <!-- OFFICE 2 -->
-
                     </div>
                 </div>
             </div>
