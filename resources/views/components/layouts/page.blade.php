@@ -332,6 +332,27 @@
                     text: "Something went wrong."
                 });
             });
+
+            /* -------------------------------------------------------------------------- */
+
+            /**
+             * NOTE
+             * Interactions for the history modal is made global because history modal would likely come accross in every pages.
+             * I also made it as an independent file. I mean we will just `include` it if it's applicable.
+             * 
+             * LINK - resources\views\livewire\history_modal\history_modal.blade.php
+             * LINK - resources\views\livewire\incoming\documents.blade.php#96
+             */
+
+            Livewire.on('show-historyModal', (event) => {
+                $('#historyModal').modal('show');
+            });
+
+            Livewire.on('hide-historyModal', (event) => {
+                $('#historyModal').modal('hide');
+            });
+
+            /* -------------------------------------------------------------------------- */
         });
     </script>
 </body>

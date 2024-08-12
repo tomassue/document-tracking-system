@@ -245,7 +245,7 @@ class Request extends Component
             )
             ->where('incoming_request_cpso.office_or_barangay_or_organization', 'like', '%' . $this->search . '%')
             ->orderBy('incoming_request_cpso.request_date', 'ASC')
-            ->paginate(10, pageName: 'cpso');
+            ->paginate(10);
 
         return $incoming_requests_cpso;
     }

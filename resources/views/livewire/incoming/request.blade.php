@@ -88,10 +88,6 @@
     </div>
     <!-- content-wrapper ends -->
 
-    <!-- IF USER FROM CPSO -->
+    @include('livewire.history_modal.history_modal')
     @include('livewire.incoming.cpso_modals.requests_cpso')
-    <!-- IF USER FROM CPSO -->
-
-    <!-- IF USER FROM OFFICE -->
-
 </div>
