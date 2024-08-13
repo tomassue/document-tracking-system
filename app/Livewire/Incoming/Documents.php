@@ -181,7 +181,7 @@ class Documents extends Component
         $this->edit_document_no = $key;
 
         $incoming_documents = Incoming_Documents_CPSO_Model::where('document_no', $key)->first();
-        $document_history = Document_History_Model::where('document_id', $key)->first();
+        $document_history = Document_History_Model::where('document_id', $key)->latest()->first(); //NOTE - latest() returns the most recent record based on the `created_by` column. This ia applicable to our document_history since we store multiple foreign keys to track updates and who updated them. We mainly want to return the latest status and populate it to our `status-select` when `editMode` is true.
 
         $this->dispatch('set-incoming-category-documents-select', $incoming_documents->incoming_document_category);
         $this->dispatch('set-document-status-select', $document_history->status);
@@ -195,8 +195,20 @@ class Documents extends Component
 
     public function update()
     {
-        // TODO - Work on this when we update the status.
-        dd($this->status);
+        //NOTE - For now, we will update the status only and record the action in our document_history
+
+        $document_history = Document_History_Model::query();
+        $document_history_data = [
+            'document_id' => $this->edit_document_no,
+            'status' => $this->status,
+            'user_id' => Auth::user()->id,
+            'remarks' => 'updated_by'
+        ];
+        $document_history->create($document_history_data);
+
+        $this->clear();
+        $this->dispatch('hide-documentsModal');
+        $this->dispatch('show-success-update-message-toast');
     }
 
     public function loadIncomingDocumentsCPSO()

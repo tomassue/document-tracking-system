@@ -141,7 +141,7 @@ class Request extends Component
         $this->edit_document_id = $key;
 
         $incoming_request = Incoming_Request_CPSO_Model::where('incoming_request_id', $key)->first();
-        $document_history = Document_History_Model::where('document_id', $key)->first();
+        $document_history = Document_History_Model::where('document_id', $key)->latest()->first(); //NOTE - latest() returns the most recent record based on the `created_by` column. This ia applicable to our document_history since we store multiple foreign keys to track updates and who updated them. We mainly want to return the latest status and populate it to our `status-select` when `editMode` is true.
 
         $this->dispatch('set-incoming_category', $incoming_request->incoming_category);
         $this->dispatch('set-status', $document_history->status);
