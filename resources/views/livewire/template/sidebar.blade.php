@@ -46,7 +46,7 @@
             </div>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="#">
+            <a class="nav-link" href="{{ route('outgoing') }}">
                 <i class="mdi mdi-folder-upload menu-icon"></i>
                 <span class="menu-title">Outgoing</span>
             </a>

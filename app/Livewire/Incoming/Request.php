@@ -72,7 +72,7 @@ class Request extends Component
     {
         // NOTE - When user chooses venue.
         if ($this->category == 'venue') {
-            if ($this->editMode == false) {
+            if ($this->editMode == true) {
                 $this->dispatch('initialize-venue-select');
             }
         } else {

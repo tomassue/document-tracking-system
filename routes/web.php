@@ -4,6 +4,7 @@ use App\Http\Controllers\PdfController;
 use App\Livewire\Dashboard;
 use App\Livewire\Incoming\Documents;
 use App\Livewire\Incoming\Request;
+use App\Livewire\Outgoing;
 use App\Livewire\Settings\Offices;
 use App\Livewire\Settings\UserManagement;
 use Illuminate\Support\Facades\Auth;
@@ -19,6 +20,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
     Route::get('/incoming/requests', Request::class)->name('requests');
     Route::get('/incoming/documents', Documents::class)->name('documents');
+    Route::get('/outgoing', Outgoing::class)->name('outgoing');
 
     /* -------------------------------------------------------------------------- */
     /*                                 SUPERADMIN                                 */

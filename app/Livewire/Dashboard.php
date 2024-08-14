@@ -10,11 +10,12 @@ use DateTime;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 
 class Dashboard extends Component
 {
-    use WithPagination;
+    use WithPagination, WithFileUploads;
 
     public $document_history = [];
     public $editMode = false;
@@ -22,6 +23,7 @@ class Dashboard extends Component
 
     /* ---------------------------- Incoming Request ---------------------------- */
     public $incoming_request_category, $incoming_request_status, $incoming_request_office_barangay_organization, $incoming_request_date, $incoming_request_category_2, $incoming_request_venue, $incoming_request_start_time,  $incoming_request_end_time, $incoming_request_description;
+    public $edit_document_id;
     /* ---------------------------- Incoming Request ---------------------------- */
 
     /* ---------------------------- Incoming Documents ---------------------------- */
@@ -41,7 +43,34 @@ class Dashboard extends Component
     public function editIncomingRequests($key)
     {
         // TODO
-        dd($key);
+        $this->editMode = true;
+        $this->edit_document_id = $key;
+
+        $incoming_request = Incoming_Request_CPSO_Model::where('incoming_request_id', $key)->first();
+        $document_history = Document_History_Model::where('document_id', $key)->latest()->first(); //NOTE - latest() returns the most recent record based on the `created_by` column. This ia applicable to our document_history since we store multiple foreign keys to track updates and who updated them. We mainly want to return the latest status and populate it to our `status-select` when `editMode` is true.
+
+        $this->dispatch('set-incoming_category', $incoming_request->incoming_category);
+        $this->dispatch('set-status', $document_history->status);
+        $this->incoming_request_office_barangay_organization = $incoming_request->office_or_barangay_or_organization;
+        $this->dispatch('set-request-date', $incoming_request->request_date);
+        $this->dispatch('set-category', $incoming_request->category);
+        ($incoming_request->venue ? $this->dispatch('set-venue', $incoming_request->venue) : '');
+        $this->dispatch('set-from-time', $this->timeToMinutes($incoming_request->start_time));
+        $this->dispatch('set-end-time', $this->timeToMinutes($incoming_request->end_time));
+        $this->dispatch('set-myeditorinstance', $incoming_request->description);
+
+        foreach (json_decode($incoming_request->files) as $item) {
+            $file = File_Data_Model::where('id', $item)
+                ->select(
+                    'id',
+                    'file_name',
+                )
+                ->first();
+            $file->file_size = $this->convertSize($file->file_size);
+            $this->attachment[] = $file;
+        }
+
+        $this->dispatch('show-requestModal');
     }
 
     public function editIncomingDocuments($key)
@@ -60,6 +89,56 @@ class Dashboard extends Component
 
         $this->dispatch('show-documentsModal');
         // dd($incoming_documents->incoming_document_category);
+    }
+
+    public function update()
+    {
+        $incoming_request = Incoming_Request_CPSO_Model::where('incoming_request_id', $this->edit_document_id)->first();
+        $incoming_documents = Incoming_Documents_CPSO_Model::where('document_no', $this->edit_document_no)->first();
+
+        if ($incoming_request) {
+            $document_history = Document_History_Model::query();
+            $data = [
+                'document_id' => $this->edit_document_id,
+                'status' => $this->incoming_request_status,
+                'user_id' => Auth::user()->id,
+                'remarks' => 'updated_by'
+            ];
+            $document_history->create($data);
+
+            $this->clear();
+            $this->dispatch('hide-requestModal');
+            $this->dispatch('show-success-update-message-toast');
+        }
+
+        if ($incoming_documents) {
+            $document_history = Document_History_Model::query();
+            $document_history_data = [
+                'document_id' => $this->edit_document_no,
+                'status' => $this->incoming_document_status,
+                'user_id' => Auth::user()->id,
+                'remarks' => 'updated_by'
+            ];
+            $document_history->create($document_history_data);
+
+            $this->clear();
+            $this->dispatch('hide-documentsModal');
+            $this->dispatch('show-success-update-message-toast');
+        }
+    }
+
+    // NOTE - This is for showing the other virtual select if category == 'venue' is selected.
+    public function updatedIncomingRequestCategory2()
+    {
+        // NOTE - When user chooses venue.
+        if ($this->incoming_request_category_2 == 'venue') {
+            if ($this->editMode == true) {
+                $this->dispatch('initialize-venue-select');
+            }
+        } else {
+            // NOTE - When user selects other options aside 'venue'.
+            $this->dispatch('destroy-venue-select');
+        }
     }
 
     public function details($key)
@@ -89,7 +168,7 @@ class Dashboard extends Component
             }
 
             $this->dispatch('show-viewDetailsDocumentsModal');
-        } elseif ($incoming_request) {
+        } elseif ($incoming_request) { // NOTE - $incoming_request is temporarily moved to editIncomingRequests()
 
             $this->incoming_request_category                        = $incoming_request->incoming_category;
             $this->incoming_request_status                          = $document_history->status;
@@ -214,5 +293,13 @@ class Dashboard extends Component
     public function convertSize($sizeInKB)
     {
         return round($sizeInKB / 1024, 2); // Convert KB to MB and round to 2 decimal places
+    }
+
+    //NOTE - This is for retrieving data from database to pickatime. To avoid errors due to format, we convert the time to minutes.
+    public function timeToMinutes($time)
+    {
+        $hours = intval(date('H', strtotime($time)));
+        $minutes = intval(date('i', strtotime($time)));
+        return [$hours, $minutes];
     }
 }
