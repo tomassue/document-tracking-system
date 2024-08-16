@@ -27,16 +27,49 @@
                                             <th class="fw-bold">Document No.</th>
                                             <th class="fw-bold">Document</th>
                                             <th class="fw-bold">Destination</th>
-                                            <th class="fw-bold text-center">Person Responsible</th>
+                                            <th class="fw-bold text-center" width="10%">Person Responsible</th>
                                             <th class="fw-bold text-center" width="5%">Status</th>
                                             <th class="fw-bold" width="5%">Details</th>
                                             <th class="fw-bold" width="5%">History</th>
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        @forelse($outgoing_documents as $item)
+                                        <tr wire:key="{{ $item->document_no }}">
+                                            <td>
+                                                @if ($item->category_type == 'App\Models\OutgoingCategoryProcurementModel')
+                                                <span>Procurement</span>
+                                                @elseif ($item->category_type == 'App\Models\OutgoingCategoryPayrollModel')
+                                                <span>Payroll</span>
+                                                @elseif ($item->category_type == 'App\Models\OutgoingCategoryVoucherModel')
+                                                <span>Voucher</span>
+                                                @elseif ($item->category_type == 'App\Models\OutgoingCategoryRISModel')
+                                                <span>RIS</span>
+                                                @elseif ($item->category_type == 'App\Models\OutgoingCategoryOthersModel')
+                                                <span>Others</span>
+                                                @endif
+                                            </td>
+                                            <td>{{ $item->document_no }}</td>
+                                            <td>No data</td>
+                                            <td>No data</td>
+                                            <td class="text-center">No data</td>
+                                            <td class="text-center">No data</td>
+                                            <td class="text-center">
+                                                <span role="button" wire:click="">
+                                                    <i class="mdi mdi-file icon-md"></i>
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span role="button" wire:click="">
+                                                    <i class="mdi mdi-history icon-md"></i>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        @empty
                                         <tr>
                                             <td colspan="8" class="text-center">No data</td>
                                         </tr>
+                                        @endforelse
                                     </tbody>
                                 </table>
                             </div>
@@ -71,6 +104,10 @@
 
     $wire.on('show-outgoingModal', () => {
         $('#outgoingModal').modal('show');
+    });
+
+    $wire.on('hide-outgoingModal', () => {
+        $('#outgoingModal').modal('hide');
     });
 
     /* -------------------------------------------------------------------------- */
@@ -202,6 +239,8 @@
     // NOTE - when the clear() method's triggered, it will dispatch an event to clear or reset the plug-ins
     $wire.on('clear_plugins', () => {
         document.querySelector('#outgoing-category-select').reset();
+
+        document.querySelector('#outgoing_payroll_type_select').reset();
 
         $('.date').each(function() {
             $(this).pickadate('picker').clear();
