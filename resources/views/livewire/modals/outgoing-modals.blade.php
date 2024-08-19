@@ -25,6 +25,16 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group row">
+                                <label class="col-sm-3 col-form-label" style="padding-top: 0px;">Person Responsible</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" wire:model="person_responsible">
+                                    @error('person_responsible') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
 
@@ -45,7 +55,7 @@
                                     <label class="col-sm-3 col-form-label">Document No.</label>
                                     <div class="col-sm-9">
                                         <!-- Document No's input is system generated. Thus, it will be manipulated in our component -->
-                                        <input type="text" class="form-control" placeholder="Auto-generated" disabled>
+                                        <input type="text" class="form-control" placeholder="{{ $document_no }}" disabled>
                                     </div>
                                 </div>
                             </div>
@@ -464,3 +474,7 @@
         </div>
     </div>
 </div>
+
+<!-- /* -------------------------------------------------------------------------- */
+/*                               outgoingModal                               */
+/* -------------------------------------------------------------------------- */ -->

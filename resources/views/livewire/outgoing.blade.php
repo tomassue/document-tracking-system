@@ -14,7 +14,7 @@
                                     <input type="text" class="form-control" id="exampleInputSearch" placeholder="Search" wire:model.live="search">
                                 </div>
                                 <div class="col-md-1 text-end">
-                                    <button type="button" class="btn btn-inverse-success btn-icon" wire:click="$dispatch('show-outgoingModal')">
+                                    <button type="button" class="btn btn-inverse-success btn-icon" wire:click="show_outgoingModal">
                                         <i class="mdi mdi mdi-plus"></i>
                                     </button>
                                 </div>
@@ -50,17 +50,17 @@
                                                 @endif
                                             </td>
                                             <td>{{ $item->document_no }}</td>
-                                            <td>No data</td>
-                                            <td>No data</td>
-                                            <td class="text-center">No data</td>
+                                            <td>{{ $item->document_details }}</td>
+                                            <td>???</td>
+                                            <td class="text-center">{{ $item->person_responsible }}</td>
                                             <td class="text-center">No data</td>
                                             <td class="text-center">
-                                                <span role="button" wire:click="">
+                                                <span role="button" wire:click="edit('{{ $item->document_no }}')">
                                                     <i class="mdi mdi-file icon-md"></i>
                                                 </span>
                                             </td>
                                             <td class="text-center">
-                                                <span role="button" wire:click="">
+                                                <span role="button" wire:click="history('{{ $item->document_no }}')">
                                                     <i class="mdi mdi-history icon-md"></i>
                                                 </span>
                                             </td>
@@ -89,10 +89,9 @@
     </div>
     <!-- main-panel ends -->
 
+    @include('livewire.history_modal.history_modal')
     @include('livewire.modals.outgoing-modals')
 </div>
-
-@include('livewire.modals.outgoing-modals-payroll-scripts')
 
 @script
 <script>
@@ -168,6 +167,11 @@
         @this.set('outgoing_category', data);
     });
 
+    //NOTE - Edit Mode
+    $wire.on('set-outgoing-category-select', (key) => {
+        document.querySelector('#outgoing-category-select').setValue(key[0]);
+    });
+
     /* -------------------------------------------------------------------------- */
 
     $('.date').pickadate({
@@ -182,6 +186,8 @@
         @this.set('date', selectedDate);
         console.log(selectedDate);
     });
+
+    // NOTE - Edit Mode
 
     /* -------------------------------------------------------------------------- */
 
@@ -255,3 +261,5 @@
     });
 </script>
 @endscript
+
+@include('livewire.modals.outgoing-modals-payroll-scripts')

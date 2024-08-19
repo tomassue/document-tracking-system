@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('document_no')->primary();
             $table->string('date');
             $table->string('document_details');
+            $table->string('person_responsible');
             $table->string('attachments'); //NOTE - FK to file_data table.
             $table->morphs('category'); //NOTE - Polymorphic relationship
             $table->timestamps();

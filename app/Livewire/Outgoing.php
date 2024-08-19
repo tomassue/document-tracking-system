@@ -22,11 +22,13 @@ class Outgoing extends Component
 
     public $search;
     public $editMode = false;
+    public $document_history = [];
 
     /* ------- REUSABLE MODELS AND IF 'OTHERS' IS SELECTED IN THE CATEGORY ------ */
     public $outgoing_category;
     public $document_no;
     public $document_name; //NOTE - RIS and OTHERS category uses this.
+    public $person_responsible;
     public $date;
     public $status;
     public $document_details;
@@ -54,6 +56,7 @@ class Outgoing extends Component
     {
         if ($this->outgoing_category == 'procurement') {
             return [
+                'person_responsible'    => 'required',
                 'date'                  => 'required',
                 'document_details'      => 'required',
                 'attachments'           => 'required',
@@ -62,6 +65,7 @@ class Outgoing extends Component
             ];
         } elseif ($this->outgoing_category == 'payroll') {
             return [
+                'person_responsible'    => 'required',
                 'date'                  => 'required',
                 'document_details'      => 'required',
                 'attachments'           => 'required',
@@ -69,6 +73,7 @@ class Outgoing extends Component
             ];
         } elseif ($this->outgoing_category == 'voucher') {
             return [
+                'person_responsible'    => 'required',
                 'date'                  => 'required',
                 'document_details'      => 'required',
                 'attachments'           => 'required',
@@ -76,6 +81,7 @@ class Outgoing extends Component
             ];
         } elseif ($this->outgoing_category == 'ris') {
             return [
+                'person_responsible'    => 'required',
                 'document_name'         => 'required',
                 'date'                  => 'required',
                 'document_details'      => 'required',
@@ -84,6 +90,7 @@ class Outgoing extends Component
             ];
         } elseif ($this->outgoing_category == 'other') {
             return [
+                'person_responsible'    => 'required',
                 'document_name'         => 'required',
                 'date'                  => 'required',
                 'document_details'      => 'required',
@@ -110,7 +117,6 @@ class Outgoing extends Component
     public function add()
     {
         if ($this->outgoing_category == 'procurement') {
-
             $this->validate();
 
             DB::beginTransaction();
@@ -141,6 +147,7 @@ class Outgoing extends Component
                 $outgoing_documents = new OutgoingDocumentsModel([
                     'date' => $this->date,
                     'document_details' => $this->document_details,
+                    'person_responsible' => $this->person_responsible,
                     'attachments' => json_encode($file_data_IDs)
                 ]);
 
@@ -166,7 +173,8 @@ class Outgoing extends Component
                 // Rollback the transaction on failure
                 DB::rollBack();
 
-                $this->dispatch('show-something-went-wrong-toast');
+                // $this->dispatch('show-something-went-wrong-toast');
+                dd($e->getMessage());
             }
         } elseif ($this->outgoing_category == 'payroll') {
             $this->validate();
@@ -196,6 +204,7 @@ class Outgoing extends Component
                 $outgoing_documents = new OutgoingDocumentsModel([
                     'date' => $this->date,
                     'document_details' => $this->document_details,
+                    'person_responsible' => $this->person_responsible,
                     'attachments' => json_encode($file_data_IDs)
                 ]);
 
@@ -250,6 +259,7 @@ class Outgoing extends Component
                 $outgoing_documents = new OutgoingDocumentsModel([
                     'date' => $this->date,
                     'document_details' => $this->document_details,
+                    'person_responsible' => $this->person_responsible,
                     'attachments' => json_encode($file_data_IDs)
                 ]);
 
@@ -304,6 +314,7 @@ class Outgoing extends Component
                 $outgoing_documents = new OutgoingDocumentsModel([
                     'date' => $this->date,
                     'document_details' => $this->document_details,
+                    'person_responsible' => $this->person_responsible,
                     'attachments' => json_encode($file_data_IDs)
                 ]);
 
@@ -357,6 +368,7 @@ class Outgoing extends Component
                 $outgoing_documents = new OutgoingDocumentsModel([
                     'date' => $this->date,
                     'document_details' => $this->document_details,
+                    'person_responsible' => $this->person_responsible,
                     'attachments' => json_encode($file_data_IDs)
                 ]);
 
@@ -385,11 +397,71 @@ class Outgoing extends Component
         }
     }
 
+    public function edit($key)
+    {
+        $this->editMode = true;
+
+        $outgoing_category = OutgoingDocumentsModel::where('document_no', $key)->first();
+
+        if ($outgoing_category->category_type == "App\Models\OutgoingCategoryProcurementModel") {
+            $this->dispatch('set-outgoing-category-select', 'procurement');
+            $this->person_responsible   = $outgoing_category->person_responsible;
+            $this->document_no          = $outgoing_category->document_no;
+            $this->dispatch('set-date', $outgoing_category->date);
+
+            $this->dispatch('show-outgoingModal');
+        } elseif ($outgoing_category->category_type == "App\Models\OutgoingCategoryPayrollModel") {
+            dd('payroll');
+        } elseif ($outgoing_category->category_type == "App\Models\OutgoingCategoryVoucherModel") {
+            dd('voucher');
+        } elseif ($outgoing_category->category_type == "App\Models\OutgoingCategoryRISModel") {
+            dd('ris');
+        } elseif ($outgoing_category->category_type == "App\Models\OutgoingCategoryOthersModel") {
+            dd('others');
+        }
+    }
+
     public function loadOutgoingDocuments()
     {
-        $outgoing_documents = OutgoingDocumentsModel::with('category')->get();
+        $outgoing_documents = OutgoingDocumentsModel::with('category')
+            ->join(DB::raw('(SELECT id, document_id, status, user_id
+                    FROM document_history
+                    WHERE id IN (
+                        SELECT MAX(id)
+                        FROM document_history
+                        GROUP BY document_id
+                    )) AS latest_document_history'), 'outgoing_documents.document_no', '=', 'latest_document_history.document_id')
+            ->join('users', 'users.id', '=', 'latest_document_history.user_id')
+            ->select('outgoing_documents.*', 'users.name as user_name', 'latest_document_history.status')
+            ->get();
 
         return $outgoing_documents;
+    }
+
+    public function history($key)
+    {
+        $this->document_history = []; //NOTE - Set this to empty to avoid data to stack.
+
+        $document_history = Document_History_Model::join('users', 'users.id', '=', 'document_history.user_id')
+            ->where('document_history.user_id', Auth::user()->id)
+            ->where('document_history.document_id', $key)
+            ->select(
+                DB::raw("DATE_FORMAT(document_history.created_at, '%b %d, %Y %h:%i%p') AS history_date_time"),
+                'document_history.status',
+                DB::raw("CASE
+                WHEN document_history.remarks = 'created_by' THEN 'Created by'
+                WHEN document_history.remarks = 'updated_by' THEN 'Updated by'
+                ELSE 'Unknown'
+                END AS remarks"),
+                'users.name'
+            )
+            ->orderBy('document_history.updated_at', 'DESC')
+            ->get();
+
+        if ($document_history) {
+            $this->document_history = $document_history;
+            $this->dispatch('show-historyModal');
+        }
     }
 
     public function clear()
@@ -397,5 +469,24 @@ class Outgoing extends Component
         $this->reset();
         $this->resetValidation();
         $this->dispatch('clear_plugins');
+    }
+
+    // NOTE - upon opening the modal, the next document_no will be assigned to the property $document_no.
+    public function show_outgoingModal()
+    {
+        // Get the last document_no
+        $lastDocumentNo = OutgoingDocumentsModel::orderBy('document_no', 'desc')->first();
+
+        if ($lastDocumentNo) {
+            $lastIdNumber = intval(substr($lastDocumentNo->document_no, 9));
+            $newIdNumber = $lastIdNumber + 1;
+        } else {
+            $newIdNumber = OutgoingDocumentsModel::getStartingNumber();
+        }
+
+        $padLength = max(2, strlen((string)($newIdNumber)));
+        $this->document_no = 'DOCUMENT-' . str_pad($newIdNumber, $padLength, '0', STR_PAD_LEFT);
+
+        $this->dispatch('show-outgoingModal');
     }
 }

@@ -16,6 +16,7 @@ class OutgoingDocumentsModel extends Model
         'document_no',
         'date',
         'document_details',
+        'person_responsible',
         'attachments',
         'category_id_type',
         'category_id_id'
