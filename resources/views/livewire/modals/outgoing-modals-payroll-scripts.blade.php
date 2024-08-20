@@ -19,5 +19,12 @@
         let data = payroll_type.value;
         @this.set('payroll_type', data);
     });
+
+    //NOTE - Edit Mode
+    $wire.on('set_payroll_type_select', (key) => {
+        document.querySelector('#outgoing_payroll_type_select').disable();
+        document.querySelector('#outgoing_payroll_type_select').setValue(key[0]);
+        // console.log(key[0]);
+    });
 </script>
 @endscript

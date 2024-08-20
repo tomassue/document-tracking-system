@@ -30,7 +30,7 @@
                             <div class="form-group row">
                                 <label class="col-sm-3 col-form-label" style="padding-top: 0px;">Person Responsible</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" wire:model="person_responsible">
+                                    <input type="text" class="form-control" wire:model="person_responsible" @if($editMode) disabled @endif>
                                     @error('person_responsible') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                 </div>
                             </div>
@@ -42,12 +42,7 @@
                     If we use if() condition, there are issues such as the plugins won't render because, I think it ignores the contents of that condition. Thus, plugins need to be reinitialized again if the condition returns true.
                     If we manipulate the form through CSS display property, the component will initialize all plugins upon the rendering the component then we display: block or none the form inputs depending on the condition we set. -->
 
-
-                    <!-- /* -------------------------------------------------------------------------- */
-                    /*                               IF PROCUREMENT                               */
-                    /* -------------------------------------------------------------------------- */ -->
-
-                    <div style="display: {{ ($outgoing_category == 'procurement' ? 'block' : 'none') }} ">
+                    <div>
                         <hr>
                         <div class="row">
                             <div class="col-md-6">
@@ -74,98 +69,19 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6">
+                            <!-- /* ------------------------------- PROCUREMENT ------------------------------ */ -->
+                            <div class="col-md-6" style="display: {{ ($outgoing_category == 'procurement' ? 'block' : 'none') }} ">
                                 <div class="form-group row">
                                     <label class="col-sm-3 col-form-label">P.R. No.</label>
                                     <div class="col-sm-9">
-                                        <input type="text" class="form-control" placeholder="Auto-generated??" wire:model="PR_no">
+                                        <input type="text" class="form-control" placeholder="Auto-generated??" wire:model="PR_no" @if($editMode) disabled @endif>
                                     </div>
                                 </div>
                             </div>
+                            <!-- /* ------------------------------- PROCUREMENT ------------------------------ */ -->
 
-                            <div class="col-md-6">
-                                <div class="form-group row" style="display: {{ $editMode ? 'block' : 'none' }}">
-                                    <label class="col-sm-3 col-form-label">Status</label>
-                                    <div class="col-sm-9">
-                                        <div id="outgoing-status-select" wire:ignore></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label">P.O. No.</label>
-                                    <div class="col-sm-9">
-                                        <input type="text" class="form-control" placeholder="Auto-generated??" wire:model="PO_no">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group row">
-                                    @error('document_details') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
-                                    <label class="col-sm-2 col-form-label">Document Details</label>
-                                    <div class="col-sm-12" wire:ignore>
-                                        <input id="document_details"></input>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group row">
-                                    <label class="col-sm-12 col-form-label">Attachment</label>
-                                    <div class="col-sm-12" wire:ignore>
-                                        <input type="file" accept="application/pdf" class="form-control documents-my-pond-attachment" multiple data-allow-reorder="true">
-                                    </div>
-                                    @error('attachments') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- /* -------------------------------------------------------------------------- */
-                    /*                               IF PROCUREMENT                               */
-                    /* -------------------------------------------------------------------------- */ -->
-
-
-                    <!-- /* -------------------------------------------------------------------------- */
-                    /*                                 IF PAYROLL                                 */
-                    /* -------------------------------------------------------------------------- */ -->
-
-                    <div style="display: {{ ($outgoing_category == 'payroll' ? 'block' : 'none') }} ">
-                        <hr>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label">Document No.</label>
-                                    <div class="col-sm-9">
-                                        <!-- Document No's input is system generated. Thus, it will be manipulated in our component -->
-                                        <input type="text" class="form-control" placeholder="Auto-generated" disabled>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label">Date</label>
-                                    <div class="col-sm-9">
-                                        <div wire:ignore>
-                                            <input class="form-control date"></input>
-                                        </div>
-                                        @error('date') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6">
+                            <!-- /* --------------------------------- PAYROLL -------------------------------- */ -->
+                            <div class="col-md-6" style="display: {{ ($outgoing_category == 'payroll' ? 'block' : 'none') }} ">
                                 <div class="form-group row">
                                     <label class="col-sm-3 col-form-label">Payroll Type</label>
                                     <div class="col-sm-9">
@@ -173,169 +89,32 @@
                                     </div>
                                 </div>
                             </div>
+                            <!-- /* --------------------------------- PAYROLL -------------------------------- */ -->
 
-                            <div class="col-md-6">
-                                <div class="form-group row" style="display: {{ $editMode ? 'block' : 'none' }}">
-                                    <label class="col-sm-3 col-form-label">Status</label>
-                                    <div class="col-sm-9">
-                                        <div id="outgoing-status-select" wire:ignore></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group row">
-                                    @error('document_details') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
-                                    <label class="col-sm-2 col-form-label">Document Details</label>
-                                    <div class="col-sm-12" wire:ignore>
-                                        <input id="document_details"></input>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group row">
-                                    <label class="col-sm-12 col-form-label">Attachment</label>
-                                    <div class="col-sm-12" wire:ignore>
-                                        <input type="file" accept="application/pdf" class="form-control documents-my-pond-attachment" multiple data-allow-reorder="true">
-                                    </div>
-                                    @error('attachments') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- /* -------------------------------------------------------------------------- */
-                    /*                                 IF PAYROLL                                 */
-                    /* -------------------------------------------------------------------------- */ -->
-
-
-                    <!-- /* -------------------------------------------------------------------------- */
-                    /*                                 IF VOUCHER                                 */
-                    /* -------------------------------------------------------------------------- */ -->
-
-                    <div style="display: {{ ($outgoing_category == 'voucher' ? 'block' : 'none') }} ">
-                        <hr>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label">Document No.</label>
-                                    <div class="col-sm-9">
-                                        <!-- Document No's input is system generated. Thus, it will be manipulated in our component -->
-                                        <input type="text" class="form-control" placeholder="Auto-generated" disabled>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label">Date</label>
-                                    <div class="col-sm-9">
-                                        <div wire:ignore>
-                                            <input class="form-control date"></input>
-                                        </div>
-                                        @error('date') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6">
+                            <!-- /* --------------------------------- VOUCHER -------------------------------- */ -->
+                            <div class="col-md-6" style="display: {{ ($outgoing_category == 'voucher' ? 'block' : 'none') }} ">
                                 <div class="form-group row">
                                     <label class="col-sm-3 col-form-label">Voucher Name</label>
                                     <div class="col-sm-9">
-                                        <input type="text" class="form-control" wire:model="voucher_name">
+                                        <input type="text" class="form-control" wire:model="voucher_name" @if($editMode) disabled @endif>
                                     </div>
                                 </div>
                             </div>
+                            <!-- /* --------------------------------- VOUCHER -------------------------------- */ -->
 
-                            <div class="col-md-6">
-                                <div class="form-group row" style="display: {{ $editMode ? 'block' : 'none' }}">
-                                    <label class="col-sm-3 col-form-label">Status</label>
-                                    <div class="col-sm-9">
-                                        <div id="outgoing-status-select" wire:ignore></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group row">
-                                    @error('document_details') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
-                                    <label class="col-sm-2 col-form-label">Document Details</label>
-                                    <div class="col-sm-12" wire:ignore>
-                                        <input id="document_details"></input>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group row">
-                                    <label class="col-sm-12 col-form-label">Attachment</label>
-                                    <div class="col-sm-12" wire:ignore>
-                                        <input type="file" accept="application/pdf" class="form-control documents-my-pond-attachment" multiple data-allow-reorder="true">
-                                    </div>
-                                    @error('attachments') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- /* -------------------------------------------------------------------------- */
-                    /*                                 IF VOUCHER                                 */
-                    /* -------------------------------------------------------------------------- */ -->
-
-
-                    <!-- /* -------------------------------------------------------------------------- */
-                    /*                                   IF RIS                                   */
-                    /* -------------------------------------------------------------------------- */ -->
-
-                    <div style="display: {{ ($outgoing_category == 'ris' ? 'block' : 'none') }} ">
-                        <hr>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label">Document No.</label>
-                                    <div class="col-sm-9">
-                                        <!-- Document No's input is system generated. Thus, it will be manipulated in our component -->
-                                        <input type="text" class="form-control" placeholder="Auto-generated" disabled>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label">Date</label>
-                                    <div class="col-sm-9">
-                                        <div wire:ignore>
-                                            <input class="form-control date"></input>
-                                        </div>
-                                        @error('date') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6">
+                            <!-- /* ------------------------------ OTHERS or RIS ----------------------------- */ -->
+                            <div class="col-md-6" style="display: {{ ($outgoing_category == 'other' || $outgoing_category == 'ris' ? 'block' : 'none') }} ">
                                 <div class="form-group row">
                                     <label class="col-sm-3 col-form-label">Document Name</label>
                                     <div class="col-sm-9">
-                                        <input type="text" class="form-control" wire:model="document_name">
+                                        <input type="text" class="form-control" wire:model="document_name" @if($editMode) disabled @endif>
                                     </div>
                                 </div>
                             </div>
+                            <!-- /* ------------------------------ OTHERS or RIS ----------------------------- */ -->
 
-                            <div class="col-md-6">
-                                <div class="form-group row" style="display: {{ $editMode ? 'block' : 'none' }}">
+                            <div class="col-md-6" style="display: {{ $editMode ? 'block' : 'none' }}">
+                                <div class="form-group row">
                                     <label class="col-sm-3 col-form-label">Status</label>
                                     <div class="col-sm-9">
                                         <div id="outgoing-status-select" wire:ignore></div>
@@ -345,14 +124,28 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6">
+                            <!-- /* ------------------------------- PROCUREMENT ------------------------------ */ -->
+                            <div class="col-md-6" style="display: {{ ($outgoing_category == 'procurement' ? 'block' : 'none') }} ">
+                                <div class="form-group row">
+                                    <label class="col-sm-3 col-form-label">P.O. No.</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" placeholder="Auto-generated??" wire:model="PO_no" @if($editMode) disabled @endif>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /* ------------------------------- PROCUREMENT ------------------------------ */ -->
+
+                            <!-- /* ----------------------------------- RIS ---------------------------------- */ -->
+                            <div class="col-md-6" style="display: {{ ($outgoing_category == 'ris' ? 'block' : 'none') }} ">
                                 <div class="form-group row">
                                     <label class="col-sm-3 col-form-label">PPMP Code</label>
                                     <div class="col-sm-9">
-                                        <input type="text" class="form-control" wire:model="ppmp_code">
+                                        <input type="text" class="form-control" wire:model="ppmp_code" @if($editMode) disabled @endif>
                                     </div>
                                 </div>
                             </div>
+                            <!-- /* ----------------------------------- RIS ---------------------------------- */ -->
+
                         </div>
 
                         <div class="row">
@@ -367,7 +160,7 @@
                             </div>
                         </div>
 
-                        <div class="row">
+                        <div class="row" style="display: {{ ($editMode ? 'none' : 'block') }} ">
                             <div class="col-md-12">
                                 <div class="form-group row">
                                     <label class="col-sm-12 col-form-label">Attachment</label>
@@ -380,89 +173,57 @@
                         </div>
                     </div>
 
-                    <!-- /* -------------------------------------------------------------------------- */
-                    /*                                   IF RIS                                   */
-                    /* -------------------------------------------------------------------------- */ -->
+                    <!-- /* ------------------------------- Attachments ------------------------------ */ -->
 
-
-                    <!-- /* -------------------------------------------------------------------------- */
-                    /*                                  IF OTHERS                                 */
-                    /* -------------------------------------------------------------------------- */ -->
-
-                    <div style="display: {{ ($outgoing_category == 'other' ? 'block' : 'none') }} ">
-                        <hr>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label">Document No.</label>
-                                    <div class="col-sm-9">
-                                        <!-- Document No's input is system generated. Thus, it will be manipulated in our component -->
-                                        <input type="text" class="form-control" placeholder="Auto-generated" disabled>
+                    @if ($editMode == true)
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="col-form-label">Attachments</label>
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>No.</th>
+                                                    <th>File Name</th>
+                                                    <th class="text-center">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @forelse($attachments as $index=>$file)
+                                                <tr wire:key="{{ $file->id }}">
+                                                    <td>{{ $index+1 }}</td>
+                                                    <td>{{ $file->file_name }}</td>
+                                                    <td class="text-center">
+                                                        <button type="button" class="btn btn-dark btn-rounded btn-icon" wire:click="previewAttachment({{ $file->id }})">
+                                                            <i class="mdi mdi mdi-eye "></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                @empty
+                                                <tr>
+                                                    <td colspan="4">No files found.</td>
+                                                </tr>
+                                                @endforelse
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label">Date</label>
-                                    <div class="col-sm-9">
-                                        <div wire:ignore>
-                                            <input class="form-control date"></input>
-                                        </div>
-                                        @error('date') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label">Document Name</label>
-                                    <div class="col-sm-9">
-                                        <input type="text" class="form-control" wire:model="document_name">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="form-group row" style="display: {{ $editMode ? 'block' : 'none' }}">
-                                    <label class="col-sm-3 col-form-label">Status</label>
-                                    <div class="col-sm-9">
-                                        <div id="outgoing-status-select" wire:ignore></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group row">
-                                    @error('document_details') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
-                                    <label class="col-sm-2 col-form-label">Document Details</label>
-                                    <div class="col-sm-12" wire:ignore>
-                                        <input id="document_details"></input>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group row">
-                                    <label class="col-sm-12 col-form-label">Attachment</label>
-                                    <div class="col-sm-12" wire:ignore>
-                                        <input type="file" accept="application/pdf" class="form-control documents-my-pond-attachment" multiple data-allow-reorder="true">
-                                    </div>
-                                    @error('attachments') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
+                                <div class="col-md-6 d-flex justify-content-center align-items-center">
+                                    @if ($file_data)
+                                    <embed wire:loading.remove src="data:application/pdf;base64,{{ $file_data }}" title="{{ $file_title }}" type="application/pdf" style="height: 70vh; width: 100%;">
+                                    @else
+                                    <span>Preview file</span>
+                                    @endif
                                 </div>
                             </div>
                         </div>
                     </div>
+                    @endif
 
-                    <!-- /* -------------------------------------------------------------------------- */
-                    /*                                  IF OTHERS                                 */
-                    /* -------------------------------------------------------------------------- */ -->
+                    <!-- /* ------------------------------- Attachments ------------------------------ */ -->
 
 
             </div>

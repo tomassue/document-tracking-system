@@ -23,6 +23,7 @@ class Outgoing extends Component
     public $search;
     public $editMode = false;
     public $document_history = [];
+    public $file_title, $file_data;
 
     /* ------- REUSABLE MODELS AND IF 'OTHERS' IS SELECTED IN THE CATEGORY ------ */
     public $outgoing_category;
@@ -402,22 +403,56 @@ class Outgoing extends Component
         $this->editMode = true;
 
         $outgoing_category = OutgoingDocumentsModel::where('document_no', $key)->first();
+        $document_history  = Document_History_Model::where('document_id', $key)->latest()->first();
+
+        $this->person_responsible   = $outgoing_category->person_responsible;
+        $this->document_no          = $outgoing_category->document_no;
+        $this->dispatch('set-date', $outgoing_category->date);
+        $this->dispatch('set-outgoing-status-select', $document_history->status);
+        $this->dispatch('set-document_details', $outgoing_category->document_details);
 
         if ($outgoing_category->category_type == "App\Models\OutgoingCategoryProcurementModel") {
             $this->dispatch('set-outgoing-category-select', 'procurement');
-            $this->person_responsible   = $outgoing_category->person_responsible;
-            $this->document_no          = $outgoing_category->document_no;
-            $this->dispatch('set-date', $outgoing_category->date);
-
-            $this->dispatch('show-outgoingModal');
+            $this->PR_no = $outgoing_category->category->pr_no;
+            $this->PO_no = $outgoing_category->category->po_no;
         } elseif ($outgoing_category->category_type == "App\Models\OutgoingCategoryPayrollModel") {
-            dd('payroll');
+            $this->dispatch('set-outgoing-category-select', 'payroll');
+            $this->dispatch('set_payroll_type_select', $outgoing_category->category->payroll_type);
         } elseif ($outgoing_category->category_type == "App\Models\OutgoingCategoryVoucherModel") {
-            dd('voucher');
+            $this->dispatch('set-outgoing-category-select', 'voucher');
+            $this->voucher_name = $outgoing_category->category->voucher_name;
         } elseif ($outgoing_category->category_type == "App\Models\OutgoingCategoryRISModel") {
-            dd('ris');
+            $this->dispatch('set-outgoing-category-select', 'ris');
+            $this->document_name = $outgoing_category->category->document_name;
+            $this->ppmp_code = $outgoing_category->category->ppmp_code;
         } elseif ($outgoing_category->category_type == "App\Models\OutgoingCategoryOthersModel") {
-            dd('others');
+            $this->dispatch('set-outgoing-category-select', 'other');
+            $this->document_name = $outgoing_category->category->document_name;
+        }
+
+        foreach (json_decode($outgoing_category->attachments) as $item) {
+            $file = File_Data_Model::where('id', $item)
+                ->select(
+                    'id',
+                    'file_name',
+                )
+                ->first();
+            $file->file_size = $this->convertSize($file->file_size);
+            $this->attachments[] = $file;
+        }
+
+        $this->dispatch('show-outgoingModal');
+    }
+
+    public function previewAttachment($key)
+    {
+        if ($key) {
+            $file = File_Data_Model::findOrFail($key);
+
+            if ($file && $file->file) {
+                $this->file_title = $file->file_name;
+                $this->file_data = base64_encode($file->file);
+            }
         }
     }
 
@@ -488,5 +523,11 @@ class Outgoing extends Component
         $this->document_no = 'DOCUMENT-' . str_pad($newIdNumber, $padLength, '0', STR_PAD_LEFT);
 
         $this->dispatch('show-outgoingModal');
+    }
+
+    //NOTE - file_size in KB convert to MB 
+    public function convertSize($sizeInKB)
+    {
+        return round($sizeInKB / 1024, 2); // Convert KB to MB and round to 2 decimal places
     }
 }

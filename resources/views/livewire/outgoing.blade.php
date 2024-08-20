@@ -125,10 +125,20 @@
         }, {
             label: 'Return',
             value: 'return'
+        }, {
+            label: 'Pending',
+            value: 'pending'
         }],
         maxWidth: '100%',
         zIndex: 10,
         popupDropboxBreakpoint: '3000px',
+    });
+
+    // NOTE - Edit Mode
+    $wire.on('set-outgoing-status-select', (key) => {
+        document.querySelector('#outgoing-status-select').setValue(key[0]);
+
+        // console.log(key[0]);
     });
 
     /* -------------------------------------------------------------------------- */
@@ -170,6 +180,7 @@
     //NOTE - Edit Mode
     $wire.on('set-outgoing-category-select', (key) => {
         document.querySelector('#outgoing-category-select').setValue(key[0]);
+        document.querySelector('#outgoing-category-select').disable();
     });
 
     /* -------------------------------------------------------------------------- */
@@ -184,10 +195,22 @@
         let picker = $(this).pickadate('picker');
         let selectedDate = picker.get('select', 'yyyy-mm-dd');
         @this.set('date', selectedDate);
-        console.log(selectedDate);
+        // console.log(selectedDate);
     });
 
     // NOTE - Edit Mode
+    $wire.on('set-date', (key) => {
+        $('.date').each(function() {
+            let picker = $(this).pickadate('picker'); //NOTE - clear out the values
+            picker.clear();
+
+            let date_key = key[0]; //NOTE - unset it from an array (key[0]);
+            picker.set('select', date_key, {
+                format: 'yyyy-mm-dd'
+            }); //NOTE - you need the format, so that it will be correctly displayed in the input field.
+        });
+        // console.log(key[0]);
+    });
 
     /* -------------------------------------------------------------------------- */
 
@@ -214,6 +237,13 @@
                 @this.set('document_details', plainText); // Update Livewire property
             });
         }
+    });
+
+    // NOTE - Edit Mode
+    $wire.on('set-document_details', (key) => {
+        tinymce.activeEditor.getBody().setAttribute('contenteditable', false);
+        tinymce.get("document_details").setContent(key[0]); //NOTE - We set the content dynamically from the database. We already initialized is so, we only have to setContent().
+        // console.log(key[0]);
     });
 
     /* -------------------------------------------------------------------------- */
@@ -245,6 +275,8 @@
     // NOTE - when the clear() method's triggered, it will dispatch an event to clear or reset the plug-ins
     $wire.on('clear_plugins', () => {
         document.querySelector('#outgoing-category-select').reset();
+
+        document.querySelector('#outgoing-status-select').reset();
 
         document.querySelector('#outgoing_payroll_type_select').reset();
 
