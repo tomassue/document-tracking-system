@@ -184,7 +184,7 @@
                             <div class="form-group row">
                                 <label class="col-sm-3 col-form-label">Document Info</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" wire:model="document_info">
+                                    <input type="text" class="form-control" wire:model="document_info" {{ $editMode ? 'disabled' : '' }}>
                                     @error('document_info') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                 </div>
                             </div>
@@ -200,7 +200,7 @@
                         </div>
                     </div>
 
-                    <div class="row">
+                    <div class="row" style="display: {{ $editMode ? 'none' : 'block' }}">
                         <div class="col-md-12">
                             <div class="form-group row">
                                 <label class="col-sm-12 col-form-label">Attachment</label>
@@ -274,6 +274,7 @@
     // NOTE - Edit Mode
     $wire.on('set-incoming-category-documents-select', (key) => {
         document.querySelector('#incoming-category-documents-select').setValue(key[0]);
+        document.querySelector('#incoming-category-documents-select').disable();
         // console.log(key[0]);
     });
 
@@ -338,6 +339,7 @@
         $('.document-incoming-date').each(function() {
             let picker = $(this).pickadate('picker'); //NOTE - clear out the values
             picker.clear();
+            $('.document-incoming-date').attr('disabled', 'disabled');
 
             let request_date_key = key[0]; //NOTE - unset it from an array (key[0]);
             picker.set('select', request_date_key, {
@@ -421,5 +423,10 @@
     });
 
     /* -------------------------------------------------------------------------- */
+
+    $wire.on('enable-plugins', () => {
+        document.querySelector('#incoming-category-documents-select').enable();
+        $('.document-incoming-date').removeAttr('disabled');
+    });
 </script>
 @endscript

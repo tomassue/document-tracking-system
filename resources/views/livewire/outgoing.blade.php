@@ -51,9 +51,23 @@
                                             </td>
                                             <td>{{ $item->document_no }}</td>
                                             <td>{{ $item->document_details }}</td>
-                                            <td>???</td>
+                                            <td>{{ $item->destination }}</td>
                                             <td class="text-center">{{ $item->person_responsible }}</td>
-                                            <td class="text-center">No data</td>
+                                            <td class="text-center text-uppercase">
+                                                <span class="badge badge-pill 
+                                            @if($item->status == 'pending')
+                                            badge-danger
+                                            @elseif($item->status == 'processed')
+                                            badge-warning
+                                            @elseif($item->status == 'forwarded')
+                                            badge-dark
+                                            @elseif($item->status == 'done')
+                                            badge-success
+                                            @endif
+                                            ">
+                                                    {{ $item->status }}
+                                                </span>
+                                            </td>
                                             <td class="text-center">
                                                 <span role="button" wire:click="edit('{{ $item->document_no }}')">
                                                     <i class="mdi mdi-file icon-md"></i>
@@ -203,6 +217,7 @@
         $('.date').each(function() {
             let picker = $(this).pickadate('picker'); //NOTE - clear out the values
             picker.clear();
+            $('.date').attr('disabled', 'disabled'); // NOTE - disables the input field date
 
             let date_key = key[0]; //NOTE - unset it from an array (key[0]);
             picker.set('select', date_key, {
@@ -290,6 +305,20 @@
         $('.documents-my-pond-attachment').each(function() {
             $(this).filepond('removeFiles');
         });
+    });
+
+    /* -------------------------------------------------------------------------- */
+
+    /**
+     * NOTE
+     * During editMode, we disable the plug-ins. However, when we prompt the modal again, the plugins remains disabled and it requires the component to be refreshed.
+     * To address this, we will fire an event to enable them again when we add a new record.
+     */
+
+    $wire.on('enable-plugins', () => {
+        document.querySelector('#outgoing-category-select').enable();
+        $('.date').removeAttr('disabled');
+        tinymce.activeEditor.getBody().setAttribute('contenteditable', true);
     });
 </script>
 @endscript

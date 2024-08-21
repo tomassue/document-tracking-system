@@ -16,6 +16,7 @@ class OutgoingDocumentsModel extends Model
         'document_no',
         'date',
         'document_details',
+        'destination',
         'person_responsible',
         'attachments',
         'category_id_type',
@@ -30,6 +31,15 @@ class OutgoingDocumentsModel extends Model
 
     // Set the primary key type to string
     protected $keyType = 'string';
+
+    // Define a starting point for the sequence
+    protected static $startingNumber = 1;
+
+    // Public static method to access the starting number
+    public static function getStartingNumber()
+    {
+        return self::$startingNumber;
+    }
 
     // Override the boot method to generate a custom ID
     protected static function boot()

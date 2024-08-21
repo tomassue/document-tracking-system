@@ -254,6 +254,7 @@ class Documents extends Component
         $padLength = max(2, strlen((string)($newIdNumber)));
         $this->document_no = 'MEMO-' . str_pad($newIdNumber, $padLength, '0', STR_PAD_LEFT);
 
+        $this->dispatch('enable-plugins');
         $this->dispatch('show-documentsModal');
     }
 

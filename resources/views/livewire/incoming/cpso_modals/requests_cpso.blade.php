@@ -41,7 +41,7 @@
                                 @error('office_barangay_organization') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                 <label class="col-sm-3 col-form-label" style="padding-top: 0px;padding-bottom: 0px;">Office/Barangay/Organization</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" wire:model="office_barangay_organization">
+                                    <input type="text" class="form-control" wire:model="office_barangay_organization" {{ $editMode ? 'disabled' : '' }}>
                                 </div>
                             </div>
                         </div>
@@ -105,13 +105,16 @@
                     </div>
                     <div class="row">
                         <div class="col-md-12">
-                            <div class="form-group row">
-                                @error('attachment') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
-                                <label class="col-sm-2 col-form-label">Attachment</label>
-                                <div class="col-sm-10" wire:ignore>
-                                    <input type="file" class="form-control my-pond-attachment" multiple data-allow-reorder="true">
+                            <div style="display : {{ $editMode ? 'none' : 'block' }}">
+                                <div class="form-group row">
+                                    @error('attachment') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
+                                    <label class="col-sm-2 col-form-label">Attachment</label>
+                                    <div class="col-sm-10" wire:ignore>
+                                        <input type="file" class="form-control my-pond-attachment" multiple data-allow-reorder="true">
+                                    </div>
                                 </div>
                             </div>
+
                             @if ($editMode == true)
                             <div class="row">
                                 <div class="col-md-6">
@@ -175,6 +178,7 @@
     /* -------------------------------------------------------------------------- */
     $wire.on('show-requestModal', () => {
         $('#requestModal').modal('show');
+        $wire.dispatch('enable-plugins');
     });
 
     $wire.on('hide-requestModal', () => {
@@ -210,6 +214,7 @@
 
     //NOTE - Edit Mode (input#myeditorinstance)
     $wire.on('set-myeditorinstance', (key) => {
+        tinymce.activeEditor.getBody().setAttribute('contenteditable', false);
         tinymce.get("myeditorinstance").setContent(key[0]); //NOTE - We set the content dynamically from the database. We already initialized is so, we only have to setContent().
         // console.log(key[0]);
     });
@@ -248,34 +253,34 @@
 
     //NOTE - EDIT MODE
     $wire.on('set-incoming_category', (key) => {
-        document.querySelector('#incoming-category-select').destroy();
+        // document.querySelector('#incoming-category-select').destroy();
 
-        VirtualSelect.init({
-            ele: '#incoming-category-select',
-            options: [{
-                    label: 'Request',
-                    value: 'request'
-                },
-                {
-                    label: 'Meetings',
-                    value: 'meeting'
-                },
-                {
-                    label: 'Training',
-                    value: 'training'
-                },
-                {
-                    label: 'Other',
-                    value: 'other'
-                }
-            ],
-            maxWidth: '100%',
-            zIndex: 10,
-            popupDropboxBreakpoint: '3000px',
-        });
+        // VirtualSelect.init({
+        //     ele: '#incoming-category-select',
+        //     options: [{
+        //             label: 'Request',
+        //             value: 'request'
+        //         },
+        //         {
+        //             label: 'Meetings',
+        //             value: 'meeting'
+        //         },
+        //         {
+        //             label: 'Training',
+        //             value: 'training'
+        //         },
+        //         {
+        //             label: 'Other',
+        //             value: 'other'
+        //         }
+        //     ],
+        //     maxWidth: '100%',
+        //     zIndex: 10,
+        //     popupDropboxBreakpoint: '3000px',
+        // });
         let incoming_category = key[0]; //NOTE - unset it from the array.
         document.querySelector('#incoming-category-select').setValue(incoming_category);
-        // document.querySelector('#incoming-category-select').disable();
+        document.querySelector('#incoming-category-select').disable();
         // console.log(incoming_category);
     });
     /* -------------------------------------------------------------------------- */
@@ -355,36 +360,37 @@
 
     //NOTE - Edit Mode (category-select)
     $wire.on('set-category', (key) => {
-        document.querySelector('#category-select').reset();
+        // document.querySelector('#category-select').reset();
 
-        VirtualSelect.init({
-            ele: '#category-select',
-            options: [{
-                    label: 'Equipment',
-                    value: 'equipment'
-                },
-                {
-                    label: 'Venue',
-                    value: 'venue'
-                },
-                {
-                    label: 'Vehicle',
-                    value: 'vehicle'
-                },
-                {
-                    label: 'Band',
-                    value: 'band'
-                },
-                {
-                    label: 'Others',
-                    value: 'others'
-                }
-            ],
-            maxWidth: '100%',
-            zIndex: 10,
-            popupDropboxBreakpoint: '3000px',
-        });
+        // VirtualSelect.init({
+        //     ele: '#category-select',
+        //     options: [{
+        //             label: 'Equipment',
+        //             value: 'equipment'
+        //         },
+        //         {
+        //             label: 'Venue',
+        //             value: 'venue'
+        //         },
+        //         {
+        //             label: 'Vehicle',
+        //             value: 'vehicle'
+        //         },
+        //         {
+        //             label: 'Band',
+        //             value: 'band'
+        //         },
+        //         {
+        //             label: 'Others',
+        //             value: 'others'
+        //         }
+        //     ],
+        //     maxWidth: '100%',
+        //     zIndex: 10,
+        //     popupDropboxBreakpoint: '3000px',
+        // });
         document.querySelector('#category-select').setValue(key[0]); //NOTE - a shorter code of what we did in #category-select (Edit Mode)
+        document.querySelector('#category-select').disable();
         // console.log(key[0]);
     });
 
@@ -458,6 +464,7 @@
         });
 
         document.querySelector('#venue-select').setValue(key[0]);
+        document.querySelector('#venue-select').disable();
         // console.log(key[0]);
     });
     /* -------------------------------------------------------------------------- */
@@ -481,6 +488,7 @@
         $('.request-date').each(function() {
             let picker = $(this).pickadate('picker'); //NOTE - clear out the values
             picker.clear();
+            $('.request-date').attr('disabled', 'disabled');
 
             let request_date_key = key[0]; //NOTE - unset it from an array (key[0]);
             picker.set('select', request_date_key, {
@@ -508,6 +516,7 @@
         $('.from-time').each(function() {
             let picker = $(this).pickatime('picker'); // Use pickatime instead of pickadate
             picker.clear();
+            $('.from-time').attr('disabled', 'disabled');
 
             let start_time_key = key[0]; // Get the time value from the array
             picker.set('select', start_time_key);
@@ -533,6 +542,7 @@
         $('.end-time').each(function() {
             let picker = $(this).pickatime('picker');
             picker.clear();
+            $('.end-time').attr('disabled', 'disabled');
 
             picker.set('select', key[0]);
         });
@@ -586,5 +596,21 @@
         });
     });
     /* -------------------------------------------------------------------------- */
+
+    /**
+     * NOTE
+     * During editMode, we disable the plug-ins. However, when we prompt the modal again, the plugins remains disabled and it requires the component to be refreshed.
+     * To address this, we will fire an event to enable them again when we add a new record.
+     */
+
+    $wire.on('enable-plugins', () => {
+        tinymce.activeEditor.getBody().setAttribute('contenteditable', true);
+        document.querySelector('#incoming-category-select').enable();
+        document.querySelector('#category-select').enable();
+        document.querySelector('#venue-select').disable();
+        $('.request-date').removeAttr('disabled');
+        $('.from-time').removeAttr('disabled');
+        $('.end-time').removeAttr('disabled');
+    });
 </script>
 @endscript

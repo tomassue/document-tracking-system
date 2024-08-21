@@ -30,8 +30,20 @@
                             <div class="form-group row">
                                 <label class="col-sm-3 col-form-label" style="padding-top: 0px;">Person Responsible</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" wire:model="person_responsible" @if($editMode) disabled @endif>
+                                    <input type="text" class="form-control" wire:model="person_responsible" @if($editMode || empty($outgoing_category)) disabled @endif>
                                     @error('person_responsible') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group row">
+                                <label class="col-sm-3 col-form-label">Destination</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" wire:model="destination" @if($editMode || empty($outgoing_category)) disabled @endif>
+                                    @error('destination') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                 </div>
                             </div>
                         </div>
@@ -42,7 +54,7 @@
                     If we use if() condition, there are issues such as the plugins won't render because, I think it ignores the contents of that condition. Thus, plugins need to be reinitialized again if the condition returns true.
                     If we manipulate the form through CSS display property, the component will initialize all plugins upon the rendering the component then we display: block or none the form inputs depending on the condition we set. -->
 
-                    <div>
+                    <div style="display: {{ empty($outgoing_category) ? 'none' : 'block' }};">
                         <hr>
                         <div class="row">
                             <div class="col-md-6">
