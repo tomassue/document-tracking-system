@@ -5,6 +5,7 @@ namespace App\Livewire\Incoming;
 use App\Models\Document_History_Model;
 use App\Models\File_Data_Model;
 use App\Models\Incoming_Request_CPSO_Model;
+use App\Models\Ref_Category_Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -55,7 +56,8 @@ class Request extends Component
     public function render()
     {
         $data = [
-            'incoming_requests_cpso' => $this->loadIncomingRequestsCPSO()
+            'incoming_requests_cpso' => $this->loadIncomingRequestsCPSO(),
+            'categories' => $this->loadCategories()
         ];
 
         return view('livewire.incoming.request', $data);
@@ -66,19 +68,6 @@ class Request extends Component
         $this->reset();
         $this->resetValidation();
         $this->dispatch('clear-plugins');
-    }
-
-    public function updatedCategory()
-    {
-        // NOTE - When user chooses venue.
-        if ($this->category == 'venue') {
-            if ($this->editMode == true) {
-                $this->dispatch('initialize-venue-select');
-            }
-        } else {
-            // NOTE - When user selects other options aside 'venue'.
-            $this->dispatch('destroy-venue-select');
-        }
     }
 
     public function add()
@@ -133,7 +122,6 @@ class Request extends Component
         }
     }
 
-    #[On('edit-mode')]
     public function edit($key)
     {
         // dd($key);
@@ -148,7 +136,7 @@ class Request extends Component
         $this->office_barangay_organization = $incoming_request->office_or_barangay_or_organization;
         $this->dispatch('set-request-date', $incoming_request->request_date);
         $this->dispatch('set-category', $incoming_request->category);
-        ($incoming_request->venue ? $this->dispatch('set-venue', $incoming_request->venue) : '');
+        $this->dispatch('set-venue', $incoming_request->venue);
         $this->dispatch('set-from-time', $this->timeToMinutes($incoming_request->start_time));
         $this->dispatch('set-end-time', $this->timeToMinutes($incoming_request->end_time));
         $this->dispatch('set-myeditorinstance', $incoming_request->description);
@@ -287,5 +275,26 @@ class Request extends Component
         $shuffledNumber = str_shuffle($uniqueNumber);
 
         return $shuffledNumber;
+    }
+
+    public function loadCategories()
+    {
+        $categories = Ref_Category_Model::select(
+            'id',
+            'category',
+            'document_type',
+            'is_active'
+        )
+            ->where('document_type', 'incoming')
+            ->where('is_active', 'yes')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'label' => $item->category,
+                    'value' => $item->id
+                ];
+            });
+
+        return $categories;
     }
 }

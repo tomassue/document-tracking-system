@@ -57,7 +57,7 @@
                                             </span>
                                         </td>
                                         <td class="text-center">
-                                            <span role="button" wire:click="$dispatch('edit-mode', { key: '{{ $item->id }}' })">
+                                            <span role="button" wire:click="edit('{{ $item->id }}')">
                                                 <i class="mdi mdi-file icon-md"></i>
                                             </span>
                                         </td>

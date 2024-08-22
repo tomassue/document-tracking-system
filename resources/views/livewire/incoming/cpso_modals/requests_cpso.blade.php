@@ -62,13 +62,9 @@
                                 <label class="col-sm-3 col-form-label">Category</label>
                                 <div class="col-sm-9">
                                     <div id="category-select" wire:ignore></div>
-                                </div>
-
-                                <!-- NOTE - This will be initialized when an event is triggered. -->
-                                <!-- LINK - app\Livewire\Incoming\Request.php#updatedCategory() -->
-                                <label class="col-sm-3 col-form-label"></label>
-                                <div class="col-sm-9">
-                                    <div id="venue-select" wire:ignore></div>
+                                    <div style="display: {{ $category == 'venue' ? 'display' : 'none' }}" class="mt-2">
+                                        <div id="venue-select" wire:ignore></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -177,8 +173,8 @@
 <script>
     /* -------------------------------------------------------------------------- */
     $wire.on('show-requestModal', () => {
-        $('#requestModal').modal('show');
         $wire.dispatch('enable-plugins');
+        $('#requestModal').modal('show');
     });
 
     $wire.on('hide-requestModal', () => {
@@ -214,8 +210,8 @@
 
     //NOTE - Edit Mode (input#myeditorinstance)
     $wire.on('set-myeditorinstance', (key) => {
-        tinymce.activeEditor.getBody().setAttribute('contenteditable', false);
         tinymce.get("myeditorinstance").setContent(key[0]); //NOTE - We set the content dynamically from the database. We already initialized is so, we only have to setContent().
+        tinymce.activeEditor.getBody().setAttribute('contenteditable', false);
         // console.log(key[0]);
     });
     /* -------------------------------------------------------------------------- */
@@ -223,23 +219,7 @@
     /* -------------------------------------------------------------------------- */
     VirtualSelect.init({
         ele: '#incoming-category-select',
-        options: [{
-                label: 'Request',
-                value: 'request'
-            },
-            {
-                label: 'Meetings',
-                value: 'meeting'
-            },
-            {
-                label: 'Training',
-                value: 'training'
-            },
-            {
-                label: 'Other',
-                value: 'other'
-            }
-        ],
+        options: @json($categories),
         maxWidth: '100%',
         zIndex: 10,
         popupDropboxBreakpoint: '3000px',
@@ -253,35 +233,7 @@
 
     //NOTE - EDIT MODE
     $wire.on('set-incoming_category', (key) => {
-        // document.querySelector('#incoming-category-select').destroy();
-
-        // VirtualSelect.init({
-        //     ele: '#incoming-category-select',
-        //     options: [{
-        //             label: 'Request',
-        //             value: 'request'
-        //         },
-        //         {
-        //             label: 'Meetings',
-        //             value: 'meeting'
-        //         },
-        //         {
-        //             label: 'Training',
-        //             value: 'training'
-        //         },
-        //         {
-        //             label: 'Other',
-        //             value: 'other'
-        //         }
-        //     ],
-        //     maxWidth: '100%',
-        //     zIndex: 10,
-        //     popupDropboxBreakpoint: '3000px',
-        // });
-        let incoming_category = key[0]; //NOTE - unset it from the array.
-        document.querySelector('#incoming-category-select').setValue(incoming_category);
-        document.querySelector('#incoming-category-select').disable();
-        // console.log(incoming_category);
+        document.querySelector('#incoming-category-select').setValue(key[0]);
     });
     /* -------------------------------------------------------------------------- */
 
@@ -319,7 +271,6 @@
         });
 
         document.querySelector('#status-select').setValue(key[0]);
-        // console.log(key[0]);
     });
     /* -------------------------------------------------------------------------- */
 
@@ -360,112 +311,46 @@
 
     //NOTE - Edit Mode (category-select)
     $wire.on('set-category', (key) => {
-        // document.querySelector('#category-select').reset();
-
-        // VirtualSelect.init({
-        //     ele: '#category-select',
-        //     options: [{
-        //             label: 'Equipment',
-        //             value: 'equipment'
-        //         },
-        //         {
-        //             label: 'Venue',
-        //             value: 'venue'
-        //         },
-        //         {
-        //             label: 'Vehicle',
-        //             value: 'vehicle'
-        //         },
-        //         {
-        //             label: 'Band',
-        //             value: 'band'
-        //         },
-        //         {
-        //             label: 'Others',
-        //             value: 'others'
-        //         }
-        //     ],
-        //     maxWidth: '100%',
-        //     zIndex: 10,
-        //     popupDropboxBreakpoint: '3000px',
-        // });
         document.querySelector('#category-select').setValue(key[0]); //NOTE - a shorter code of what we did in #category-select (Edit Mode)
         document.querySelector('#category-select').disable();
-        // console.log(key[0]);
     });
 
     // NOTE - This select will be initialized when the event is triggered.
-    $wire.on('initialize-venue-select', function() {
-        VirtualSelect.init({
-            ele: '#venue-select',
-            placeholder: 'Select venue',
-            options: [{
-                    label: 'Tourism Hall',
-                    value: 'tourism hall'
-                },
-                {
-                    label: 'Mini Park',
-                    value: 'mini park'
-                },
-                {
-                    label: 'Amphitheater',
-                    value: 'amphitheater'
-                },
-                {
-                    label: 'Quadrangle',
-                    value: 'quadrangle'
-                }
-            ],
-            maxWidth: '100%',
-            zIndex: 10,
-            popupDropboxBreakpoint: '3000px',
-        });
-
-        let venue = document.querySelector('#venue-select');
-        venue.addEventListener('change', () => {
-            let data = venue.value;
-            @this.set('venue', data);
-        });
+    VirtualSelect.init({
+        ele: '#venue-select',
+        placeholder: 'Select venue',
+        options: [{
+                label: 'Tourism Hall',
+                value: 'tourism hall'
+            },
+            {
+                label: 'Mini Park',
+                value: 'mini park'
+            },
+            {
+                label: 'Amphitheater',
+                value: 'amphitheater'
+            },
+            {
+                label: 'Quadrangle',
+                value: 'quadrangle'
+            }
+        ],
+        maxWidth: '100%',
+        zIndex: 10,
+        popupDropboxBreakpoint: '3000px',
     });
 
-    // NOTE - An event will be dispatch from the component and triggers this code.
-    $wire.on('destroy-venue-select', () => {
-        document.querySelector('#venue-select').reset();
-        document.querySelector('#venue-select').destroy();
+    let venue = document.querySelector('#venue-select');
+    venue.addEventListener('change', () => {
+        let data = venue.value;
+        @this.set('venue', data);
     });
 
     //NOTE - Edit mode (#venue-select)
     $wire.on('set-venue', (key) => {
-        // document.querySelector('#venue-select').reset();
-
-        VirtualSelect.init({
-            ele: '#venue-select',
-            placeholder: 'Select venue',
-            options: [{
-                    label: 'Tourism Hall',
-                    value: 'tourism hall'
-                },
-                {
-                    label: 'Mini Park',
-                    value: 'mini park'
-                },
-                {
-                    label: 'Amphitheater',
-                    value: 'amphitheater'
-                },
-                {
-                    label: 'Quadrangle',
-                    value: 'quadrangle'
-                }
-            ],
-            maxWidth: '100%',
-            zIndex: 10,
-            popupDropboxBreakpoint: '3000px',
-        });
-
         document.querySelector('#venue-select').setValue(key[0]);
         document.querySelector('#venue-select').disable();
-        // console.log(key[0]);
     });
     /* -------------------------------------------------------------------------- */
 
@@ -571,25 +456,18 @@
     //NOTE - Clear plugins
     $wire.on('clear-plugins', () => {
         document.querySelector('#incoming-category-select').reset();
-
         document.querySelector('#category-select').reset();
-
         document.querySelector('#status-select').destroy();
-
         tinyMCE.activeEditor.setContent('');
-
         $('.request-date').each(function() {
             $(this).pickadate('picker').clear();
         });
-
         $('.from-time').each(function() {
             $(this).pickatime('picker').clear();
         });
-
         $('.end-time').each(function() {
             $(this).pickatime('picker').clear();
         });
-
         // Clear FilePond
         $('.my-pond-attachment').each(function() {
             $(this).filepond('removeFiles');
@@ -611,6 +489,7 @@
         $('.request-date').removeAttr('disabled');
         $('.from-time').removeAttr('disabled');
         $('.end-time').removeAttr('disabled');
+        console.log('enable');
     });
 </script>
 @endscript

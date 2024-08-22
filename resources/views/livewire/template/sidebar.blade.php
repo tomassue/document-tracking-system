@@ -68,8 +68,9 @@
             </a>
             <div class="collapse" id="settings-submenus">
                 <ul class="nav flex-column sub-menu">
-                    <li class="nav-item"><a class="nav-link" href="{{ route('user-management') }}">User Management</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('category') }}">Category</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ route('offices') }}">Offices</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('user-management') }}">User Management</a></li>
                 </ul>
             </div>
         </li>

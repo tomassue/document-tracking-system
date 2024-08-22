@@ -60,6 +60,8 @@ class User extends Authenticatable
             'id', // Foreign key on Ref_Offices_Model table...
             'id', // Local key on User table...
             'office_id' // Local key on User_Offices_Model table...
-        );
+        )->withDefault([
+            'office_name' => 'No Office Assigned', // Default value when no office is associated
+        ]);
     }
 }

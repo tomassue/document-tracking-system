@@ -5,6 +5,7 @@ namespace App\Livewire\Incoming;
 use App\Models\Document_History_Model;
 use App\Models\File_Data_Model;
 use App\Models\Incoming_Documents_CPSO_Model;
+use App\Models\Ref_Category_Model;
 use DateTime;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -30,14 +31,15 @@ class Documents extends Component
     public $search;
     public $editMode = false, $status;
     public $document_history = [];
-    public $file_title, $file_data;
+    public $files = [], $file_title, $file_data;
     public $edit_document_no, $document_no, $incoming_document_category, $document_info, $attachment = [], $date;
 
 
     public function render()
     {
         $data = [
-            'incoming_documents' => $this->loadIncomingDocumentsCPSO()
+            'incoming_documents' => $this->loadIncomingDocumentsCPSO(),
+            'categories' => $this->loadCategories()
         ];
         return view('livewire.incoming.documents', $data);
     }
@@ -131,7 +133,7 @@ class Documents extends Component
                 )
                 ->first();
             $file->file_size = $this->convertSize($file->file_size);
-            $this->attachment[] = $file;
+            $this->files[] = $file;
         }
 
         $this->dispatch('show-viewDetailsDocumentsModal');
@@ -221,9 +223,10 @@ class Documents extends Component
                     FROM document_history
                     GROUP BY document_id
                 )) AS latest_document_history'), 'latest_document_history.document_id', '=', 'incoming_documents_cpso.document_no')
+            ->join('ref_category', 'ref_category.id', 'incoming_documents_cpso.incoming_document_category')
             ->select(
                 'incoming_documents_cpso.document_no',
-                'incoming_documents_cpso.incoming_document_category',
+                'ref_category.category AS incoming_document_category',
                 'incoming_documents_cpso.document_info',
                 'latest_document_history.status',
                 DB::raw("DATE_FORMAT(incoming_documents_cpso.date, '%b %d, %Y') AS date")
@@ -235,6 +238,26 @@ class Documents extends Component
         return $incoming_documents;
     }
 
+    public function loadCategories()
+    {
+        $categories = Ref_Category_Model::select(
+            'id',
+            'category',
+            'document_type',
+            'is_active'
+        )
+            ->where('document_type', 'incoming')
+            ->where('is_active', 'yes')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'label' => $item->category,
+                    'value' => $item->id
+                ];
+            });
+
+        return $categories;
+    }
     //NOTE - Instead of just dispatching the event show-documentsModal directly from the button through wire:click, we want to display the document_no to the input field so we have it this way instead.
     public function show_documentsModal()
     {

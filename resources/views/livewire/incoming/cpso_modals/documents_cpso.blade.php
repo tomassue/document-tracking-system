@@ -83,7 +83,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse($attachment as $index=>$file)
+                                    @forelse($files as $index=>$file)
                                     <tr wire:key="{{ $file->id }}">
                                         <td>{{ $index+1 }}</td>
                                         <td>{{ $file->file_name }}</td>
@@ -247,19 +247,7 @@
 
     VirtualSelect.init({
         ele: '#incoming-category-documents-select',
-        options: [{
-                label: 'Meetings',
-                value: 'meeting'
-            },
-            {
-                label: 'Training',
-                value: 'training'
-            },
-            {
-                label: 'Other',
-                value: 'other'
-            }
-        ],
+        options: @json($categories),
         maxWidth: '100%',
         zIndex: 10,
         popupDropboxBreakpoint: '3000px',

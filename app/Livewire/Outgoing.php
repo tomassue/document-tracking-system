@@ -474,6 +474,7 @@ class Outgoing extends Component
                     )) AS latest_document_history'), 'outgoing_documents.document_no', '=', 'latest_document_history.document_id')
             ->join('users', 'users.id', '=', 'latest_document_history.user_id')
             ->select('outgoing_documents.*', 'users.name as user_name', 'latest_document_history.status')
+            ->orderBy('outgoing_documents.date', 'desc')
             ->where('document_details', 'like', '%' . $this->search . '%')
             ->get();
 

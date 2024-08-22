@@ -5,6 +5,7 @@ use App\Livewire\Dashboard;
 use App\Livewire\Incoming\Documents;
 use App\Livewire\Incoming\Request;
 use App\Livewire\Outgoing;
+use App\Livewire\Settings\Category;
 use App\Livewire\Settings\Offices;
 use App\Livewire\Settings\UserManagement;
 use Illuminate\Support\Facades\Auth;
@@ -25,6 +26,7 @@ Route::group(['middleware' => 'auth'], function () {
     /* -------------------------------------------------------------------------- */
     /*                                 SUPERADMIN                                 */
     /* -------------------------------------------------------------------------- */
+    Route::get('/settings/category', Category::class)->name('category');
     Route::get('/settings/offices', Offices::class)->name('offices');
     Route::get('/settings/user-management', UserManagement::class)->name('user-management');
 });
