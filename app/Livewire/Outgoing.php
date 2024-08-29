@@ -416,6 +416,7 @@ class Outgoing extends Component
         $this->dispatch('set-date', $outgoing_category->date);
         $this->dispatch('set-outgoing-status-select', $document_history->status);
         $this->dispatch('set-document_details', $outgoing_category->document_details);
+        $this->destination          = $outgoing_category->destination;
 
         if ($outgoing_category->category_type == "App\Models\OutgoingCategoryProcurementModel") {
             $this->dispatch('set-outgoing-category-select', 'procurement');

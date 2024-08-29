@@ -33,6 +33,10 @@
     <!-- Tiny MCE -->
     <script src="https://cdn.tiny.cloud/1/oesmgpb85r1zhz03towvnev67dhrse0olv9o0ai5146b77g6/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
 
+    <!-- Summernote -->
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <link href="{{ asset('plugins/summernote/summernote-bs5.css') }}" rel="stylesheet">
+
     <!-- pickadate -->
     <link rel="stylesheet" href="{{ asset('plugins/pickadate.js-3.6.2/lib/themes/classic.css') }}">
     <link rel="stylesheet" href="{{ asset('plugins/pickadate.js-3.6.2/lib/themes/classic.date.css') }}">
@@ -40,6 +44,9 @@
 
     <!-- FilePond -->
     <link href="{{ asset('plugins/jquery-filepond-master/filepond.css') }}" rel="stylesheet" />
+
+    <!-- Fullcalendar -->
+    <script src="{{ asset('plugins/fullcalendar-6.1.14/dist/index.global.min.js') }}"></script>
 
     <style>
         .custom-invalid-feedback {
@@ -272,6 +279,9 @@
     <script src="{{ asset('plugins/pickadate.js-3.6.2/lib/picker.js') }}"></script>
     <script src="{{ asset('plugins/pickadate.js-3.6.2/lib/picker.date.js') }}"></script>
     <script src="{{ asset('plugins/pickadate.js-3.6.2/lib/picker.time.js') }}"></script>
+
+    <!-- summernote -->
+    <script src="{{ asset('plugins/summernote/summernote-bs5.js') }}"></script>
 
     <!-- FilePond -->
     <script src="{{ asset('plugins/jquery-filepond-master/filepond.min.js') }}"></script>

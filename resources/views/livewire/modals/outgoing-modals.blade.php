@@ -166,7 +166,8 @@
                                     @error('document_details') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                     <label class="col-sm-2 col-form-label">Document Details</label>
                                     <div class="col-sm-12" wire:ignore>
-                                        <input id="document_details"></input>
+                                        <!-- <input id="document_details"></input> -->
+                                        <div id="document_details"></div>
                                     </div>
                                 </div>
                             </div>

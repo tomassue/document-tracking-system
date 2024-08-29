@@ -36,6 +36,7 @@ class Request extends Component
     public function rules()
     {
         return [
+            'incoming_category' => 'required',
             'office_barangay_organization' => 'required',
             'request_date' => 'required',
             'category' => 'required',
@@ -49,7 +50,8 @@ class Request extends Component
     public function validationAttributes()
     {
         return [
-            'office_barangay_organization' => 'input'
+            'office_barangay_organization' => 'input',
+            'incoming_category' => 'input'
         ];
     }
 
@@ -68,6 +70,13 @@ class Request extends Component
         $this->reset();
         $this->resetValidation();
         $this->dispatch('clear-plugins');
+    }
+
+    public function openRequestModal()
+    {
+        $this->clear();
+        $this->dispatch('refresh-plugin');
+        $this->dispatch('show-requestModal');
     }
 
     public function add()
@@ -124,7 +133,6 @@ class Request extends Component
 
     public function edit($key)
     {
-        // dd($key);
         $this->editMode = true;
         $this->edit_document_id = $key;
 
@@ -139,7 +147,7 @@ class Request extends Component
         $this->dispatch('set-venue', $incoming_request->venue);
         $this->dispatch('set-from-time', $this->timeToMinutes($incoming_request->start_time));
         $this->dispatch('set-end-time', $this->timeToMinutes($incoming_request->end_time));
-        $this->dispatch('set-myeditorinstance', $incoming_request->description);
+        $this->dispatch('set-description', $incoming_request->description);
 
         foreach (json_decode($incoming_request->files) as $item) {
             $file = File_Data_Model::where('id', $item)

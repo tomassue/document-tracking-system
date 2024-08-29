@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\PdfController;
+use App\Livewire\Calendar;
 use App\Livewire\Dashboard;
 use App\Livewire\Incoming\Documents;
 use App\Livewire\Incoming\Request;
@@ -22,6 +23,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/incoming/requests', Request::class)->name('requests');
     Route::get('/incoming/documents', Documents::class)->name('documents');
     Route::get('/outgoing', Outgoing::class)->name('outgoing');
+    Route::get('/calendar', Calendar::class)->name('calendar');
 
     /* -------------------------------------------------------------------------- */
     /*                                 SUPERADMIN                                 */

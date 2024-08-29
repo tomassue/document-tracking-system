@@ -20,13 +20,14 @@
                                 <label class="col-sm-3 col-form-label">Category</label>
                                 <div class="col-sm-9">
                                     <div id="incoming-category-select" wire:ignore></div>
+                                    @error('incoming_category') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                 </div>
                             </div>
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-6" style="display: {{ $editMode ? 'block' : 'none' }}">
                             <div class="form-group row">
-                                <label class="col-sm-3 col-form-label">{{ $editMode ? 'Status' : '' }}</label>
+                                <label class="col-sm-3 col-form-label">Status</label>
                                 <div class="col-sm-9">
                                     <div id="status-select" wire:ignore></div>
                                 </div>
@@ -38,19 +39,21 @@
                     <div class="row pt-5">
                         <div class="col-md-6">
                             <div class="form-group row">
-                                @error('office_barangay_organization') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                 <label class="col-sm-3 col-form-label" style="padding-top: 0px;padding-bottom: 0px;">Office/Barangay/Organization</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" wire:model="office_barangay_organization" {{ $editMode ? 'disabled' : '' }}>
+                                    @error('office_barangay_organization') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group row">
-                                @error('request_date') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                 <label class="col-sm-3 col-form-label">Request Date</label>
-                                <div class="col-sm-9" wire:ignore>
-                                    <input class="form-control request-date" required></input>
+                                <div class="col-sm-9">
+                                    <div wire:ignore>
+                                        <input class="form-control request-date" required></input>
+                                    </div>
+                                    @error('request_date') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                 </div>
                             </div>
                         </div>
@@ -58,13 +61,13 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group row">
-                                @error('category') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                 <label class="col-sm-3 col-form-label">Category</label>
                                 <div class="col-sm-9">
                                     <div id="category-select" wire:ignore></div>
                                     <div style="display: {{ $category == 'venue' ? 'display' : 'none' }}" class="mt-2">
                                         <div id="venue-select" wire:ignore></div>
                                     </div>
+                                    @error('category') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                 </div>
                             </div>
                         </div>
@@ -75,12 +78,14 @@
                                 $timeError = $errors->first('start_time') ?: $errors->first('end_time');
                                 @endphp
 
-                                @if ($timeError)
-                                <span class="custom-invalid-feedback">{{ $timeError }}</span>
-                                @endif
                                 <label class="col-sm-3 col-form-label">Time</label>
-                                <div class="col-sm-4" wire:ignore>
-                                    <input class="form-control from-time" placeholder="From" required>
+                                <div class="col-sm-4">
+                                    <div wire:ignore>
+                                        <input class="form-control from-time" placeholder="From" required>
+                                    </div>
+                                    @if ($timeError)
+                                    <span class="custom-invalid-feedback">{{ $timeError }}</span>
+                                    @endif
                                 </div>
                                 <div class="col-sm-4" wire:ignore>
                                     <input class="form-control end-time" placeholder="To" required>
@@ -91,10 +96,14 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group row">
-                                @error('description') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                 <label class="col-sm-2 col-form-label">Description</label>
-                                <div class="col-sm-12" wire:ignore>
-                                    <input id="myeditorinstance"></input>
+                                <div class="col-sm-12">
+                                    <!-- <textarea name="" id="" class="form-control" style="height: 110px;"></textarea> -->
+                                    <!-- <input type="text" class="form-control"> -->
+                                    <div wire:ignore>
+                                        <div id="summernote_description"></div>
+                                    </div>
+                                    @error('description') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                 </div>
                             </div>
                         </div>
@@ -103,10 +112,12 @@
                         <div class="col-md-12">
                             <div style="display : {{ $editMode ? 'none' : 'block' }}">
                                 <div class="form-group row">
-                                    @error('attachment') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
-                                    <label class="col-sm-2 col-form-label">Attachment</label>
-                                    <div class="col-sm-10" wire:ignore>
-                                        <input type="file" class="form-control my-pond-attachment" multiple data-allow-reorder="true">
+                                    <label class="col-sm-12 col-form-label">Attachment</label>
+                                    <div class="col-sm-12">
+                                        <div wire:ignore>
+                                            <input type="file" class="form-control my-pond-attachment" multiple data-allow-reorder="true">
+                                        </div>
+                                        @error('attachment') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                     </div>
                                 </div>
                             </div>
@@ -172,51 +183,54 @@
 @script
 <script>
     /* -------------------------------------------------------------------------- */
+
     $wire.on('show-requestModal', () => {
-        $wire.dispatch('enable-plugins');
         $('#requestModal').modal('show');
     });
 
     $wire.on('hide-requestModal', () => {
         $('#requestModal').modal('hide');
     });
-    /* -------------------------------------------------------------------------- */
 
     /* -------------------------------------------------------------------------- */
-    tinymce.init({
-        selector: 'input#myeditorinstance', // Replace this CSS selector to match the placeholder element for TinyMCE
-        // plugins: 'table lists fullscreen',
-        // toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | indent outdent | bullist numlist | table | fullscreen',
-        height: 150,
-        menubar: false,
-        toolbar: false,
-        setup: function(editor) {
-            // NOTE - This code inlcudes the html tags and the contents.
-            // editor.on('Change', function(e) {
-            //     let description = editor.getContent();
-            //     @this.set('description', description);
-            // });
 
-            // NOTE - This code strips out html tags in our editor. 
-            editor.on('input', function() {
-                var plainText = tinymce.activeEditor.getContent({
-                    format: 'text'
-                });
-                document.getElementById('myeditorinstance').value = plainText;
-                @this.set('description', plainText); // Update Livewire property
-            });
-        }
+    VirtualSelect.init({
+        ele: '#status-select',
+        options: [{
+                label: 'Pending',
+                value: 'pending'
+            },
+            {
+                label: 'Processed',
+                value: 'processed'
+            },
+            {
+                label: 'Forwarded',
+                value: 'forwarded'
+            },
+            {
+                label: 'Done',
+                value: 'done'
+            }
+        ],
+        maxWidth: '100%',
+        zIndex: 10,
+        popupDropboxBreakpoint: '3000px',
     });
 
-    //NOTE - Edit Mode (input#myeditorinstance)
-    $wire.on('set-myeditorinstance', (key) => {
-        tinymce.get("myeditorinstance").setContent(key[0]); //NOTE - We set the content dynamically from the database. We already initialized is so, we only have to setContent().
-        tinymce.activeEditor.getBody().setAttribute('contenteditable', false);
-        // console.log(key[0]);
+    let status = document.querySelector('#status-select');
+    status.addEventListener('change', () => {
+        let data = status.value;
+        @this.set('status', data);
     });
-    /* -------------------------------------------------------------------------- */
+
+    $wire.on('set-status', (key) => {
+        document.querySelector('#status-select').setValue(key[0]);
+        // document.querySelector('#status-select').disable();
+    });
 
     /* -------------------------------------------------------------------------- */
+
     VirtualSelect.init({
         ele: '#incoming-category-select',
         options: @json($categories),
@@ -231,50 +245,41 @@
         @this.set('incoming_category', data);
     });
 
-    //NOTE - EDIT MODE
     $wire.on('set-incoming_category', (key) => {
         document.querySelector('#incoming-category-select').setValue(key[0]);
+        document.querySelector('#incoming-category-select').disable();
     });
-    /* -------------------------------------------------------------------------- */
 
     /* -------------------------------------------------------------------------- */
-    //NOTE - Edit mode (status-select). Status select will only be initialized during editMode.
-    $wire.on('set-status', (key) => {
-        VirtualSelect.init({
-            ele: '#status-select',
-            options: [{
-                    label: 'Pending',
-                    value: 'pending'
-                },
-                {
-                    label: 'Processed',
-                    value: 'processed'
-                },
-                {
-                    label: 'Forwarded',
-                    value: 'forwarded'
-                },
-                {
-                    label: 'Done',
-                    value: 'done'
-                }
-            ],
-            maxWidth: '100%',
-            zIndex: 10,
-            popupDropboxBreakpoint: '3000px',
-        });
 
-        let status = document.querySelector('#status-select');
-        status.addEventListener('change', () => {
-            let data = status.value;
-            @this.set('status', data);
-        });
-
-        document.querySelector('#status-select').setValue(key[0]);
+    $('.request-date').pickadate({
+        klass: {
+            holder: 'picker__holder',
+        }
     });
-    /* -------------------------------------------------------------------------- */
+
+    // Handling Pickadate (.request-date) change event
+    $('.request-date').on('change', function(event) {
+        let picker = $(this).pickadate('picker');
+        let selectedDate = picker.get('select', 'yyyy-mm-dd'); // Adjust format as needed
+        @this.set('request_date', selectedDate);
+    });
+
+    $wire.on('set-request-date', (key) => {
+        $('.request-date').each(function() {
+            let picker = $(this).pickadate('picker'); //NOTE - clear out the values
+            picker.clear();
+            $('.request-date').attr('disabled', 'disabled');
+
+            let request_date_key = key[0]; //NOTE - unset it from an array (key[0]);
+            picker.set('select', request_date_key, {
+                format: 'yyyy-mm-dd'
+            }); //NOTE - you need the format, so that it will be correctly displayed in the input field.
+        });
+    });
 
     /* -------------------------------------------------------------------------- */
+
     VirtualSelect.init({
         ele: '#category-select',
         options: [{
@@ -309,13 +314,13 @@
         @this.set('category', data);
     });
 
-    //NOTE - Edit Mode (category-select)
     $wire.on('set-category', (key) => {
         document.querySelector('#category-select').setValue(key[0]); //NOTE - a shorter code of what we did in #category-select (Edit Mode)
         document.querySelector('#category-select').disable();
     });
 
-    // NOTE - This select will be initialized when the event is triggered.
+    /* -------------------------------------------------------------------------- */
+
     VirtualSelect.init({
         ele: '#venue-select',
         placeholder: 'Select venue',
@@ -347,44 +352,13 @@
         @this.set('venue', data);
     });
 
-    //NOTE - Edit mode (#venue-select)
     $wire.on('set-venue', (key) => {
         document.querySelector('#venue-select').setValue(key[0]);
         document.querySelector('#venue-select').disable();
     });
-    /* -------------------------------------------------------------------------- */
 
     /* -------------------------------------------------------------------------- */
-    $('.request-date').pickadate({
-        klass: {
-            holder: 'picker__holder',
-        }
-    });
 
-    // Handling Pickadate (.request-date) change event
-    $('.request-date').on('change', function(event) {
-        let picker = $(this).pickadate('picker');
-        let selectedDate = picker.get('select', 'yyyy-mm-dd'); // Adjust format as needed
-        @this.set('request_date', selectedDate);
-    });
-
-    //NOTE - Edit Mode
-    $wire.on('set-request-date', (key) => {
-        $('.request-date').each(function() {
-            let picker = $(this).pickadate('picker'); //NOTE - clear out the values
-            picker.clear();
-            $('.request-date').attr('disabled', 'disabled');
-
-            let request_date_key = key[0]; //NOTE - unset it from an array (key[0]);
-            picker.set('select', request_date_key, {
-                format: 'yyyy-mm-dd'
-            }); //NOTE - you need the format, so that it will be correctly displayed in the input field.
-        });
-        // console.log(key[0]);
-    });
-    /* -------------------------------------------------------------------------- */
-
-    /* -------------------------------------------------------------------------- */
     $('.from-time').pickatime({
         interval: 1,
         editable: false
@@ -396,21 +370,16 @@
         @this.set('start_time', selectedFromTime);
     });
 
-    //NOTE - Edit Mode (.from-time)
     $wire.on('set-from-time', (key) => {
         $('.from-time').each(function() {
             let picker = $(this).pickatime('picker'); // Use pickatime instead of pickadate
             picker.clear();
             $('.from-time').attr('disabled', 'disabled');
 
-            let start_time_key = key[0]; // Get the time value from the array
-            picker.set('select', start_time_key);
+            picker.set('select', key[0]);
         });
-        // console.log(key[0]);
     });
-    /* -------------------------------------------------------------------------- */
 
-    /* -------------------------------------------------------------------------- */
     $('.end-time').pickatime({
         interval: 1,
         editable: false
@@ -422,7 +391,6 @@
         @this.set('end_time', selectedEndTime);
     });
 
-    // NOTE - Edit Mode (.end-time)
     $wire.on('set-end-time', (key) => {
         $('.end-time').each(function() {
             let picker = $(this).pickatime('picker');
@@ -431,11 +399,55 @@
 
             picker.set('select', key[0]);
         });
-        // console.log(key[0]);
     });
-    /* -------------------------------------------------------------------------- */
 
     /* -------------------------------------------------------------------------- */
+
+    // tinymce.init({
+    //     selector: 'input#myeditorinstance', // Replace this CSS selector to match the placeholder element for TinyMCE
+    //     // plugins: 'table lists fullscreen',
+    //     // toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | indent outdent | bullist numlist | table | fullscreen',
+    //     height: 150,
+    //     menubar: false,
+    //     toolbar: false,
+    //     setup: function(editor) {
+    //         // NOTE - This code inlcudes the html tags and the contents.
+    //         // editor.on('Change', function(e) {
+    //         //     let description = editor.getContent();
+    //         //     @this.set('description', description);
+    //         // });
+
+    //         // NOTE - This code strips out html tags in our editor. 
+    //         editor.on('input', function() {
+    //             var plainText = tinymce.activeEditor.getContent({
+    //                 format: 'text'
+    //             });
+    //             document.getElementById('myeditorinstance').value = plainText;
+    //             @this.set('description', plainText); // Update Livewire property
+    //         });
+    //     }
+    // });
+
+    $('#summernote_description').summernote({
+        toolbar: false,
+        tabsize: 2,
+        height: 120,
+        callbacks: {
+            onChange: function(contents, $editable) {
+                // Create a temporary div element to strip out HTML tags
+                var plainText = $('<div>').html(contents).text();
+                @this.set('description', plainText);
+            }
+        }
+    });
+
+    $wire.on('set-description', (key) => {
+        $('#summernote_description').summernote('code', key[0]);
+        $('#summernote_description').summernote('disable');
+    });
+
+    /* -------------------------------------------------------------------------- */
+
     // Turn input element into a pond with configuration options
     $('.my-pond-attachment').filepond({
         // required: true,
@@ -450,46 +462,33 @@
             }
         }
     });
-    /* -------------------------------------------------------------------------- */
 
     /* -------------------------------------------------------------------------- */
-    //NOTE - Clear plugins
-    $wire.on('clear-plugins', () => {
+
+    $wire.on('refresh-plugin', () => {
+        document.querySelector('#status-select').reset();
         document.querySelector('#incoming-category-select').reset();
-        document.querySelector('#category-select').reset();
-        document.querySelector('#status-select').destroy();
-        tinyMCE.activeEditor.setContent('');
+        document.querySelector('#incoming-category-select').enable();
         $('.request-date').each(function() {
             $(this).pickadate('picker').clear();
+            $(this).removeAttr('disabled');
         });
         $('.from-time').each(function() {
             $(this).pickatime('picker').clear();
+            $(this).removeAttr('disabled');
         });
         $('.end-time').each(function() {
             $(this).pickatime('picker').clear();
+            $(this).removeAttr('disabled');
         });
-        // Clear FilePond
-        $('.my-pond-attachment').each(function() {
-            $(this).filepond('removeFiles');
+        $('#summernote_description').each(function() {
+            $(this).summernote('reset');
+            $(this).summernote('enable');
         });
-    });
-    /* -------------------------------------------------------------------------- */
-
-    /**
-     * NOTE
-     * During editMode, we disable the plug-ins. However, when we prompt the modal again, the plugins remains disabled and it requires the component to be refreshed.
-     * To address this, we will fire an event to enable them again when we add a new record.
-     */
-
-    $wire.on('enable-plugins', () => {
-        tinymce.activeEditor.getBody().setAttribute('contenteditable', true);
-        document.querySelector('#incoming-category-select').enable();
+        document.querySelector('#category-select').reset();
         document.querySelector('#category-select').enable();
-        document.querySelector('#venue-select').disable();
-        $('.request-date').removeAttr('disabled');
-        $('.from-time').removeAttr('disabled');
-        $('.end-time').removeAttr('disabled');
-        console.log('enable');
+        document.querySelector('#venue-select').reset();
+        document.querySelector('#venue-select').enable();
     });
 </script>
 @endscript

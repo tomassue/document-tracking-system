@@ -229,36 +229,54 @@
 
     /* -------------------------------------------------------------------------- */
 
-    tinymce.init({
-        selector: 'input#document_details', // Replace this CSS selector to match the placeholder element for TinyMCE
-        // plugins: 'table lists fullscreen',
-        // toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | indent outdent | bullist numlist | table | fullscreen',
-        height: 150,
-        menubar: false,
-        toolbar: false,
-        setup: function(editor) {
-            // NOTE - This code inlcudes the html tags and the contents.
-            // editor.on('Change', function(e) {
-            //     let description = editor.getContent();
-            //     @this.set('description', description);
-            // });
+    // tinymce.init({
+    //     selector: 'input#document_details', // Replace this CSS selector to match the placeholder element for TinyMCE
+    //     // plugins: 'table lists fullscreen',
+    //     // toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | indent outdent | bullist numlist | table | fullscreen',
+    //     height: 150,
+    //     menubar: false,
+    //     toolbar: false,
+    //     setup: function(editor) {
+    //         // NOTE - This code inlcudes the html tags and the contents.
+    //         // editor.on('Change', function(e) {
+    //         //     let description = editor.getContent();
+    //         //     @this.set('description', description);
+    //         // });
 
-            // NOTE - This code strips out html tags in our editor. 
-            editor.on('input', function() {
-                var plainText = tinymce.activeEditor.getContent({
-                    format: 'text'
-                });
-                document.getElementById('document_details').value = plainText;
-                @this.set('document_details', plainText); // Update Livewire property
-            });
+    //         // NOTE - This code strips out html tags in our editor. 
+    //         editor.on('input', function() {
+    //             var plainText = tinymce.activeEditor.getContent({
+    //                 format: 'text'
+    //             });
+    //             document.getElementById('document_details').value = plainText;
+    //             @this.set('document_details', plainText); // Update Livewire property
+    //         });
+    //     }
+    // });
+
+    // // NOTE - Edit Mode
+    // $wire.on('set-document_details', (key) => {
+    //     tinymce.activeEditor.getBody().setAttribute('contenteditable', false);
+    //     tinymce.get("document_details").setContent(key[0]); //NOTE - We set the content dynamically from the database. We already initialized is so, we only have to setContent().
+    //     // console.log(key[0]);
+    // });
+
+    $('#document_details').summernote({
+        toolbar: false,
+        tabsize: 2,
+        height: 120,
+        callbacks: {
+            onChange: function(contents, $editable) {
+                // Create a temporary div element to strip out HTML tags
+                var plainText = $('<div>').html(contents).text();
+                @this.set('document_details', plainText);
+            }
         }
     });
 
-    // NOTE - Edit Mode
     $wire.on('set-document_details', (key) => {
-        tinymce.activeEditor.getBody().setAttribute('contenteditable', false);
-        tinymce.get("document_details").setContent(key[0]); //NOTE - We set the content dynamically from the database. We already initialized is so, we only have to setContent().
-        // console.log(key[0]);
+        $('#document_details').summernote('code', key[0]);
+        $('#document_details').summernote('disable');
     });
 
     /* -------------------------------------------------------------------------- */
@@ -299,6 +317,8 @@
             $(this).pickadate('picker').clear();
         });
 
+        $('#document_details').filepond('removeFiles');
+
         tinyMCE.activeEditor.setContent('');
 
         // Clear FilePond
@@ -318,7 +338,14 @@
     $wire.on('enable-plugins', () => {
         document.querySelector('#outgoing-category-select').enable();
         $('.date').removeAttr('disabled');
-        tinymce.activeEditor.getBody().setAttribute('contenteditable', true);
+        $('.documents-my-pond-attachment').each(function() {
+            $(this).filepond('removeFiles');
+        });
+        $('#document_details').each(function() {
+            $(this).summernote('reset');
+            $(this).summernote('enable');
+        });
+        // tinymce.activeEditor.getBody().setAttribute('contenteditable', true);
     });
 </script>
 @endscript
