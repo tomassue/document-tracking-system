@@ -208,6 +208,12 @@
             left: 0;
             right: -55.8px;
         }
+
+        /* fullcalendar */
+        a {
+            color: #0d6efd;
+            text-decoration: none;
+        }
     </style>
 </head>
 
