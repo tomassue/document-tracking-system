@@ -97,7 +97,7 @@
                                     <tbody>
                                         @forelse($incoming_documents as $item)
                                         <tr wire:key="{{ $item->document_no }}">
-                                            <td class="text-capitalize">{{ $item->incoming_document_category }}</td>
+                                            <td class="text-capitalize">{{ $item->category }}</td>
                                             <td>{{ $item->document_no }}</td>
                                             <td>{{ $item->document_info }}</td>
                                             <td class="text-center text-uppercase">

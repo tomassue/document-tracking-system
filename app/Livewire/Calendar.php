@@ -2,12 +2,34 @@
 
 namespace App\Livewire;
 
+use App\Models\Document_History_Model;
+use App\Models\File_Data_Model;
 use App\Models\Incoming_Request_CPSO_Model;
+use Livewire\Attributes\On;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 
+#[Title('Calendar | Document Tracking System')]
 class Calendar extends Component
 {
     public $venue; //NOTE - Filter select
+    /* -------------------------------------------------------------------------- */
+    public $editMode = false;
+    /* -------------------------------------------------------------------------- */
+    public $incoming_request_id;
+    public $incoming_request_category;
+    public $status;
+    public $office_or_barangay_or_organization;
+    public $request_date;
+    public $category;
+    public $incoming_request_venue;
+    public $start_time;
+    public $end_time;
+    public $description;
+    public $files = [];
+    public $file_title;
+    public $file_data;
+
 
     public function render()
     {
@@ -18,10 +40,74 @@ class Calendar extends Component
         return view('livewire.calendar', $data);
     }
 
+    public function clear()
+    {
+        $this->reset();
+    }
+
     public function updated($property)
     {
         if ($property == 'venue') {
             $this->updateCalendar();
+        }
+    }
+
+    #[On('show-details')]
+    public function showDetails($key)
+    {
+        $this->editMode = true;
+
+        $query = Incoming_Request_CPSO_Model::join('ref_category', 'ref_category.id', '=', 'incoming_request_cpso.incoming_category')
+            ->select(
+                'ref_category.category AS ref_category',
+                'incoming_request_cpso.office_or_barangay_or_organization',
+                'incoming_request_cpso.request_date',
+                'incoming_request_cpso.category',
+                'incoming_request_cpso.venue',
+                'incoming_request_cpso.start_time',
+                'incoming_request_cpso.end_time',
+                'incoming_request_cpso.description',
+                'incoming_request_cpso.files'
+            )
+            ->where('incoming_request_cpso.incoming_request_id', $key)
+            ->first();
+
+        $document_history = Document_History_Model::where('document_id', $key)->latest()->first();
+
+        $this->incoming_request_id                  = $query->incoming_request_id;
+        $this->incoming_request_category            = $query->ref_category;
+        $this->status                               = $document_history->status;
+        $this->office_or_barangay_or_organization   = $query->office_or_barangay_or_organization;
+        $this->request_date                         = (new \DateTime($query->request_date))->format('M d, Y');
+        $this->category                             = $query->category;
+        $this->incoming_request_venue               = $query->venue;
+        $this->start_time                           = (new \DateTime($query->start_time))->format('g:i A');
+        $this->end_time                             = (new \DateTime($query->end_time))->format('g:i A');
+        $this->description                          = $query->description;
+
+        foreach (json_decode($query->files) as $item) {
+            $file = File_Data_Model::where('id', $item)
+                ->select(
+                    'id',
+                    'file_name',
+                )
+                ->first();
+            $file->file_size = $this->convertSize($file->file_size);
+            $this->files[] = $file;
+        }
+
+        $this->dispatch('show-viewDetailsModal');
+    }
+
+    public function previewAttachment($key)
+    {
+        if ($key) {
+            $file = File_Data_Model::findOrFail($key);
+
+            if ($file && $file->file) {
+                $this->file_title = $file->file_name;
+                $this->file_data = base64_encode($file->file);
+            }
         }
     }
 
@@ -51,14 +137,20 @@ class Calendar extends Component
             ->get()
             ->map(function ($item) {
                 return [
-                    'id' => $item->incoming_request_id,
-                    'title' => $item->office_or_barangay_or_organization,
-                    'start' => $item->request_date . 'T' . $item->start_time,
-                    'end' => $item->request_date . 'T' . $item->end_time,
+                    'id'     => $item->incoming_request_id,
+                    'title'  => $item->office_or_barangay_or_organization,
+                    'start'  => $item->request_date . 'T' . $item->start_time,
+                    'end'    => $item->request_date . 'T' . $item->end_time,
                     'allDay' => false
                 ];
             });
 
         return $incoming_request;
+    }
+
+    //NOTE - file_size in KB convert to MB 
+    public function convertSize($sizeInKB)
+    {
+        return round($sizeInKB / 1024, 2); // Convert KB to MB and round to 2 decimal places
     }
 }

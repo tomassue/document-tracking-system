@@ -3,7 +3,7 @@
     <ul class="nav">
         <li class="nav-item">
             <a class="nav-link" data-bs-toggle="collapse" href="#profile-options" aria-expanded="false" aria-controls="profile-options">
-                <img src="{{ asset('images/faces/face5.jpg') }}" class="img-fluid mx-auto d-block" alt="profile-options" />
+                <img src="{{ asset('images/faces/user.png') }}" class="img-fluid mx-auto d-block" alt="profile-options" />
                 <span class="menu-title">&nbsp &nbsp Profile</span>
                 <i class="menu-arrow"></i>
             </a>

@@ -17,7 +17,7 @@
 
                     </h4>
                 </li>
-                <li class="nav-item dropdown me-1">
+                <!-- <li class="nav-item dropdown me-1">
                     <a class="nav-link count-indicator dropdown-toggle d-flex justify-content-center align-items-center text-black" id="messageDropdown" href="#" data-bs-toggle="dropdown">
                         <i class="mdi mdi-calendar mx-0"></i>
                         <span class="count bg-info">2</span>
@@ -109,7 +109,7 @@
                             </div>
                         </a>
                     </div>
-                </li>
+                </li> -->
             </ul>
             <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" data-toggle="offcanvas">
                 <span class="mdi mdi-menu text-black"></span>
@@ -119,7 +119,7 @@
             <ul class="navbar-nav navbar-nav-right">
                 <li class="nav-item nav-profile dropdown">
                     <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" id="profileDropdown">
-                        <img src="{{ asset('images/faces/face5.jpg') }}" alt="profile" />
+                        <img src="{{ asset('images/faces/user.png') }}" alt="profile" />
                         <span class="nav-profile-name">{{ Auth::user()->name . ' (' . Auth::user()->ref_office->office_name . ')' }}</span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">

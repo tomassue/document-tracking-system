@@ -9,10 +9,12 @@ use App\Models\Incoming_Request_CPSO_Model;
 use DateTime;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 
+#[Title('Dashboard | Document Tracking System')]
 class Dashboard extends Component
 {
     use WithPagination, WithFileUploads;
@@ -268,6 +270,7 @@ class Dashboard extends Component
     public function loadIncomingDocumentsCPSO()
     {
         $incoming_documents = DB::table('incoming_documents_cpso')
+            ->join('ref_category', 'ref_category.id', '=', 'incoming_documents_cpso.incoming_document_category')
             ->join(DB::raw('(SELECT document_id, status
                 FROM document_history
                 WHERE id IN (
@@ -276,6 +279,7 @@ class Dashboard extends Component
                     GROUP BY document_id
                 )) AS latest_document_history'), 'latest_document_history.document_id', '=', 'incoming_documents_cpso.document_no')
             ->select(
+                'ref_category.category',
                 'incoming_documents_cpso.document_no',
                 'incoming_documents_cpso.incoming_document_category',
                 'incoming_documents_cpso.document_info',

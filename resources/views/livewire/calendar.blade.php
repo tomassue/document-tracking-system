@@ -47,7 +47,9 @@
             events: @json($incoming_request),
             eventClick: function(info) {
                 // Change to dayGridDay view on date click
-                calendar.changeView('timeGridDay', info.dateStr);
+                $wire.dispatch('show-details', {
+                    key: info.event.id
+                })
             },
             dateClick: function(info) {
                 // Change to dayGridDay view on date click
@@ -56,42 +58,56 @@
         });
 
         calendar.render();
-    });
 
-    $wire.on('filter-calendar', (incoming_request) => {
-        console.log(incoming_request);
-    });
-
-    /* -------------------------------------------------------------------------- */
-
-    VirtualSelect.init({
-        ele: '#venue',
-        placeholder: 'Venue',
-        options: [{
-                label: 'Tourism Hall',
-                value: 'tourism hall'
-            },
-            {
-                label: 'Mini Park',
-                value: 'mini park'
-            },
-            {
-                label: 'Amphitheater',
-                value: 'amphitheater'
-            },
-            {
-                label: 'Quadrangle',
-                value: 'quadrangle'
+        $wire.on('filter-calendar', function(incoming_request) {
+            try {
+                const events = incoming_request[0]; // Destructure the nested array
+                calendar.removeAllEvents();
+                calendar.addEventSource(events);
+                calendar.refetchEvents();
+                console.log('refreshed');
+            } catch (e) {
+                console.error('Error parsing meetings data', e)
             }
-        ],
-        zIndex: 10,
-        popupDropboxBreakpoint: '3000px',
-    });
+        });
 
-    let venue = document.querySelector('#venue');
-    venue.addEventListener('change', () => {
-        let data = venue.value;
-        @this.set('venue', data);
+        /* -------------------------------------------------------------------------- */
+
+        VirtualSelect.init({
+            ele: '#venue',
+            placeholder: 'Venue',
+            options: [{
+                    label: 'Tourism Hall',
+                    value: 'tourism hall'
+                },
+                {
+                    label: 'Mini Park',
+                    value: 'mini park'
+                },
+                {
+                    label: 'Amphitheater',
+                    value: 'amphitheater'
+                },
+                {
+                    label: 'Quadrangle',
+                    value: 'quadrangle'
+                }
+            ],
+            zIndex: 10,
+            popupDropboxBreakpoint: '3000px',
+        });
+
+        let venue = document.querySelector('#venue');
+        venue.addEventListener('change', () => {
+            let data = venue.value;
+            @this.set('venue', data);
+        });
+
+        /* -------------------------------------------------------------------------- */
+
+        $wire.on('show-details', () => {
+            $('#viewDetailsModal').modal('show');
+        });
     });
 </script>
 @endscript

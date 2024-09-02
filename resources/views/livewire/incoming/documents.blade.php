@@ -6,7 +6,7 @@
                     <div class="card-body">
                         <div class="row mb-2">
                             <div class="col-md-6">
-                                <h4 class="card-title">Requests</h4>
+                                <h4 class="card-title">Documents</h4>
                             </div>
                         </div>
                         <div class="row mb-2">

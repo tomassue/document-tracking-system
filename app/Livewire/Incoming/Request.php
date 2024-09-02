@@ -12,7 +12,9 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Title;
 
+#[Title('Request | Document Tracking System')]
 class Request extends Component
 {
     /**

@@ -30,9 +30,6 @@
     <link rel="stylesheet" href="{{ asset('plugins/virtual-select/virtual-select.min.css') }}">
     <link rel="stylesheet" href="{{ asset('plugins/virtual-select/tooltip.min.css') }}">
 
-    <!-- Tiny MCE -->
-    <script src="https://cdn.tiny.cloud/1/oesmgpb85r1zhz03towvnev67dhrse0olv9o0ai5146b77g6/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
-
     <!-- Summernote -->
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <link href="{{ asset('plugins/summernote/summernote-bs5.css') }}" rel="stylesheet">
@@ -217,7 +214,7 @@
     </style>
 </head>
 
-<body>
+<body class="sidebar-icon-only"> <!-- This class will make the sidebar appear with icons only. -->
 
     <div class="container-scroller d-flex">
 

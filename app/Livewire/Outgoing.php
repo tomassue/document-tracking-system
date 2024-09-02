@@ -12,10 +12,12 @@ use App\Models\OutgoingCategoryVoucherModel;
 use App\Models\OutgoingDocumentsModel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 
+#[Title('Outgoing | Document Tracking System')]
 class Outgoing extends Component
 {
     use WithPagination, WithFileUploads;

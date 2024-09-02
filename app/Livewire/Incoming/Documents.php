@@ -9,10 +9,12 @@ use App\Models\Ref_Category_Model;
 use DateTime;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 
+#[Title('Documents | Document Tracking System')]
 class Documents extends Component
 {
     /**
@@ -116,10 +118,12 @@ class Documents extends Component
 
     public function viewDetails($key)
     {
-        $incoming_documents = Incoming_Documents_CPSO_Model::where('document_no', $key)->first();
+        $incoming_documents = Incoming_Documents_CPSO_Model::join('ref_category', 'ref_category.id', '=', 'incoming_documents_cpso.incoming_document_category')
+            ->where('incoming_documents_cpso.document_no', $key)
+            ->first();
         $document_history = Document_History_Model::where('document_id', $key)->first();
 
-        $this->incoming_document_category = $incoming_documents->incoming_document_category;
+        $this->incoming_document_category = $incoming_documents->category;
         $this->document_no = $incoming_documents->document_no;
         $this->date = (new DateTime($incoming_documents->date))->format('M d, Y');
         $this->document_info = $incoming_documents->document_info;
@@ -258,6 +262,7 @@ class Documents extends Component
 
         return $categories;
     }
+
     //NOTE - Instead of just dispatching the event show-documentsModal directly from the button through wire:click, we want to display the document_no to the input field so we have it this way instead.
     public function show_documentsModal()
     {
