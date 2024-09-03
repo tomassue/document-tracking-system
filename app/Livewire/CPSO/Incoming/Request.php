@@ -80,7 +80,7 @@ class Request extends Component
             'categories' => $this->loadCategories()
         ];
 
-        return view('livewire.incoming.request', $data);
+        return view('livewire.CPSO.incoming.request', $data);
     }
 
     public function clear()

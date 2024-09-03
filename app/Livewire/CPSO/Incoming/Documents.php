@@ -50,7 +50,7 @@ class Documents extends Component
             'incoming_documents' => $this->loadIncomingDocumentsCPSO(),
             'categories' => $this->loadCategories()
         ];
-        return view('livewire.incoming.documents', $data);
+        return view('livewire.CPSO.incoming.documents', $data);
     }
 
     public function rules()

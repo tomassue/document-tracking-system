@@ -95,6 +95,6 @@
     </div>
     <!-- content-wrapper ends -->
 
-    @include('livewire.incoming.cpso_modals.documents_cpso')
+    @include('livewire.CPSO.incoming.cpso_modals.documents_cpso')
     @include('livewire.history_modal.history_modal')
 </div>
