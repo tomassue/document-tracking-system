@@ -1,11 +1,11 @@
 <?php
 
-use App\Http\Controllers\PdfController;
-use App\Livewire\Calendar;
-use App\Livewire\Dashboard;
-use App\Livewire\Incoming\Documents;
-use App\Livewire\Incoming\Request;
-use App\Livewire\Outgoing;
+use App\Http\Controllers\HomeController;
+use App\Livewire\CPSO\Calendar;
+use App\Livewire\CPSO\Dashboard;
+use App\Livewire\CPSO\Incoming\Documents;
+use App\Livewire\CPSO\Incoming\Request;
+use App\Livewire\CPSO\Outgoing;
 use App\Livewire\Settings\Category;
 use App\Livewire\Settings\Offices;
 use App\Livewire\Settings\UserManagement;
@@ -16,7 +16,14 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/404', [HomeController::class, 'notFoundPage'])->name('404');
+
 Auth::routes();
+
+/* -------------------------------------------------------------------------- */
+/*                                    CPSO                                    */
+/* -------------------------------------------------------------------------- */
 
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
@@ -24,13 +31,15 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/incoming/documents', Documents::class)->name('documents');
     Route::get('/outgoing', Outgoing::class)->name('outgoing');
     Route::get('/calendar', Calendar::class)->name('calendar');
+});
 
-    /* -------------------------------------------------------------------------- */
-    /*                                 SUPERADMIN                                 */
-    /* -------------------------------------------------------------------------- */
+
+/* -------------------------------------------------------------------------- */
+/*                                 SUPERADMIN                                 */
+/* -------------------------------------------------------------------------- */
+
+Route::middleware(['auth', 'super_admin_access_only'])->group(function () {
     Route::get('/settings/category', Category::class)->name('category');
     Route::get('/settings/offices', Offices::class)->name('offices');
     Route::get('/settings/user-management', UserManagement::class)->name('user-management');
 });
-
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

@@ -1,5 +1,5 @@
 <div>
-    <div class="content-wrapper">
+    <div class="content-wrapper" @if($page_type=='dashboard' ) style="padding-bottom: 0px;" @endif>
         <div class="row">
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
@@ -9,14 +9,17 @@
                                 <h4 class="card-title">Requests</h4>
                             </div>
                         </div>
-                        <div class="row mb-2">
-                            <div class="col-md-11">
-                                <input type="text" class="form-control" id="exampleInputSearch" placeholder="Search" wire:model.live="search">
-                            </div>
-                            <div class="col-md-1 text-end">
-                                <button type="button" class="btn btn-inverse-success btn-icon" wire:click="openRequestModal">
-                                    <i class="mdi mdi mdi-plus"></i>
-                                </button>
+
+                        <div style="display: {{ $page_type == 'dashboard' ? 'none' : 'block' }}">
+                            <div class="row mb-2">
+                                <div class="col-md-11">
+                                    <input type="text" class="form-control" id="exampleInputSearch" placeholder="Search" wire:model.live="search">
+                                </div>
+                                <div class="col-md-1 text-end">
+                                    <button type="button" class="btn btn-inverse-success btn-icon" wire:click="openRequestModal">
+                                        <i class="mdi mdi mdi-plus"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 

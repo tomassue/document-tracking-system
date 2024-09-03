@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Incoming;
+namespace App\Livewire\CPSO\Incoming;
 
 use App\Models\Document_History_Model;
 use App\Models\File_Data_Model;
@@ -30,12 +30,19 @@ class Documents extends Component
 
     use WithFileUploads, WithPagination;
 
+    // LINK - App\Livewire\CPSO\Incoming\Request.php#33
+    public $page_type = "";
+
     public $search;
     public $editMode = false, $status;
     public $document_history = [];
     public $files = [], $file_title, $file_data;
     public $edit_document_no, $document_no, $incoming_document_category, $document_info, $attachment = [], $date;
 
+    public function mount($page_type = "")
+    {
+        $this->page_type = $page_type;
+    }
 
     public function render()
     {
@@ -65,7 +72,7 @@ class Documents extends Component
 
     public function clear()
     {
-        $this->reset();
+        $this->resetExcept('page_type');
         $this->resetValidation();
         $this->dispatch('clear-plugins');
     }
@@ -160,7 +167,6 @@ class Documents extends Component
         $this->document_history = []; //NOTE - Set this to empty to avoid data to stack.
 
         $document_history = Document_History_Model::join('users', 'users.id', '=', 'document_history.user_id')
-            ->where('document_history.user_id', Auth::user()->id)
             ->where('document_history.document_id', $key)
             ->select(
                 DB::raw("DATE_FORMAT(document_history.created_at, '%b %d, %Y %h:%i%p') AS history_date_time"),
@@ -236,6 +242,9 @@ class Documents extends Component
                 DB::raw("DATE_FORMAT(incoming_documents_cpso.date, '%b %d, %Y') AS date")
             )
             ->where('incoming_documents_cpso.document_info', 'like', '%' . $this->search . '%')
+            ->when($this->page_type == 'dashboard', function ($query) {
+                return $query->where('latest_document_history.status', 'pending');
+            })
             ->orderBy('incoming_documents_cpso.date', 'ASC')
             ->paginate(10);
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\CPSO;
 
 use App\Models\Document_History_Model;
 use App\Models\File_Data_Model;
@@ -37,7 +37,7 @@ class Calendar extends Component
             'incoming_request' => $this->loadIncomingRequest()
         ];
 
-        return view('livewire.calendar', $data);
+        return view('livewire.CPSO.calendar', $data);
     }
 
     public function clear()

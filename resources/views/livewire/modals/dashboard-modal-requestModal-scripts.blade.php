@@ -4,39 +4,6 @@
     /*                                requestModal                                */
     /* -------------------------------------------------------------------------- */
 
-    tinymce.init({
-        selector: 'input#myeditorinstance', // Replace this CSS selector to match the placeholder element for TinyMCE
-        // plugins: 'table lists fullscreen',
-        // toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | indent outdent | bullist numlist | table | fullscreen',
-        height: 150,
-        menubar: false,
-        toolbar: false,
-        setup: function(editor) {
-            // NOTE - This code inlcudes the html tags and the contents.
-            // editor.on('Change', function(e) {
-            //     let description = editor.getContent();
-            //     @this.set('description', description);
-            // });
-
-            // NOTE - This code strips out html tags in our editor. 
-            editor.on('input', function() {
-                var plainText = tinymce.activeEditor.getContent({
-                    format: 'text'
-                });
-                document.getElementById('myeditorinstance').value = plainText;
-                @this.set('incoming_request_description', plainText); // Update Livewire property
-            });
-        }
-    });
-
-    //NOTE - Edit Mode (input#myeditorinstance)
-    $wire.on('set-myeditorinstance', (key) => {
-        tinymce.get("myeditorinstance").setContent(key[0]); //NOTE - We set the content dynamically from the database. We already initialized is so, we only have to setContent().
-        // console.log(key[0]);
-    });
-    /* -------------------------------------------------------------------------- */
-
-    /* -------------------------------------------------------------------------- */
     VirtualSelect.init({
         ele: '#incoming-category-select',
         options: [{

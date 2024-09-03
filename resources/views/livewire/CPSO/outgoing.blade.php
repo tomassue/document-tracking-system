@@ -55,9 +55,9 @@
                                             <td class="text-center">{{ $item->person_responsible }}</td>
                                             <td class="text-center text-uppercase">
                                                 <span class="badge badge-pill 
-                                            @if($item->status == 'pending')
+                                            @if($item->status == 'returned')
                                             badge-danger
-                                            @elseif($item->status == 'processed')
+                                            @elseif($item->status == 'processing')
                                             badge-warning
                                             @elseif($item->status == 'forwarded')
                                             badge-dark
@@ -104,7 +104,7 @@
     <!-- main-panel ends -->
 
     @include('livewire.history_modal.history_modal')
-    @include('livewire.modals.outgoing-modals')
+    @include('livewire.CPSO.modals.outgoing-modals')
 </div>
 
 @script
@@ -139,20 +139,21 @@
         }, {
             label: 'Return',
             value: 'return'
-        }, {
-            label: 'Pending',
-            value: 'pending'
         }],
         maxWidth: '100%',
         zIndex: 10,
         popupDropboxBreakpoint: '3000px',
     });
 
+    let status = document.querySelector('#outgoing-status-select');
+    status.addEventListener('change', () => {
+        let data = status.value;
+        @this.set('status', data);
+    });
+
     // NOTE - Edit Mode
     $wire.on('set-outgoing-status-select', (key) => {
         document.querySelector('#outgoing-status-select').setValue(key[0]);
-
-        // console.log(key[0]);
     });
 
     /* -------------------------------------------------------------------------- */
@@ -350,4 +351,4 @@
 </script>
 @endscript
 
-@include('livewire.modals.outgoing-modals-payroll-scripts')
+@include('livewire.CPSO.modals.outgoing-modals-payroll-scripts')

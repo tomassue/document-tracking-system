@@ -25,4 +25,9 @@ class HomeController extends Controller
     {
         return view('home');
     }
+
+    public function notFoundPage()
+    {
+        return view('404_page');
+    }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\CPSO;
 
 use App\Models\Document_History_Model;
 use App\Models\File_Data_Model;
@@ -109,7 +109,7 @@ class Outgoing extends Component
             'outgoing_documents' => $this->loadOutgoingDocuments()
         ];
 
-        return view('livewire.outgoing', $data);
+        return view('livewire.CPSO.outgoing', $data);
     }
 
     /**
@@ -162,7 +162,7 @@ class Outgoing extends Component
                 // Save document history
                 Document_History_Model::create([
                     'document_id' => $outgoing_documents->document_no,
-                    'status' => 'pending',
+                    'status' => 'processing',
                     'user_id' => Auth::user()->id,
                     'remarks' => 'created_by'
                 ]);
@@ -220,7 +220,7 @@ class Outgoing extends Component
                 // Save document history
                 Document_History_Model::create([
                     'document_id' => $outgoing_documents->document_no,
-                    'status' => 'pending',
+                    'status' => 'processing',
                     'user_id' => Auth::user()->id,
                     'remarks' => 'created_by'
                 ]);
@@ -275,7 +275,7 @@ class Outgoing extends Component
                 // Save document history
                 Document_History_Model::create([
                     'document_id' => $outgoing_documents->document_no,
-                    'status' => 'pending',
+                    'status' => 'processing',
                     'user_id' => Auth::user()->id,
                     'remarks' => 'created_by'
                 ]);
@@ -331,7 +331,7 @@ class Outgoing extends Component
                 // Save document history
                 Document_History_Model::create([
                     'document_id' => $outgoing_documents->document_no,
-                    'status' => 'pending',
+                    'status' => 'processing',
                     'user_id' => Auth::user()->id,
                     'remarks' => 'created_by'
                 ]);
@@ -386,7 +386,7 @@ class Outgoing extends Component
                 // Save document history
                 Document_History_Model::create([
                     'document_id' => $outgoing_documents->document_no,
-                    'status' => 'pending',
+                    'status' => 'processing',
                     'user_id' => Auth::user()->id,
                     'remarks' => 'created_by'
                 ]);
@@ -453,6 +453,22 @@ class Outgoing extends Component
         $this->dispatch('show-outgoingModal');
     }
 
+    public function update()
+    {
+        //NOTE - For now, we will update the status only and record the action in our document_history
+
+        Document_History_Model::create([
+            'document_id' => $this->document_no,
+            'status' => $this->status,
+            'user_id' => Auth::user()->id,
+            'remarks' => 'updated_by'
+        ]);
+
+        $this->clear();
+        $this->dispatch('hide-outgoingModal');
+        $this->dispatch('show-success-update-message-toast');
+    }
+
     public function previewAttachment($key)
     {
         if ($key) {
@@ -489,7 +505,6 @@ class Outgoing extends Component
         $this->document_history = []; //NOTE - Set this to empty to avoid data to stack.
 
         $document_history = Document_History_Model::join('users', 'users.id', '=', 'document_history.user_id')
-            ->where('document_history.user_id', Auth::user()->id)
             ->where('document_history.document_id', $key)
             ->select(
                 DB::raw("DATE_FORMAT(document_history.created_at, '%b %d, %Y %h:%i%p') AS history_date_time"),

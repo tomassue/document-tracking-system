@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Incoming;
+namespace App\Livewire\CPSO\Incoming;
 
 use App\Models\Document_History_Model;
 use App\Models\File_Data_Model;
@@ -30,10 +30,25 @@ class Request extends Component
 
     use WithPagination, WithFileUploads;
 
+    /**
+     * NOTE
+     * `$page_type`
+     * What happened is that I nested the Request component to Dashboard component.
+     * Passing data from the parent component (Dashboard) is like passing props to a typical Blade component.
+     * We can receive that data through the child component's mount() method.
+     */
+    public $page_type = "";
+
     public $search, $incoming_category, $status, $office_barangay_organization, $request_date, $category, $venue, $start_time, $end_time, $description, $attachment = [];
     public $file_title, $file_data;
     public $editMode, $edit_document_id;
     public $document_history = [];
+
+    // LINK - app\Livewire\CPSO\Incoming\Request.php#34
+    public function mount($page_type = "")
+    {
+        $this->page_type = $page_type;
+    }
 
     public function rules()
     {
@@ -59,6 +74,7 @@ class Request extends Component
 
     public function render()
     {
+
         $data = [
             'incoming_requests_cpso' => $this->loadIncomingRequestsCPSO(),
             'categories' => $this->loadCategories()
@@ -69,7 +85,7 @@ class Request extends Component
 
     public function clear()
     {
-        $this->reset();
+        $this->resetExcept('page_type'); // Since we need the page_type as what I mentioned, we will not clear the property.
         $this->resetValidation();
         $this->dispatch('clear-plugins');
     }
@@ -202,7 +218,6 @@ class Request extends Component
         $this->document_history = []; //NOTE - Set this to empty to avoid data to stack.
 
         $document_history = Document_History_Model::join('users', 'users.id', '=', 'document_history.user_id')
-            ->where('document_history.user_id', Auth::user()->id)
             ->where('document_history.document_id', $key)
             ->select(
                 DB::raw("DATE_FORMAT(document_history.created_at, '%b %d, %Y %h:%i%p') AS history_date_time"),
@@ -242,10 +257,34 @@ class Request extends Component
                 'latest_document_history.status'
             )
             ->where('incoming_request_cpso.office_or_barangay_or_organization', 'like', '%' . $this->search . '%')
+            ->when($this->page_type == "dashboard", function ($query) {
+                return $query->where('latest_document_history.status', 'pending');
+            })
             ->orderBy('incoming_request_cpso.request_date', 'ASC')
             ->paginate(10);
 
         return $incoming_requests_cpso;
+    }
+
+    public function loadCategories()
+    {
+        $categories = Ref_Category_Model::select(
+            'id',
+            'category',
+            'document_type',
+            'is_active'
+        )
+            ->where('document_type', 'incoming')
+            ->where('is_active', 'yes')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'label' => $item->category,
+                    'value' => $item->id
+                ];
+            });
+
+        return $categories;
     }
 
     //NOTE - file_size in KB convert to MB 
@@ -285,26 +324,5 @@ class Request extends Component
         $shuffledNumber = str_shuffle($uniqueNumber);
 
         return $shuffledNumber;
-    }
-
-    public function loadCategories()
-    {
-        $categories = Ref_Category_Model::select(
-            'id',
-            'category',
-            'document_type',
-            'is_active'
-        )
-            ->where('document_type', 'incoming')
-            ->where('is_active', 'yes')
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'label' => $item->category,
-                    'value' => $item->id
-                ];
-            });
-
-        return $categories;
     }
 }

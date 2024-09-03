@@ -26,7 +26,7 @@
     </div>
     <!-- main-panel ends -->
 
-    @include('livewire.modals.calendar-modals')
+    @include('livewire.CPSO.modals.calendar-modals')
 </div>
 
 @script
