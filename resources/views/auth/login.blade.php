@@ -5,16 +5,20 @@
     <div class="container-fluid h-custom">
         <div class="row d-flex justify-content-center align-items-center h-100">
             <div class="col-md-9 col-lg-6 col-xl-5">
-                <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.webp"
-                    class="img-fluid" alt="Sample image">
+                <img src="{{ asset('images/other/login.png') }}" class="img-fluid" alt="Login">
             </div>
             <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
-                <form method="POST" action="{{ route('login') }}">.
+                <form method="POST" action="{{ route('login') }}">
                     @csrf
 
+                    <div class="d-flex flex-row align-items-center justify-content-center justify-content-lg-center pb-4">
+                        <img src="{{ asset('images/other/cdo-seal.png') }}" alt="cdo-seal" height="140px;">
+                        <img src="{{ asset('images/other/risev2.png') }}" alt="cdo-rise" height="140px;">
+                    </div>
+
                     <div class="d-flex flex-row align-items-center justify-content-center justify-content-lg-center">
-                        <p class="lead fw-normal mb-0 me-3 display-3 text-center fw-bold" style="color: #3b71ca;">
-                            <span class="display-1 fw-bold">DOCUMENT</span>
+                        <p class="lead fw-normal mb-0 me-3 text-center" style="color: #0d3858; font-family: 'Oswald'; font-size: 85px; line-height: 82px; text-shadow: 2px 2px 8px #69829f;">
+                            <span style="font-size: 120px;">DOCUMENT</span>
                             TRACKING SYSTEM
                         </p>
                     </div>
@@ -25,9 +29,8 @@
 
                     <!-- Email input -->
                     <div data-mdb-input-init class="form-outline mb-4">
-                        <input type="email" id="form3Example3" class="form-control form-control-lg @error('email') is-invalid @enderror"
-                            placeholder="Enter a valid email address" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus />
-                        <label class="form-label" for="form3Example3">Email address</label>
+                        <input type="email" id="email" class="form-control form-control-lg @error('email') is-invalid @enderror" placeholder="Enter a valid email address" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus />
+                        <label class="form-label" for="email">Email address</label>
                         @error('email')
                         <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
@@ -37,9 +40,8 @@
 
                     <!-- Password input -->
                     <div data-mdb-input-init class="form-outline mb-3">
-                        <input type="password" id="form3Example4" class="form-control form-control-lg @error('password') is-invalid @enderror"
-                            placeholder="Enter password" name="password" required autocomplete="current-password" />
-                        <label class="form-label" for="form3Example4">Password</label>
+                        <input type="password" id="password" class="form-control form-control-lg @error('password') is-invalid @enderror" placeholder="Enter password" name="password" required autocomplete="current-password" />
+                        <label class="form-label" for="password">Password</label>
                         @error('password')
                         <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
@@ -48,38 +50,13 @@
                     </div>
 
                     <div class="text-center text-lg-start mt-4 pt-2">
-                        <button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-lg"
-                            style="padding-left: 2.5rem; padding-right: 2.5rem;">Login</button>
+                        <button type="submit" class="btn btn-primary btn-lg" style="padding-left: 2.5rem; padding-right: 2.5rem; background-color: #0d3858;">
+                            {{ __('Login') }}
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
-    </div>
-
-    <div
-        class="d-flex flex-column flex-md-row text-center text-md-start justify-content-between py-4 px-4 px-xl-5 bg-primary">
-        <!-- Copyright -->
-        <div class="text-white mb-3 mb-md-0">
-            Copyright © 2020. All rights reserved.
-        </div>
-        <!-- Copyright -->
-
-        <!-- Right -->
-        <div>
-            <a href="#!" class="text-white me-4">
-                <i class="fab fa-facebook-f"></i>
-            </a>
-            <a href="#!" class="text-white me-4">
-                <i class="fab fa-twitter"></i>
-            </a>
-            <a href="#!" class="text-white me-4">
-                <i class="fab fa-google"></i>
-            </a>
-            <a href="#!" class="text-white">
-                <i class="fab fa-linkedin-in"></i>
-            </a>
-        </div>
-        <!-- Right -->
     </div>
 </section>
 @endsection

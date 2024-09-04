@@ -86,7 +86,7 @@
                                 <div class="form-group row">
                                     <label class="col-sm-3 col-form-label">P.R. No.</label>
                                     <div class="col-sm-9">
-                                        <input type="text" class="form-control" placeholder="Auto-generated??" wire:model="PR_no" @if($editMode) disabled @endif>
+                                        <input type="text" class="form-control" placeholder="" wire:model="PR_no" @if($editMode) disabled @endif>
                                     </div>
                                 </div>
                             </div>
@@ -141,7 +141,7 @@
                                 <div class="form-group row">
                                     <label class="col-sm-3 col-form-label">P.O. No.</label>
                                     <div class="col-sm-9">
-                                        <input type="text" class="form-control" placeholder="Auto-generated??" wire:model="PO_no" @if($editMode) disabled @endif>
+                                        <input type="text" class="form-control" placeholder="" wire:model="PO_no" @if($editMode) disabled @endif>
                                     </div>
                                 </div>
                             </div>

@@ -1,4 +1,5 @@
 <div>
+    @include('loading-spinner.load-spinner')
     <div class="main-panel">
         <div class="content-wrapper">
             <div class="row">

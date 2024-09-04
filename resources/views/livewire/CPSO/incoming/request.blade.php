@@ -1,4 +1,5 @@
 <div>
+    @include('loading-spinner.load-spinner')
     <div class="content-wrapper" @if($page_type=='dashboard' ) style="padding-bottom: 0px;" @endif>
         <div class="row">
             <div class="col-lg-12 grid-margin stretch-card">
