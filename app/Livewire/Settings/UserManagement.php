@@ -6,16 +6,20 @@ use App\Models\Ref_Offices_Model;
 use App\Models\User;
 use App\Models\User_Offices_Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Livewire\Attributes\On;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+#[Title('User Management | Document tracking system')]
 class UserManagement extends Component
 {
     use WithPagination;
 
     public $search, $full_name, $selectedRefOffice, $username;
-    public $editMode = false, $user_id, $user_offices_id;
+    public $editMode = false, $user_id, $user_offices_id, $is_active;
 
     public function render()
     {
@@ -92,6 +96,7 @@ class UserManagement extends Component
         $this->user_offices_id = $query_user_offices->id; //NOTE - This will be used in update().
 
         $this->dispatch('office_id-edit', value: $query_user_offices->office_id);
+        $this->dispatch('is_active_edit', value: $query_user->is_active);
         $this->dispatch('show-userManagementModal');
     }
 
@@ -107,19 +112,27 @@ class UserManagement extends Component
         $data_user = [
             'name' => $this->full_name,
             'email' => $this->username,
+            'is_active' => $this->is_active,
         ];
+
         $query_user = User::findOrFail($this->user_id);
 
-        $check_query_user_duplicates = User::where('name', $this->full_name)
-            ->orWhere('email', $this->username)
-            ->where('id', '!=', $this->user_id)
+        // Check for duplicates based on 'name' and 'email', ignoring 'is_active'
+        $check_query_user_duplicates = User::where(function ($query) {
+            $query->where('name', $this->full_name)
+                ->orWhere('email', $this->username);
+        })
+            ->where('id', '!=', $this->user_id) // Exclude the current user
             ->exists();
 
         if ($check_query_user_duplicates) {
             $this->dispatch('show-error-duplicate-entry-message-toast');
-        } elseif (!$check_query_user_duplicates) {
+        } else {
+
+            // Update the user
             $query_user->update($data_user);
 
+            // Update the user office
             $data_user_office = [
                 'user_id' =>  $this->user_id,
                 'office_id' => $this->selectedRefOffice,
@@ -131,6 +144,15 @@ class UserManagement extends Component
             $this->clear();
             $this->dispatch('show-success-update-message-toast');
         }
+    }
+
+    #[On('reset-password')]
+    public function resetPassword($id)
+    {
+        User::whereId($id)->update([
+            'password' => Hash::make('password'), // Hash the password and update the user
+        ]);
+        $this->reset();
     }
 
     public function clear()
@@ -147,7 +169,14 @@ class UserManagement extends Component
             ->select(
                 'users.id',
                 'users.name',
-                'ref_offices.office_name'
+                'ref_offices.office_name',
+                DB::raw("
+                CASE
+                    WHEN users.is_active = '1' THEN 'Active'
+                    WHEN users.is_active = '0' THEN 'Inactive'
+                    ELSE ''
+                END AS status
+                ")
             )
             ->where('users.name', 'like', '%' . $this->search . '%')
             ->where('users.id', '!=', Auth::user()->id)
@@ -160,7 +189,7 @@ class UserManagement extends Component
     {
         $ref_offices = Ref_Offices_Model::select(
             'id',
-            'office_name'
+            'office_name',
         )
             ->get()
             ->map(

@@ -26,9 +26,10 @@
                                     <thead>
                                         <tr>
                                             <th class="fw-bold" width="5%">No.</th>
-                                            <th class="fw-bold" width="43%">Name</th>
-                                            <th class="fw-bold" width="43%">Office</th>
-                                            <th class="fw-bold" width="10%">Actions</th>
+                                            <th class="fw-bold" width="25%">Name</th>
+                                            <th class="fw-bold" width="25%">Office</th>
+                                            <th class="fw-bold" width="25%">Status</th>
+                                            <th class="fw-bold" width="20%">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -38,9 +39,18 @@
                                             <td>{{ $item->name }}</td>
                                             <td>{{ $item->office_name }}</td>
                                             <td>
+                                                <span class="badge badge-pill {{ $item->status == 'Active' ? 'badge-success' : 'badge-danger' }}">
+                                                    {{ $item->status }}
+                                                </span>
+                                            </td>
+                                            <td>
                                                 <button type="button" class="btn btn-dark btn-icon-text" wire:click="edit({{ $item->id }})">
                                                     Edit
                                                     <i class="mdi mdi-file-check btn-icon-append"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-danger btn-icon-text text-white" wire:click="$dispatch('confirm-reset-password', { id: {{ $item->id }} })">
+                                                    Reset &nbsp;
+                                                    <i class="mdi mdi-account-key "></i>
                                                 </button>
                                             </td>
                                         </tr>
@@ -88,6 +98,10 @@
                                 <input type="email" class="form-control" id="exampleEmail" placeholder="username@mail.com" wire:model="username">
                                 @error('username') <div class="custom-invalid-feedback"> {{ $message }} </div> @enderror
                             </div>
+                            <div class="form-group" style="display: {{ $editMode ? 'block' : 'none' }};">
+                                <label for="exampleEmail">Is active</label>
+                                <div id="is_active_select" wire:ignore></div>
+                            </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" wire:click="clear">Close</button>
@@ -110,6 +124,8 @@
     $wire.on('hide-userManagementModal', () => {
         $('#userManagementModal').modal('hide');
     });
+
+    /* -------------------------------------------------------------------------- */
 
     VirtualSelect.init({
         ele: '#office-select',
@@ -143,6 +159,57 @@
 
         document.querySelector('#office-select').setValue(key.value); //NOTE - Without key.value, it returns as an object. We used key.value to specify the item.
         // console.log(key.value);
+    });
+
+    /* -------------------------------------------------------------------------- */
+
+    VirtualSelect.init({
+        ele: '#is_active_select',
+        options: [{
+                label: 'Yes',
+                value: '1'
+            },
+            {
+                label: 'No',
+                value: '0'
+            }
+        ],
+        maxWidth: '100%'
+    });
+
+    let is_active = document.querySelector('#is_active_select');
+    is_active.addEventListener('change', () => {
+        let data = is_active.value;
+        @this.set('is_active', data);
+    });
+
+    $wire.on('is_active_edit', (key) => {
+        document.querySelector('#is_active_select').setValue(key.value);
+    });
+
+    /* -------------------------------------------------------------------------- */
+
+    $wire.on('confirm-reset-password', (id) => {
+        Swal.fire({
+            title: "Are you sure you want to reset the password for this user?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Reset password!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $wire.dispatch('reset-password', {
+                    id: id
+                });
+                Swal.fire({
+                    title: "Reset password succesfully!",
+                    text: "The user's password has been reset.",
+                    icon: "success"
+                });
+            }
+        });
     });
 </script>
 @endscript

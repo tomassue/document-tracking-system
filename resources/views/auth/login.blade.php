@@ -28,6 +28,14 @@
                     </div>
 
                     <!-- Email input -->
+                    @if (session('error'))
+                    <div class="mb-2">
+                        <span class="text-danger">
+                            {{ session('error') }}
+                        </span>
+                    </div>
+                    @endif
+
                     <div data-mdb-input-init class="form-outline mb-4">
                         <input type="email" id="email" class="form-control form-control-lg @error('email') is-invalid @enderror" placeholder="Enter a valid email address" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus />
                         <label class="form-label" for="email">Email address</label>

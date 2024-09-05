@@ -4,11 +4,16 @@
         <li class="nav-item">
             <a class="nav-link" data-bs-toggle="collapse" href="#profile-options" aria-expanded="false" aria-controls="profile-options">
                 <img src="{{ asset('images/faces/user.png') }}" class="img-fluid mx-auto d-block" alt="profile-options" />
-                <span class="menu-title">&nbsp &nbsp Profile</span>
+                <span class="menu-title">&nbsp &nbsp</span>
                 <i class="menu-arrow"></i>
             </a>
             <div class="collapse" id="profile-options">
                 <ul class="nav flex-column sub-menu">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('change-password') }}">
+                            Change password
+                        </a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('logout') }}" onclick="event.preventDefault();
                                                     document.getElementById('logout-form').submit();">
@@ -25,6 +30,9 @@
             <p>Navigation</p>
             <span></span>
         </li>
+
+        @if (!Hash::check('password', Auth::user()->password))
+
         <li class="nav-item">
             <a class="nav-link" href="{{ route('dashboard') }}">
                 <i class="mdi mdi-view-quilt menu-icon"></i>
@@ -76,6 +84,8 @@
         </li>
         @endif
         <!-- /* -------------------------------------------------------------------------- */ -->
+
+        @endif
 
     </ul>
 </nav>

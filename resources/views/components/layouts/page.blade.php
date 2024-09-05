@@ -211,6 +211,11 @@
             color: #0d6efd;
             text-decoration: none;
         }
+
+        .btn-primary {
+            background-color: #223e9c;
+            border-color: #223e9c;
+        }
     </style>
 </head>
 
