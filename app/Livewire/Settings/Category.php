@@ -10,6 +10,10 @@ use Livewire\WithPagination;
 class Category extends Component
 {
     public $editMode = false;
+    public $id_category;
+
+    /* -------------------------------------------------------------------------- */
+
     public $search;
     public $category;
     public $document_type;
@@ -60,6 +64,28 @@ class Category extends Component
 
             $this->dispatch('show-something-went-wrong-toast');
         }
+    }
+
+    public function edit($id)
+    {
+        try {
+            $category = Ref_Category_Model::findOrFail($id);
+            $this->id_category = $id;
+            $this->category = $category->category;
+            $this->dispatch('set_document_type', $category->document_type);
+            $this->dispatch('set_is_active', $category->is_active);
+
+            $this->editMode = true;
+
+            $this->dispatch('show-categoryModal');
+        } catch (\Exception $e) {
+            $this->dispatch('show-something-went-wrong-toast');
+        }
+    }
+
+    public function update()
+    {
+        dd($this->id_category);
     }
 
     public function loadCategories()

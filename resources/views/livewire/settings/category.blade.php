@@ -70,7 +70,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="categoryModalLabel">{{ $editMode ? 'Edit' : 'Add' }} Category</h1>
+                    <h1 class="modal-title fs-5" id="categoryModalLabel">{{ $editMode ? 'Edit' : 'Add' }} Category {{ $category }}</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" wire:click="clear"></button>
                 </div>
                 <div class="modal-body">
@@ -133,6 +133,10 @@
         @this.set('document_type', data);
     });
 
+    $wire.on('set_document_type', (key) => {
+        document.querySelector('#document-type-select').setValue(key);
+    });
+
     /* -------------------------------------------------------------------------- */
 
     VirtualSelect.init({
@@ -153,6 +157,10 @@
     is_active.addEventListener('change', () => {
         let data = is_active.value;
         @this.set('is_active', data);
+    });
+
+    $wire.on('set_is_active', (key) => {
+        document.querySelector('#is-active-select').setValue(key);
     });
 
     /* -------------------------------------------------------------------------- */

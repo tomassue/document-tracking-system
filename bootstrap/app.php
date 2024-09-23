@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CPSO_Access;
 use App\Http\Middleware\IsActive;
 use App\Http\Middleware\SuperAdminAccess;
 use App\Http\Middleware\UpdatedPassword;
@@ -17,7 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'super_admin_access_only' => SuperAdminAccess::class,
             'updated_password' => UpdatedPassword::class,
-            'is_active' => IsActive::class
+            'is_active' => IsActive::class,
+            'cpso_access_only' => CPSO_Access::class
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

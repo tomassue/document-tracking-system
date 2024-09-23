@@ -26,7 +26,7 @@ Auth::routes();
 /*                                    CPSO                                    */
 /* -------------------------------------------------------------------------- */
 
-Route::middleware(['is_active', 'auth', 'updated_password'])->group(function () {
+Route::middleware(['is_active', 'auth', 'updated_password', 'cpso_access_only'])->group(function () {
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
     Route::get('/incoming/requests', Request::class)->name('requests');
     Route::get('/incoming/documents', Documents::class)->name('documents');
