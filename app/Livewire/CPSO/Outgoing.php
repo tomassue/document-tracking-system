@@ -416,7 +416,11 @@ class Outgoing extends Component
         $this->person_responsible   = $outgoing_category->person_responsible;
         $this->document_no          = $outgoing_category->document_no;
         $this->dispatch('set-date', $outgoing_category->date);
-        $this->dispatch('set-outgoing-status-select', $document_history->status);
+        if ($document_history->status == 'done') {
+            $this->dispatch('set-outgoing-status-select-disable', $document_history->status);
+        } else {
+            $this->dispatch('set-outgoing-status-select-enable', $document_history->status);
+        }
         $this->dispatch('set-document_details', $outgoing_category->document_details);
         $this->destination          = $outgoing_category->destination;
 

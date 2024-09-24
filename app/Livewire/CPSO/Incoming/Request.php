@@ -158,7 +158,11 @@ class Request extends Component
         $document_history = Document_History_Model::where('document_id', $key)->latest()->first(); //NOTE - latest() returns the most recent record based on the `created_by` column. This ia applicable to our document_history since we store multiple foreign keys to track updates and who updated them. We mainly want to return the latest status and populate it to our `status-select` when `editMode` is true.
 
         $this->dispatch('set-incoming_category', $incoming_request->incoming_category);
-        $this->dispatch('set-status', $document_history->status);
+        if ($document_history->status == 'done') {
+            $this->dispatch('set-status-disabled', $document_history->status); // Since the status is DONE, we won't allow users to modify the document's status.
+        } else {
+            $this->dispatch('set-status-enable', $document_history->status);
+        }
         $this->office_barangay_organization = $incoming_request->office_or_barangay_or_organization;
         $this->dispatch('set-request-date', $incoming_request->request_date);
         $this->dispatch('set-category', $incoming_request->category);

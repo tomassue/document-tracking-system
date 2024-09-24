@@ -154,7 +154,13 @@
     });
 
     // NOTE - Edit Mode
-    $wire.on('set-outgoing-status-select', (key) => {
+    $wire.on('set-outgoing-status-select-enable', (key) => {
+        document.querySelector('#outgoing-status-select').enable();
+        document.querySelector('#outgoing-status-select').setValue(key[0]);
+    });
+
+    $wire.on('set-outgoing-status-select-disable', (key) => {
+        document.querySelector('#outgoing-status-select').disable();
         document.querySelector('#outgoing-status-select').setValue(key[0]);
     });
 

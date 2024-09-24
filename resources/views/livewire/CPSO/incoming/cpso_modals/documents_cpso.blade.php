@@ -270,38 +270,44 @@
 
     /* -------------------------------------------------------------------------- */
 
+    VirtualSelect.init({
+        ele: '#document-status-select',
+        options: [{
+                label: 'Pending',
+                value: 'pending'
+            },
+            {
+                label: 'Processed',
+                value: 'processed'
+            },
+            {
+                label: 'Forwarded',
+                value: 'forwarded'
+            },
+            {
+                label: 'Done',
+                value: 'done'
+            }
+        ],
+        maxWidth: '100%',
+        zIndex: 10,
+        popupDropboxBreakpoint: '3000px',
+    });
+
+    let status = document.querySelector('#document-status-select');
+    status.addEventListener('change', () => {
+        let data = status.value;
+        @this.set('status', data);
+    });
+
     //NOTE - Edit mode (document-status-select). Status select will only be initialized during editMode.
-    $wire.on('set-document-status-select', (key) => {
-        VirtualSelect.init({
-            ele: '#document-status-select',
-            options: [{
-                    label: 'Pending',
-                    value: 'pending'
-                },
-                {
-                    label: 'Processed',
-                    value: 'processed'
-                },
-                {
-                    label: 'Forwarded',
-                    value: 'forwarded'
-                },
-                {
-                    label: 'Done',
-                    value: 'done'
-                }
-            ],
-            maxWidth: '100%',
-            zIndex: 10,
-            popupDropboxBreakpoint: '3000px',
-        });
+    $wire.on('set-document-status-select-enable', (key) => {
+        document.querySelector('#document-status-select').enable();
+        document.querySelector('#document-status-select').setValue(key[0]);
+    });
 
-        let status = document.querySelector('#document-status-select');
-        status.addEventListener('change', () => {
-            let data = status.value;
-            @this.set('status', data);
-        });
-
+    $wire.on('set-document-status-select-disable', (key) => {
+        document.querySelector('#document-status-select').disable();
         document.querySelector('#document-status-select').setValue(key[0]);
     });
 

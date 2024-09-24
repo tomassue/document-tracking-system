@@ -224,9 +224,14 @@
         @this.set('status', data);
     });
 
-    $wire.on('set-status', (key) => {
+    $wire.on('set-status-enable', (key) => {
+        document.querySelector('#status-select').enable();
         document.querySelector('#status-select').setValue(key[0]);
-        // document.querySelector('#status-select').disable();
+    });
+
+    $wire.on('set-status-disabled', (key) => {
+        document.querySelector('#status-select').disable();
+        document.querySelector('#status-select').setValue(key[0]);
     });
 
     /* -------------------------------------------------------------------------- */

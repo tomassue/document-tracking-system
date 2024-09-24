@@ -128,7 +128,7 @@ class Documents extends Component
         $incoming_documents = Incoming_Documents_CPSO_Model::join('ref_category', 'ref_category.id', '=', 'incoming_documents_cpso.incoming_document_category')
             ->where('incoming_documents_cpso.document_no', $key)
             ->first();
-        $document_history = Document_History_Model::where('document_id', $key)->first();
+        $document_history = Document_History_Model::where('document_id', $key)->latest()->first();
 
         $this->incoming_document_category = $incoming_documents->category;
         $this->document_no = $incoming_documents->document_no;
@@ -196,7 +196,11 @@ class Documents extends Component
         $document_history = Document_History_Model::where('document_id', $key)->latest()->first(); //NOTE - latest() returns the most recent record based on the `created_by` column. This ia applicable to our document_history since we store multiple foreign keys to track updates and who updated them. We mainly want to return the latest status and populate it to our `status-select` when `editMode` is true.
 
         $this->dispatch('set-incoming-category-documents-select', $incoming_documents->incoming_document_category);
-        $this->dispatch('set-document-status-select', $document_history->status);
+        if ($document_history->status == 'done') {
+            $this->dispatch('set-document-status-select-disable', $document_history->status);
+        } else {
+            $this->dispatch('set-document-status-select-enable', $document_history->status);
+        }
         $this->document_no = $incoming_documents->document_no;
         $this->dispatch('set-document-incoming-date', $incoming_documents->date);
         $this->document_info = $incoming_documents->document_info;

@@ -4,6 +4,7 @@ namespace App\Livewire\Settings;
 
 use App\Models\Ref_Category_Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -34,8 +35,16 @@ class Category extends Component
     public function rules()
     {
         return [
-            'category' => 'required',
-            'document_type' => 'required',
+            'category' => [
+                'required',
+                // This rule validates if there are duplicates in category AND document_type
+                Rule::unique('ref_category', 'category')
+                    ->where(function ($query) {
+                        return $query->where('document_type', $this->document_type);
+                    })
+                    ->ignore($this->id_category, 'id') // Ignore the current record's ID when updating
+            ],
+            'document_type' => 'required', // Just ensure it's required, the unique check happens in category
             'is_active' => 'required'
         ];
     }
@@ -85,7 +94,28 @@ class Category extends Component
 
     public function update()
     {
-        dd($this->id_category);
+        $this->validate();
+
+        try {
+            DB::beginTransaction();
+
+            Ref_Category_Model::findOrFail($this->id_category)
+                ->update([
+                    'category' => $this->category,
+                    'document_type' => $this->document_type,
+                    'is_active' => $this->is_active
+                ]);
+
+            DB::commit();
+
+            $this->dispatch('hide-categoryModal');
+            $this->dispatch('show-success-update-message-toast');
+            $this->clear();
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            $this->dispatch('show-something-went-wrong-toast');
+        }
     }
 
     public function loadCategories()

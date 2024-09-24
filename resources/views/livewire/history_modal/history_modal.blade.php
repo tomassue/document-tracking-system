@@ -16,7 +16,6 @@
                         <ul class="timeline">
                             @foreach ($document_history as $item)
                             <li class="event" style="margin-bottom: 0px;" data-date="{{ $item->history_date_time }}">
-                                <p class="fst-italic">{{ $item->history_date_time }}</p>
                                 <h3 class="text-capitalize">{{ $item->status }}</h3>
                                 <p>{{ $item->remarks . ' ' . $item->name }}</p>
                             </li>
