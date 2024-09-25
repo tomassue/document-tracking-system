@@ -27,6 +27,10 @@ class Outgoing extends Component
     public $document_history = [];
     public $file_title, $file_data;
 
+    /* --------------------------------- FILTER --------------------------------- */
+    public $filter_status;
+    /* ------------------------------- END FILTER ------------------------------- */
+
     /* ------- REUSABLE MODELS AND IF 'OTHERS' IS SELECTED IN THE CATEGORY ------ */
     public $outgoing_category;
     public $document_no;
@@ -499,6 +503,11 @@ class Outgoing extends Component
             ->select('outgoing_documents.*', 'users.name as user_name', 'latest_document_history.status')
             ->orderBy('outgoing_documents.date', 'desc')
             ->where('document_details', 'like', '%' . $this->search . '%')
+            ->when($this->filter_status != NULL, function ($query) {
+                $query->where('latest_document_history.status', $this->filter_status);
+            }, function ($query) {
+                $query->whereNot('latest_document_history.status', 'done');
+            })
             ->get();
 
         return $outgoing_documents;

@@ -39,6 +39,10 @@ class Request extends Component
      */
     public $page_type = "";
 
+    /* --------------------------------- FILTER --------------------------------- */
+    public $filter_status;
+    /* ------------------------------- END FILTER ------------------------------- */
+
     public $search, $incoming_category, $status, $office_barangay_organization, $request_date, $category, $venue, $start_time, $end_time, $description, $attachment = [];
     public $file_title, $file_data;
     public $editMode, $edit_document_id;
@@ -263,6 +267,16 @@ class Request extends Component
             ->where('incoming_request_cpso.office_or_barangay_or_organization', 'like', '%' . $this->search . '%')
             ->when($this->page_type == "dashboard", function ($query) {
                 return $query->where('latest_document_history.status', 'pending');
+            })
+            /**
+             * Default behavior: The last when statement checks if $this->filter_status is NULL. If it is, the query adds a condition to exclude records where the status is "done".
+             * Filter behavior: When $this->filter_status is set (not NULL), it will show records matching that specific status, including "done".
+             */
+            ->when($this->filter_status != NULL, function ($query) {
+                $query->where('latest_document_history.status', $this->filter_status);
+            }, function ($query) {
+                // Exclude "done" status by default
+                $query->where('latest_document_history.status', '!=', 'done');
             })
             ->orderBy('incoming_request_cpso.request_date', 'ASC')
             ->paginate(10);

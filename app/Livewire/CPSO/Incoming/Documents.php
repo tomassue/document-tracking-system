@@ -33,6 +33,10 @@ class Documents extends Component
     // LINK - App\Livewire\CPSO\Incoming\Request.php#33
     public $page_type = "";
 
+    /* --------------------------------- FILTER --------------------------------- */
+    public $filter_status;
+    /* ------------------------------- END FILTER ------------------------------- */
+
     public $search;
     public $editMode = false, $status;
     public $document_history = [];
@@ -248,6 +252,11 @@ class Documents extends Component
             ->where('incoming_documents_cpso.document_info', 'like', '%' . $this->search . '%')
             ->when($this->page_type == 'dashboard', function ($query) {
                 return $query->where('latest_document_history.status', 'pending');
+            })
+            ->when($this->filter_status != NULL, function ($query) {
+                $query->where('latest_document_history.status', $this->filter_status);
+            }, function ($query) {
+                $query->whereNot('latest_document_history.status', 'done');
             })
             ->orderBy('incoming_documents_cpso.date', 'ASC')
             ->paginate(10);

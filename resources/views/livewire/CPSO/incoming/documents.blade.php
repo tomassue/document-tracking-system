@@ -13,7 +13,7 @@
                         </div>
 
                         <div style="display: {{ $page_type == 'dashboard' ? 'none' : 'block' }}">
-                            <div class="row mb-2">
+                            <div class="row g-2 mb-2">
                                 <div class="col-md-11">
                                     <input type="text" class="form-control" id="exampleInputSearch" placeholder="Search" wire:model.live="search">
                                 </div>
@@ -21,6 +21,16 @@
                                     <button type="button" class="btn btn-inverse-success btn-icon" wire:click="show_documentsModal">
                                         <i class="mdi mdi mdi-plus"></i>
                                     </button>
+                                </div>
+                            </div>
+
+                            <div class="row g-2 my-2">
+                                <div class="col-md-12 d-flex align-items-center">
+                                    <span class="">Filter</span>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <div id="filter_status_select" wire:ignore></div>
                                 </div>
                             </div>
                         </div>
@@ -100,3 +110,39 @@
     @include('livewire.CPSO.incoming.cpso_modals.documents_cpso')
     @include('livewire.history_modal.history_modal')
 </div>
+
+@script
+<script>
+    /* --------------------------------- FILTER --------------------------------- */
+
+    VirtualSelect.init({
+        ele: '#filter_status_select',
+        placeholder: 'Status (All)',
+        options: [{
+                label: 'Pending',
+                value: 'pending'
+            },
+            {
+                label: 'Processed',
+                value: 'processed'
+            },
+            {
+                label: 'Forwarded',
+                value: 'forwarded'
+            },
+            {
+                label: 'Done',
+                value: 'done'
+            }
+        ],
+    });
+
+    let filter_status = document.querySelector('#filter_status_select');
+    filter_status.addEventListener('change', () => {
+        let data = filter_status.value;
+        @this.set('filter_status', data);
+    });
+
+    /* ------------------------------- END FILTER ------------------------------- */
+</script>
+@endscript
