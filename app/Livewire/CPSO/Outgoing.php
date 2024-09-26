@@ -62,49 +62,53 @@ class Outgoing extends Component
 
     public function rules()
     {
-        if ($this->outgoing_category == 'procurement') {
-            return [
-                'person_responsible'    => 'required',
-                'date'                  => 'required',
-                'document_details'      => 'required',
-                'attachments'           => 'required',
-                'PR_no'                 => 'required',
-                'PO_no'                 => 'required'
-            ];
-        } elseif ($this->outgoing_category == 'payroll') {
-            return [
-                'person_responsible'    => 'required',
-                'date'                  => 'required',
-                'document_details'      => 'required',
-                'attachments'           => 'required',
-                'payroll_type'          => 'required'
-            ];
-        } elseif ($this->outgoing_category == 'voucher') {
-            return [
-                'person_responsible'    => 'required',
-                'date'                  => 'required',
-                'document_details'      => 'required',
-                'attachments'           => 'required',
-                'voucher_name'          => 'required'
-            ];
-        } elseif ($this->outgoing_category == 'ris') {
-            return [
-                'person_responsible'    => 'required',
-                'document_name'         => 'required',
-                'date'                  => 'required',
-                'document_details'      => 'required',
-                'attachments'           => 'required',
-                'ppmp_code'             => 'required'
-            ];
-        } elseif ($this->outgoing_category == 'other') {
-            return [
-                'person_responsible'    => 'required',
-                'document_name'         => 'required',
-                'date'                  => 'required',
-                'document_details'      => 'required',
-                'attachments'           => 'required',
-            ];
-        }
+        $commonRules = [
+            'destination' => 'required',
+            'person_responsible' => 'required',
+            'date' => 'required',
+            'document_details' => 'required',
+            // 'attachments' => 'required',
+        ];
+
+        $categorySpecificRules = match ($this->outgoing_category) {
+            'procurement' => [
+                'PR_no' => 'required',
+                'PO_no' => 'required',
+            ],
+            'payroll' => [
+                'payroll_type' => 'required',
+            ],
+            'voucher' => [
+                'voucher_name' => 'required',
+            ],
+            'ris' => [
+                'document_name' => 'required',
+                'ppmp_code' => 'required',
+            ],
+            'other' => [
+                'document_name' => 'required',
+            ],
+            default => [],
+        };
+
+        return array_merge($commonRules, $categorySpecificRules);
+    }
+
+    //FIXME - NOT SHOWING INDICATED ATTRIBUTES
+    public function attributes()
+    {
+        return [
+            'person_responsible' => 'Person Responsible',
+            'date' => 'Date',
+            'document_details' => 'Document Details',
+            // 'attachments' => 'Attachments',
+            'PR_no' => 'Purchase Request Number',
+            'PO_no' => 'Purchase Order Number',
+            'payroll_type' => 'Payroll Type',
+            'voucher_name' => 'Voucher Name',
+            'document_name' => 'Document Name',
+            'ppmp_code' => 'PPMP Code',
+        ];
     }
 
     public function render()
@@ -127,13 +131,13 @@ class Outgoing extends Component
         if ($this->outgoing_category == 'procurement') {
             $this->validate();
 
-            DB::beginTransaction();
-
             try {
+                DB::beginTransaction();
+
                 $file_data_IDs = [];
 
-                // Save attachments
-                foreach ($this->attachments as $file) {
+                // Save attachments if there are any
+                foreach ($this->attachments ?? [] as $file) {
                     $file_data = File_Data_Model::create([
                         'file_name' => $file->getClientOriginalName(),
                         'file_size' => $file->getSize(),
@@ -157,7 +161,7 @@ class Outgoing extends Component
                     'document_details' => $this->document_details,
                     'destination' => $this->destination,
                     'person_responsible' => $this->person_responsible,
-                    'attachments' => json_encode($file_data_IDs)
+                    'attachments' => json_encode($file_data_IDs ?? []) // if empty, an empty array will be stored.
                 ]);
 
                 // Save (Polymorphic Relations)
@@ -178,7 +182,6 @@ class Outgoing extends Component
                 $this->dispatch('hide-outgoingModal');
                 $this->dispatch('show-success-save-message-toast');
             } catch (\Exception $e) {
-
                 // Rollback the transaction on failure
                 DB::rollBack();
 
@@ -192,7 +195,7 @@ class Outgoing extends Component
 
             try {
                 // Save attachments
-                foreach ($this->attachments as $file) {
+                foreach ($this->attachments ?? [] as $file) {
                     $file_data = File_Data_Model::create([
                         'file_name' => $file->getClientOriginalName(),
                         'file_size' => $file->getSize(),
@@ -215,7 +218,7 @@ class Outgoing extends Component
                     'document_details' => $this->document_details,
                     'destination' => $this->destination,
                     'person_responsible' => $this->person_responsible,
-                    'attachments' => json_encode($file_data_IDs)
+                    'attachments' => json_encode($file_data_IDs ?? [])
                 ]);
 
                 // Save (Polymorphic Relations)
@@ -248,7 +251,7 @@ class Outgoing extends Component
 
             try {
                 // Save attachments
-                foreach ($this->attachments as $file) {
+                foreach ($this->attachments ?? [] as $file) {
                     $file_data = File_Data_Model::create([
                         'file_name' => $file->getClientOriginalName(),
                         'file_size' => $file->getSize(),
@@ -271,7 +274,7 @@ class Outgoing extends Component
                     'document_details' => $this->document_details,
                     'destination' => $this->destination,
                     'person_responsible' => $this->person_responsible,
-                    'attachments' => json_encode($file_data_IDs)
+                    'attachments' => json_encode($file_data_IDs ?? [])
                 ]);
 
                 $outgoing_category_voucher->outgoing_documents()->save($outgoing_documents);
@@ -303,7 +306,7 @@ class Outgoing extends Component
 
             try {
                 // Save attachments
-                foreach ($this->attachments as $file) {
+                foreach ($this->attachments ?? [] as $file) {
                     $file_data = File_Data_Model::create([
                         'file_name' => $file->getClientOriginalName(),
                         'file_size' => $file->getSize(),
@@ -327,7 +330,7 @@ class Outgoing extends Component
                     'document_details' => $this->document_details,
                     'destination' => $this->destination,
                     'person_responsible' => $this->person_responsible,
-                    'attachments' => json_encode($file_data_IDs)
+                    'attachments' => json_encode($file_data_IDs ?? [])
                 ]);
 
                 $outgoing_category_ris->outgoing_documents()->save($outgoing_documents);
@@ -359,7 +362,7 @@ class Outgoing extends Component
 
             try {
                 // Save attachments
-                foreach ($this->attachments as $file) {
+                foreach ($this->attachments ?? [] as $file) {
                     $file_data = File_Data_Model::create([
                         'file_name' => $file->getClientOriginalName(),
                         'file_size' => $file->getSize(),
@@ -382,7 +385,7 @@ class Outgoing extends Component
                     'document_details' => $this->document_details,
                     'destination' => $this->destination,
                     'person_responsible' => $this->person_responsible,
-                    'attachments' => json_encode($file_data_IDs)
+                    'attachments' => json_encode($file_data_IDs ?? [])
                 ]);
 
                 $outgoing_category_others->outgoing_documents()->save($outgoing_documents);
@@ -465,6 +468,10 @@ class Outgoing extends Component
     {
         //NOTE - For now, we will update the status only and record the action in our document_history
 
+        $this->validate([
+            'status' => 'required'
+        ]);
+
         Document_History_Model::create([
             'document_id' => $this->document_no,
             'status' => $this->status,
@@ -540,7 +547,7 @@ class Outgoing extends Component
 
     public function clear()
     {
-        $this->reset();
+        $this->resetExcept('filter_status');
         $this->resetValidation();
         $this->dispatch('clear_plugins');
     }

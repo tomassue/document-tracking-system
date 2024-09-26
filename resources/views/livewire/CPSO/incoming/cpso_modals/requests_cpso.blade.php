@@ -14,44 +14,33 @@
                     <p class="card-description">
                         <!-- Personal info -->
                     </p>
-                    <div class="row">
+                    <div class="row" style="display: {{ $editMode ? 'block' : 'none' }}">
                         <div class="col-md-6">
                             <div class="form-group row">
-                                <label class="col-sm-3 col-form-label">Category</label>
-                                <div class="col-sm-9">
-                                    <div id="incoming-category-select" wire:ignore></div>
-                                    @error('incoming_category') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6" style="display: {{ $editMode ? 'block' : 'none' }}">
-                            <div class="form-group row">
-                                <label class="col-sm-3 col-form-label">Status</label>
-                                <div class="col-sm-9">
+                                <label class="col-lg-3 col-form-label">Status</label>
+                                <div class="col-lg-9">
                                     <div id="status-select" wire:ignore></div>
                                 </div>
                             </div>
                         </div>
-
                     </div>
-                    <hr>
-                    <div class="row pt-5">
-                        <div class="col-md-6">
+                    <hr style="display: {{ $editMode ? 'block' : 'none' }}">
+                    <div class="row">
+                        <div class="col-lg-6">
                             <div class="form-group row">
-                                <label class="col-sm-3 col-form-label" style="padding-top: 0px;padding-bottom: 0px;">Office/Barangay/Organization</label>
-                                <div class="col-sm-9">
+                                <label class="col-lg-3 col-form-label" style="padding-top: 0px;padding-bottom: 0px;">Office/Barangay/Organization</label>
+                                <div class="col-lg-9">
                                     <input type="text" class="form-control" wire:model="office_barangay_organization" {{ $editMode ? 'disabled' : '' }}>
                                     @error('office_barangay_organization') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-lg-6">
                             <div class="form-group row">
-                                <label class="col-sm-3 col-form-label">Request Date</label>
-                                <div class="col-sm-9">
+                                <label class="col-lg-3 col-form-label">Request Date</label>
+                                <div class="col-lg-9 {{ $editMode ? '' : 'custom-input-bg' }}">
                                     <div wire:ignore>
-                                        <input class="form-control request-date" required></input>
+                                        <input class="form-control request-date" placeholder="Date" required />
                                     </div>
                                     @error('request_date') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                 </div>
@@ -59,10 +48,10 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-lg-6">
                             <div class="form-group row">
-                                <label class="col-sm-3 col-form-label">Category</label>
-                                <div class="col-sm-9">
+                                <label class="col-lg-3 col-form-label">Category</label>
+                                <div class="col-lg-9">
                                     <div id="category-select" wire:ignore></div>
                                     <div style="display: {{ $category == 'venue' ? 'display' : 'none' }}" class="mt-2">
                                         <div id="venue-select" wire:ignore></div>
@@ -72,29 +61,29 @@
                             </div>
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-lg-6 {{ $editMode ? '' : 'custom-input-bg' }}">
                             <div class="form-group row">
                                 @php
                                 $timeError = $errors->first('start_time') ?: $errors->first('end_time');
                                 @endphp
 
-                                <label class="col-sm-3 col-form-label">Time</label>
-                                <div class="col-sm-4">
+                                <label class="col-lg-3 col-form-label">Time</label>
+                                <div class="col-lg-4">
                                     <div wire:ignore>
-                                        <input class="form-control from-time" placeholder="From" required>
+                                        <input class="form-control remove-disabled-bg from-time" placeholder="From" required>
                                     </div>
                                     @if ($timeError)
                                     <span class="custom-invalid-feedback">{{ $timeError }}</span>
                                     @endif
                                 </div>
-                                <div class="col-sm-4" wire:ignore>
-                                    <input class="form-control end-time" placeholder="To" required>
+                                <div class="col-lg-4" wire:ignore>
+                                    <input class="form-control remove-disabled-bg end-time" placeholder="To" required>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-lg-12">
                             <div class="form-group row">
                                 <label class="col-sm-2 col-form-label">Description</label>
                                 <div class="col-sm-12">
@@ -109,7 +98,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-lg-12">
                             <div style="display : {{ $editMode ? 'none' : 'block' }}">
                                 <div class="form-group row">
                                     <label class="col-sm-12 col-form-label">Attachment</label>
@@ -148,7 +137,7 @@
                                                 </tr>
                                                 @empty
                                                 <tr>
-                                                    <td colspan="4">No files found.</td>
+                                                    <td colspan="4" class="text-center">No files found.</td>
                                                 </tr>
                                                 @endforelse
                                             </tbody>
@@ -209,13 +198,13 @@
                 value: 'forwarded'
             },
             {
-                label: 'Done',
-                value: 'done'
+                label: 'Booked',
+                value: 'booked'
             }
         ],
         maxWidth: '100%',
         zIndex: 10,
-        popupDropboxBreakpoint: '3000px',
+        // popupDropboxBreakpoint: '3000px',
     });
 
     let status = document.querySelector('#status-select');
@@ -232,27 +221,6 @@
     $wire.on('set-status-disabled', (key) => {
         document.querySelector('#status-select').disable();
         document.querySelector('#status-select').setValue(key[0]);
-    });
-
-    /* -------------------------------------------------------------------------- */
-
-    VirtualSelect.init({
-        ele: '#incoming-category-select',
-        options: @json($categories),
-        maxWidth: '100%',
-        zIndex: 10,
-        popupDropboxBreakpoint: '3000px',
-    });
-
-    let incoming_category = document.querySelector('#incoming-category-select');
-    incoming_category.addEventListener('change', () => {
-        let data = incoming_category.value;
-        @this.set('incoming_category', data);
-    });
-
-    $wire.on('set-incoming_category', (key) => {
-        document.querySelector('#incoming-category-select').setValue(key[0]);
-        document.querySelector('#incoming-category-select').disable();
     });
 
     /* -------------------------------------------------------------------------- */
@@ -310,7 +278,7 @@
         ],
         maxWidth: '100%',
         zIndex: 10,
-        popupDropboxBreakpoint: '3000px',
+        // popupDropboxBreakpoint: '3000px',
     });
 
     let category = document.querySelector('#category-select');
@@ -348,7 +316,7 @@
         ],
         maxWidth: '100%',
         zIndex: 10,
-        popupDropboxBreakpoint: '3000px',
+        // popupDropboxBreakpoint: '3000px',
     });
 
     let venue = document.querySelector('#venue-select');
@@ -365,7 +333,7 @@
     /* -------------------------------------------------------------------------- */
 
     $('.from-time').pickatime({
-        interval: 1,
+        interval: 30,
         editable: false
     });
 
@@ -386,7 +354,7 @@
     });
 
     $('.end-time').pickatime({
-        interval: 1,
+        interval: 30,
         editable: false
     });
 
@@ -407,31 +375,6 @@
     });
 
     /* -------------------------------------------------------------------------- */
-
-    // tinymce.init({
-    //     selector: 'input#myeditorinstance', // Replace this CSS selector to match the placeholder element for TinyMCE
-    //     // plugins: 'table lists fullscreen',
-    //     // toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | indent outdent | bullist numlist | table | fullscreen',
-    //     height: 150,
-    //     menubar: false,
-    //     toolbar: false,
-    //     setup: function(editor) {
-    //         // NOTE - This code inlcudes the html tags and the contents.
-    //         // editor.on('Change', function(e) {
-    //         //     let description = editor.getContent();
-    //         //     @this.set('description', description);
-    //         // });
-
-    //         // NOTE - This code strips out html tags in our editor. 
-    //         editor.on('input', function() {
-    //             var plainText = tinymce.activeEditor.getContent({
-    //                 format: 'text'
-    //             });
-    //             document.getElementById('myeditorinstance').value = plainText;
-    //             @this.set('description', plainText); // Update Livewire property
-    //         });
-    //     }
-    // });
 
     $('#summernote_description').summernote({
         toolbar: false,
@@ -472,8 +415,6 @@
 
     $wire.on('refresh-plugin', () => {
         document.querySelector('#status-select').reset();
-        document.querySelector('#incoming-category-select').reset();
-        document.querySelector('#incoming-category-select').enable();
         $('.request-date').each(function() {
             $(this).pickadate('picker').clear();
             $(this).removeAttr('disabled');
@@ -490,10 +431,14 @@
             $(this).summernote('reset');
             $(this).summernote('enable');
         });
+        $('.my-pond-attachment').each(function() {
+            $(this).filepond('removeFiles');
+        });
         document.querySelector('#category-select').reset();
         document.querySelector('#category-select').enable();
         document.querySelector('#venue-select').reset();
         document.querySelector('#venue-select').enable();
+
     });
 </script>
 @endscript

@@ -43,7 +43,7 @@ class Request extends Component
     public $filter_status;
     /* ------------------------------- END FILTER ------------------------------- */
 
-    public $search, $incoming_category, $status, $office_barangay_organization, $request_date, $category, $venue, $start_time, $end_time, $description, $attachment = [];
+    public $search, $incoming_category = 'request', $status, $office_barangay_organization, $request_date, $category, $venue, $start_time, $end_time, $description, $attachment = [];
     public $file_title, $file_data;
     public $editMode, $edit_document_id;
     public $document_history = [];
@@ -64,7 +64,7 @@ class Request extends Component
             'start_time' => 'required',
             'end_time' => 'required',
             'description' => 'required',
-            'attachment' => 'required'
+            // 'attachment' => 'required'
         ];
     }
 
@@ -89,7 +89,7 @@ class Request extends Component
 
     public function clear()
     {
-        $this->resetExcept('page_type'); // Since we need the page_type as what I mentioned, we will not clear the property.
+        $this->resetExcept('page_type', 'filter_status'); // Since we need the page_type as what I mentioned, we will not clear the property.
         $this->resetValidation();
         $this->dispatch('clear-plugins');
     }
@@ -106,9 +106,11 @@ class Request extends Component
         $this->validate();
 
         if ($this->attachment) {
-            # Iterate over each file.
-            # Uploading small files is okay with BLOB data type. I encountered an error where uploading bigger size such as PDF won't upload in the database which is resulting an error.
             try {
+                DB::beginTransaction();
+
+                # Iterate over each file.
+                # Uploading small files is okay with BLOB data type. I encountered an error where uploading bigger size such as PDF won't upload in the database which is resulting an error.
                 foreach ($this->attachment as $file) {
                     $file_data = File_Data_Model::create([
                         'file_name' => $file->getClientOriginalName(),
@@ -120,36 +122,76 @@ class Request extends Component
                     // Store the ID of the saved file
                     $file_data_IDs[] = $file_data->id;
                 }
+
+                $incoming_request_data = [
+                    'incoming_request_id' => $this->generateUniqueNumber(),
+                    'incoming_category' => $this->incoming_category,
+                    'office_or_barangay_or_organization' => $this->office_barangay_organization,
+                    'request_date' => $this->request_date,
+                    'category' => $this->category,
+                    'venue' => $this->venue,
+                    'start_time' => $this->start_time,
+                    'end_time' => $this->end_time,
+                    'description' => $this->description,
+                    'files' => json_encode($file_data_IDs)
+                ];
+                $incoming_request = Incoming_Request_CPSO_Model::create($incoming_request_data);
+
+                $document_history_data = [
+                    'document_id' => $incoming_request->incoming_request_id,
+                    'status' => 'pending',
+                    'user_id' => Auth::user()->id,
+                    'remarks' => 'created_by'
+                ];
+                Document_History_Model::create($document_history_data);
+
+                DB::commit();
+
+                $this->clear();
+                $this->dispatch('hide-requestModal');
+                $this->dispatch('show-success-save-message-toast');
             } catch (\Exception $e) {
+                DB::rollBack();
+
                 // dd($e->getMessage());
                 $this->dispatch('show-something-went-wrong-toast');
             }
+        } else {
+            try {
+                DB::beginTransaction();
 
-            $incoming_request_data = [
-                'incoming_request_id' => $this->generateUniqueNumber(),
-                'incoming_category' => $this->incoming_category,
-                'office_or_barangay_or_organization' => $this->office_barangay_organization,
-                'request_date' => $this->request_date,
-                'category' => $this->category,
-                'venue' => $this->venue,
-                'start_time' => $this->start_time,
-                'end_time' => $this->end_time,
-                'description' => $this->description,
-                'files' => json_encode($file_data_IDs)
-            ];
-            $incoming_request = Incoming_Request_CPSO_Model::create($incoming_request_data);
+                $incoming_request_data = [
+                    'incoming_request_id' => $this->generateUniqueNumber(),
+                    'incoming_category' => $this->incoming_category,
+                    'office_or_barangay_or_organization' => $this->office_barangay_organization,
+                    'request_date' => $this->request_date,
+                    'category' => $this->category,
+                    'venue' => $this->venue,
+                    'start_time' => $this->start_time,
+                    'end_time' => $this->end_time,
+                    'description' => $this->description
+                    // FILES IS NULL SINCE FILES IS NOT REQUIRED
+                ];
+                $incoming_request = Incoming_Request_CPSO_Model::create($incoming_request_data);
 
-            $document_history_data = [
-                'document_id' => $incoming_request->incoming_request_id,
-                'status' => 'pending',
-                'user_id' => Auth::user()->id,
-                'remarks' => 'created_by'
-            ];
-            Document_History_Model::create($document_history_data);
+                $document_history_data = [
+                    'document_id' => $incoming_request->incoming_request_id,
+                    'status' => 'pending',
+                    'user_id' => Auth::user()->id,
+                    'remarks' => 'created_by'
+                ];
+                Document_History_Model::create($document_history_data);
 
-            $this->clear();
-            $this->dispatch('hide-requestModal');
-            $this->dispatch('show-success-save-message-toast');
+                DB::commit();
+
+                $this->clear();
+                $this->dispatch('hide-requestModal');
+                $this->dispatch('show-success-save-message-toast');
+            } catch (\Exception $e) {
+                DB::rollBack();
+
+                $this->dispatch('show-something-went-wrong-toast');
+            }
         }
     }
 
@@ -162,7 +204,7 @@ class Request extends Component
         $document_history = Document_History_Model::where('document_id', $key)->latest()->first(); //NOTE - latest() returns the most recent record based on the `created_by` column. This ia applicable to our document_history since we store multiple foreign keys to track updates and who updated them. We mainly want to return the latest status and populate it to our `status-select` when `editMode` is true.
 
         $this->dispatch('set-incoming_category', $incoming_request->incoming_category);
-        if ($document_history->status == 'done') {
+        if ($document_history->status == 'booked') {
             $this->dispatch('set-status-disabled', $document_history->status); // Since the status is DONE, we won't allow users to modify the document's status.
         } else {
             $this->dispatch('set-status-enable', $document_history->status);
@@ -175,15 +217,17 @@ class Request extends Component
         $this->dispatch('set-end-time', $this->timeToMinutes($incoming_request->end_time));
         $this->dispatch('set-description', $incoming_request->description);
 
-        foreach (json_decode($incoming_request->files) as $item) {
-            $file = File_Data_Model::where('id', $item)
-                ->select(
-                    'id',
-                    'file_name',
-                )
-                ->first();
-            $file->file_size = $this->convertSize($file->file_size);
-            $this->attachment[] = $file;
+        if ($incoming_request->files) {
+            foreach (json_decode($incoming_request->files) as $item) {
+                $file = File_Data_Model::where('id', $item)
+                    ->select(
+                        'id',
+                        'file_name',
+                    )
+                    ->first();
+                $file->file_size = $this->convertSize($file->file_size);
+                $this->attachment[] = $file;
+            }
         }
 
         $this->dispatch('show-requestModal');
@@ -275,8 +319,8 @@ class Request extends Component
             ->when($this->filter_status != NULL, function ($query) {
                 $query->where('latest_document_history.status', $this->filter_status);
             }, function ($query) {
-                // Exclude "done" status by default
-                $query->where('latest_document_history.status', '!=', 'done');
+                // Exclude "booked" status by default
+                $query->where('latest_document_history.status', '!=', 'booked');
             })
             ->orderBy('incoming_request_cpso.request_date', 'ASC')
             ->paginate(10);

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('document_no')->primary();
             $table->string('incoming_document_category');
             $table->string('document_info');
-            $table->string('attachment');
+            $table->string('attachment')->nullable();
             $table->date('date');
             $table->timestamps();
         });

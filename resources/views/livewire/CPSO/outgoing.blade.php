@@ -150,8 +150,8 @@
             label: 'Forwarded',
             value: 'forwarded'
         }, {
-            label: 'Return',
-            value: 'return'
+            label: 'Returned',
+            value: 'returned'
         }],
         maxWidth: '100%',
         zIndex: 10,
@@ -338,8 +338,6 @@
         });
 
         $('#document_details').filepond('removeFiles');
-
-        tinyMCE.activeEditor.setContent('');
 
         // Clear FilePond
         $('.documents-my-pond-attachment').each(function() {

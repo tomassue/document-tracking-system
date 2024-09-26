@@ -62,7 +62,7 @@ class Documents extends Component
         return [
             'incoming_document_category' => 'required',
             'document_info' => 'required',
-            'attachment' => 'required',
+            // 'attachment' => 'required',
             'date' => 'required'
         ];
     }
@@ -76,7 +76,7 @@ class Documents extends Component
 
     public function clear()
     {
-        $this->resetExcept('page_type');
+        $this->resetExcept('page_type', 'filter_status');
         $this->resetValidation();
         $this->dispatch('clear-plugins');
     }
@@ -86,9 +86,11 @@ class Documents extends Component
         $this->validate();
 
         if ($this->attachment) {
-            # Iterate over each file.
-            # Uploading small files is okay with BLOB data type. I encountered an error where uploading bigger size such as PDF won't upload in the database which is resulting an error.
             try {
+                DB::beginTransaction();
+
+                # Iterate over each file.
+                # Uploading small files is okay with BLOB data type. I encountered an error where uploading bigger size such as PDF won't upload in the database which is resulting an error.
                 foreach ($this->attachment as $file) {
                     $file_data = File_Data_Model::create([
                         'file_name' => $file->getClientOriginalName(),
@@ -100,30 +102,64 @@ class Documents extends Component
                     // Store the ID of the saved file
                     $file_data_IDs[] = $file_data->id;
                 }
+
+                $incoming_documents_data = [
+                    'incoming_document_category' => $this->incoming_document_category,
+                    'date' => $this->date,
+                    'document_info' => $this->document_info,
+                    'attachment' => json_encode($file_data_IDs)
+                ];
+                $incoming_documents = Incoming_Documents_CPSO_Model::create($incoming_documents_data);
+
+                $document_history_data = [
+                    'document_id' => $incoming_documents->document_no,
+                    'status' => 'pending',
+                    'user_id' => Auth::user()->id,
+                    'remarks' => 'created_by'
+                ];
+                Document_History_Model::create($document_history_data);
+
+                DB::commit();
+
+                $this->clear();
+                $this->dispatch('hide-documentsModal');
+                $this->dispatch('show-success-save-message-toast');
             } catch (\Exception $e) {
+                DB::rollBack();
+
                 // dd($e->getMessage());
                 $this->dispatch('show-something-went-wrong-toast');
             }
+        } else {
+            try {
+                DB::beginTransaction();
 
-            $incoming_documents_data = [
-                'incoming_document_category' => $this->incoming_document_category,
-                'date' => $this->date,
-                'document_info' => $this->document_info,
-                'attachment' => json_encode($file_data_IDs)
-            ];
-            $incoming_documents = Incoming_Documents_CPSO_Model::create($incoming_documents_data);
+                $incoming_documents_data = [
+                    'incoming_document_category' => $this->incoming_document_category,
+                    'date' => $this->date,
+                    'document_info' => $this->document_info
+                ];
+                $incoming_documents = Incoming_Documents_CPSO_Model::create($incoming_documents_data);
 
-            $document_history_data = [
-                'document_id' => $incoming_documents->document_no,
-                'status' => 'pending',
-                'user_id' => Auth::user()->id,
-                'remarks' => 'created_by'
-            ];
-            Document_History_Model::create($document_history_data);
+                $document_history_data = [
+                    'document_id' => $incoming_documents->document_no,
+                    'status' => 'pending',
+                    'user_id' => Auth::user()->id,
+                    'remarks' => 'created_by'
+                ];
+                Document_History_Model::create($document_history_data);
 
-            $this->clear();
-            $this->dispatch('hide-documentsModal');
-            $this->dispatch('show-success-save-message-toast');
+                DB::commit();
+
+                $this->clear();
+                $this->dispatch('hide-documentsModal');
+                $this->dispatch('show-success-save-message-toast');
+            } catch (\Exception $e) {
+                DB::rollBack();
+
+                // dd($e->getMessage());
+                $this->dispatch('show-something-went-wrong-toast');
+            }
         }
     }
 
@@ -140,15 +176,17 @@ class Documents extends Component
         $this->document_info = $incoming_documents->document_info;
         $this->status = $document_history->status;
 
-        foreach (json_decode($incoming_documents->attachment) as $item) {
-            $file = File_Data_Model::where('id', $item)
-                ->select(
-                    'id',
-                    'file_name',
-                )
-                ->first();
-            $file->file_size = $this->convertSize($file->file_size);
-            $this->files[] = $file;
+        if ($incoming_documents->attachment) {
+            foreach (json_decode($incoming_documents->attachment) as $item) {
+                $file = File_Data_Model::where('id', $item)
+                    ->select(
+                        'id',
+                        'file_name',
+                    )
+                    ->first();
+                $file->file_size = $this->convertSize($file->file_size);
+                $this->files[] = $file;
+            }
         }
 
         $this->dispatch('show-viewDetailsDocumentsModal');

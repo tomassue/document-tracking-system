@@ -216,6 +216,17 @@
             background-color: #223e9c;
             border-color: #223e9c;
         }
+
+        /* Custom input field */
+        .custom-input-bg input {
+            background-color: unset !important;
+        }
+
+        /* Virtual Select Custom CSS */
+        .vscomp-ele[disabled] {
+            background-color: #adb4bb !important;
+            /* Your desired background color */
+        }
     </style>
 </head>
 

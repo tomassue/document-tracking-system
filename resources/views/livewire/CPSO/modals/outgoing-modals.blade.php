@@ -16,20 +16,20 @@
                     </p>
 
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-lg-6">
                             <div class="form-group row">
-                                <label class="col-sm-3 col-form-label">Category</label>
-                                <div class="col-sm-9">
+                                <label class="col-lg-3 col-form-label">Category</label>
+                                <div class="col-lg-9">
                                     <div id="outgoing-category-select" wire:ignore></div>
                                     @error('outgoing_category') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                 </div>
                             </div>
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-lg-6">
                             <div class="form-group row">
-                                <label class="col-sm-3 col-form-label" style="padding-top: 0px;">Person Responsible</label>
-                                <div class="col-sm-9">
+                                <label class="col-lg-3 col-form-label" style="padding-top: 0px;">Person Responsible</label>
+                                <div class="col-lg-9">
                                     <input type="text" class="form-control" wire:model="person_responsible" @if($editMode || empty($outgoing_category)) disabled @endif>
                                     @error('person_responsible') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                 </div>
@@ -38,10 +38,10 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-lg-6">
                             <div class="form-group row">
-                                <label class="col-sm-3 col-form-label">Destination</label>
-                                <div class="col-sm-9">
+                                <label class="col-lg-3 col-form-label">Destination</label>
+                                <div class="col-lg-9">
                                     <input type="text" class="form-control" wire:model="destination" @if($editMode || empty($outgoing_category)) disabled @endif>
                                     @error('destination') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                 </div>
@@ -57,20 +57,20 @@
                     <div style="display: {{ empty($outgoing_category) ? 'none' : 'block' }};">
                         <hr>
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-lg-6">
                                 <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label">Document No.</label>
-                                    <div class="col-sm-9">
+                                    <label class="col-lg-3 col-form-label">Document No.</label>
+                                    <div class="col-lg-9">
                                         <!-- Document No's input is system generated. Thus, it will be manipulated in our component -->
                                         <input type="text" class="form-control" placeholder="{{ $document_no }}" disabled>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-lg-6 {{ $editMode ? '' : 'custom-input-bg' }}">
                                 <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label">Date</label>
-                                    <div class="col-sm-9">
+                                    <label class="col-lg-3 col-form-label">Date</label>
+                                    <div class="col-lg-9">
                                         <div wire:ignore>
                                             <input class="form-control date"></input>
                                         </div>
@@ -82,54 +82,59 @@
 
                         <div class="row">
                             <!-- /* ------------------------------- PROCUREMENT ------------------------------ */ -->
-                            <div class="col-md-6" style="display: {{ ($outgoing_category == 'procurement' ? 'block' : 'none') }} ">
+                            <div class="col-lg-6" style="display: {{ ($outgoing_category == 'procurement' ? 'block' : 'none') }} ">
                                 <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label">P.R. No.</label>
-                                    <div class="col-sm-9">
+                                    <label class="col-lg-3 col-form-label">P.R. No.</label>
+                                    <div class="col-lg-9">
                                         <input type="text" class="form-control" placeholder="" wire:model="PR_no" @if($editMode) disabled @endif>
+                                        @error('PR_no') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                     </div>
                                 </div>
                             </div>
                             <!-- /* ------------------------------- PROCUREMENT ------------------------------ */ -->
 
                             <!-- /* --------------------------------- PAYROLL -------------------------------- */ -->
-                            <div class="col-md-6" style="display: {{ ($outgoing_category == 'payroll' ? 'block' : 'none') }} ">
+                            <div class="col-lg-6" style="display: {{ ($outgoing_category == 'payroll' ? 'block' : 'none') }} ">
                                 <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label">Payroll Type</label>
-                                    <div class="col-sm-9">
+                                    <label class="col-lg-3 col-form-label">Payroll Type</label>
+                                    <div class="col-lg-9">
                                         <div id="outgoing_payroll_type_select" wire:ignore></div>
+                                        @error('payroll_type') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                     </div>
                                 </div>
                             </div>
                             <!-- /* --------------------------------- PAYROLL -------------------------------- */ -->
 
                             <!-- /* --------------------------------- VOUCHER -------------------------------- */ -->
-                            <div class="col-md-6" style="display: {{ ($outgoing_category == 'voucher' ? 'block' : 'none') }} ">
+                            <div class="col-lg-6" style="display: {{ ($outgoing_category == 'voucher' ? 'block' : 'none') }} ">
                                 <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label">Voucher Name</label>
-                                    <div class="col-sm-9">
+                                    <label class="col-lg-3 col-form-label">Voucher Name</label>
+                                    <div class="col-lg-9">
                                         <input type="text" class="form-control" wire:model="voucher_name" @if($editMode) disabled @endif>
+                                        @error('voucher_name') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                     </div>
                                 </div>
                             </div>
                             <!-- /* --------------------------------- VOUCHER -------------------------------- */ -->
 
                             <!-- /* ------------------------------ OTHERS or RIS ----------------------------- */ -->
-                            <div class="col-md-6" style="display: {{ ($outgoing_category == 'other' || $outgoing_category == 'ris' ? 'block' : 'none') }} ">
+                            <div class="col-lg-6" style="display: {{ ($outgoing_category == 'other' || $outgoing_category == 'ris' ? 'block' : 'none') }} ">
                                 <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label">Document Name</label>
-                                    <div class="col-sm-9">
+                                    <label class="col-lg-3 col-form-label">Document Name</label>
+                                    <div class="col-lg-9">
                                         <input type="text" class="form-control" wire:model="document_name" @if($editMode) disabled @endif>
+                                        @error('document_name') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                     </div>
                                 </div>
                             </div>
                             <!-- /* ------------------------------ OTHERS or RIS ----------------------------- */ -->
 
-                            <div class="col-md-6" style="display: {{ $editMode ? 'block' : 'none' }}">
+                            <div class="col-lg-6" style="display: {{ $editMode ? 'block' : 'none' }}">
                                 <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label">Status</label>
-                                    <div class="col-sm-9">
+                                    <label class="col-lg-3 col-form-label">Status</label>
+                                    <div class="col-lg-9">
                                         <div id="outgoing-status-select" wire:ignore></div>
+                                        @error('status') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                     </div>
                                 </div>
                             </div>
@@ -137,22 +142,24 @@
 
                         <div class="row">
                             <!-- /* ------------------------------- PROCUREMENT ------------------------------ */ -->
-                            <div class="col-md-6" style="display: {{ ($outgoing_category == 'procurement' ? 'block' : 'none') }} ">
+                            <div class="col-lg-6" style="display: {{ ($outgoing_category == 'procurement' ? 'block' : 'none') }} ">
                                 <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label">P.O. No.</label>
-                                    <div class="col-sm-9">
+                                    <label class="col-lg-3 col-form-label">P.O. No.</label>
+                                    <div class="col-lg-9">
                                         <input type="text" class="form-control" placeholder="" wire:model="PO_no" @if($editMode) disabled @endif>
+                                        @error('PO_no') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                     </div>
                                 </div>
                             </div>
                             <!-- /* ------------------------------- PROCUREMENT ------------------------------ */ -->
 
                             <!-- /* ----------------------------------- RIS ---------------------------------- */ -->
-                            <div class="col-md-6" style="display: {{ ($outgoing_category == 'ris' ? 'block' : 'none') }} ">
+                            <div class="col-lg-6" style="display: {{ ($outgoing_category == 'ris' ? 'block' : 'none') }} ">
                                 <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label">PPMP Code</label>
-                                    <div class="col-sm-9">
+                                    <label class="col-lg-3 col-form-label">PPMP Code</label>
+                                    <div class="col-lg-9">
                                         <input type="text" class="form-control" wire:model="ppmp_code" @if($editMode) disabled @endif>
+                                        @error('ppmp_code') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                     </div>
                                 </div>
                             </div>
@@ -161,23 +168,22 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-12">
+                            <div class="col-lg-12">
                                 <div class="form-group row">
-                                    @error('document_details') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
-                                    <label class="col-sm-2 col-form-label">Document Details</label>
-                                    <div class="col-sm-12" wire:ignore>
-                                        <!-- <input id="document_details"></input> -->
+                                    <label class="col-lg-2 col-form-label">Document Details</label>
+                                    <div class="col-lg-12" wire:ignore>
                                         <div id="document_details"></div>
                                     </div>
+                                    @error('document_details') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                 </div>
                             </div>
                         </div>
 
                         <div class="row" style="display: {{ ($editMode ? 'none' : 'block') }} ">
-                            <div class="col-md-12">
+                            <div class="col-lg-12">
                                 <div class="form-group row">
-                                    <label class="col-sm-12 col-form-label">Attachment</label>
-                                    <div class="col-sm-12" wire:ignore>
+                                    <label class="col-lg-12 col-form-label">Attachment</label>
+                                    <div class="col-lg-12" wire:ignore>
                                         <input type="file" accept="application/pdf" class="form-control documents-my-pond-attachment" multiple data-allow-reorder="true">
                                     </div>
                                     @error('attachments') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
@@ -217,7 +223,7 @@
                                                 </tr>
                                                 @empty
                                                 <tr>
-                                                    <td colspan="4">No files found.</td>
+                                                    <td colspan="4" class="text-center">No files found.</td>
                                                 </tr>
                                                 @endforelse
                                             </tbody>
