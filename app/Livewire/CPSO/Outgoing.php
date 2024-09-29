@@ -128,9 +128,9 @@ class Outgoing extends Component
 
     public function add()
     {
-        if ($this->outgoing_category == 'procurement') {
-            $this->validate();
+        $this->validate($this->rules(), [], $this->attributes()); //manually calling validation, ensure that you are referencing attributes() in the validate() method
 
+        if ($this->outgoing_category == 'procurement') {
             try {
                 DB::beginTransaction();
 
@@ -189,8 +189,6 @@ class Outgoing extends Component
                 dd($e->getMessage());
             }
         } elseif ($this->outgoing_category == 'payroll') {
-            $this->validate();
-
             DB::beginTransaction();
 
             try {
@@ -245,8 +243,6 @@ class Outgoing extends Component
                 $this->dispatch('show-something-went-wrong-toast');
             }
         } elseif ($this->outgoing_category == 'voucher') {
-            $this->validate();
-
             DB::beginTransaction();
 
             try {
@@ -300,8 +296,6 @@ class Outgoing extends Component
                 $this->dispatch('show-something-went-wrong-toast');
             }
         } elseif ($this->outgoing_category == 'ris') {
-            $this->validate();
-
             DB::beginTransaction();
 
             try {
@@ -356,8 +350,6 @@ class Outgoing extends Component
                 $this->dispatch('show-something-went-wrong-toast');
             }
         } elseif ($this->outgoing_category == 'other') {
-            $this->validate();
-
             DB::beginTransaction();
 
             try {
