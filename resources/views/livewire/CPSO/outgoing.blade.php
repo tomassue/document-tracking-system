@@ -26,7 +26,11 @@
                                         <span class="">Filter</span>
                                     </div>
 
-                                    <div class="col-md-2">
+                                    <div class="col-sm-4 col-md-3 col-lg-2">
+                                        <div id="filter_category_select" wire:ignore></div>
+                                    </div>
+
+                                    <div class="col-sm-4 col-md-3 col-lg-2">
                                         <div id="filter_status_select" wire:ignore></div>
                                     </div>
                                 </div>
@@ -202,7 +206,7 @@
         ],
         maxWidth: '100%',
         zIndex: 10,
-        popupDropboxBreakpoint: '3000px',
+        // popupDropboxBreakpoint: '3000px',
     });
 
     let outgoing_category = document.querySelector('#outgoing-category-select');
@@ -394,6 +398,29 @@
     filter_status.addEventListener('change', () => {
         let data = filter_status.value;
         @this.set('filter_status', data);
+    });
+
+    //TODO - HERE!!!
+    VirtualSelect.init({
+        ele: '#filter_category_select',
+        placeholder: 'Category (All)',
+        options: [{
+                label: 'Pending',
+                value: 'pending'
+            },
+            {
+                label: 'Processed',
+                value: 'processed'
+            },
+            {
+                label: 'Forwarded',
+                value: 'forwarded'
+            },
+            {
+                label: 'Done',
+                value: 'done'
+            }
+        ],
     });
 
     /* ------------------------------- END FILTER ------------------------------- */

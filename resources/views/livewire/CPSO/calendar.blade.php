@@ -66,7 +66,8 @@
                 calendar.removeAllEvents();
                 calendar.addEventSource(events);
                 calendar.refetchEvents();
-                console.log('refreshed');
+                // console.log('refreshed');
+                console.log(events);
             } catch (e) {
                 console.error('Error parsing meetings data', e)
             }

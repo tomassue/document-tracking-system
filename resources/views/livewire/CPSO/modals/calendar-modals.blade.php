@@ -2,84 +2,100 @@
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="viewDetailsModalLabel">{{ $editMode ? 'Edit' : 'Add' }} Request</h1>
+                <h1 class="modal-title fs-5" id="viewDetailsModalLabel">View Request</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" wire:click="clear"></button>
             </div>
             <div class="modal-body">
                 <div class="row py-3">
-                    <div class="row col-md-6">
-                        <div class="col-md-3">
-                            Category:
-                        </div>
-                        <div class="col-md-9">
-                            <span class="text-capitalize">{{ $incoming_request_category }}</span>
+                    <div class="col-lg-6 mb-3">
+                        <div class="row">
+                            <div class="col-4 col-md-3 col-lg-3">
+                                Category:
+                            </div>
+                            <div class="col-8 col-md-7 col-lg-9">
+                                <span class="text-capitalize">{{ $incoming_request_category }}</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="row col-md-6">
-                        <div class="col-md-3">
-                            Status:
-                        </div>
-                        <div class="col-md-9">
-                            <span class="text-uppercase badge badge-pill
-                            @if($status == 'pending')
-                            badge-danger
-                            @elseif($status == 'processed')
-                            badge-warning
-                            @elseif($status == 'forwarded')
-                            badge-dark
-                            @elseif($status == 'done')
-                            badge-success
-                            @endif
-                            ">
-                                {{ $status }}
-                            </span>
+                    <div class="col-lg-6 mb-3">
+                        <div class="row">
+                            <div class="col-4 col-md-3 col-lg-3">
+                                Status:
+                            </div>
+                            <div class="col-8 col-md-7 col-lg-9">
+                                <span class="text-uppercase badge badge-pill
+                                    @if($status == 'pending') badge-danger
+                                    @elseif($status == 'processed') badge-warning
+                                    @elseif($status == 'forwarded') badge-dark
+                                    @elseif($status == 'done') badge-success
+                                    @endif
+                                ">
+                                    {{ $status }}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
+
                 <hr>
+
                 <div class="row py-3">
-                    <div class="row col-md-6">
-                        <div class="col-md-3">
-                            Office/Barangay/Organization:
-                        </div>
-                        <div class="col-md-9">
-                            <span>{{ $office_or_barangay_or_organization }}</span>
+                    <div class="col-lg-6 mb-3">
+                        <div class="row">
+                            <div class="col-4 col-md-3 col-lg-3" style="word-break: break-word; white-space: normal;">
+                                <span class="d-inline-block text-truncate" style="max-width: 100px;">
+                                    Office/Barangay/Organization:
+                                </span>
+                            </div>
+                            <div class="col-8 col-md-9 col-lg-9">
+                                <span>{{ $office_or_barangay_or_organization }}</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="row col-md-6">
-                        <div class="col-md-3">
-                            Request Date:
-                        </div>
-                        <div class="col-md-9">
-                            <span>{{ $request_date }}</span>
+                    <div class="col-lg-6 mb-3">
+                        <div class="row">
+                            <div class="col-4 col-md-3 col-lg-3">
+                                Request Date:
+                            </div>
+                            <div class="col-8 col-md-9 col-lg-9">
+                                <span>{{ $request_date }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
+
                 <div class="row py-3">
-                    <div class="row col-md-6">
-                        <div class="col-md-3">
-                            Venue:
-                        </div>
-                        <div class="col-md-9">
-                            <span class="text-capitalize">{{ $incoming_request_venue }}</span>
+                    <div class="col-lg-6 mb-3">
+                        <div class="row">
+                            <div class="col-4 col-md-3">
+                                Venue:
+                            </div>
+                            <div class="col-8 col-md-9">
+                                <span class="text-capitalize">{{ $incoming_request_venue }}</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="row col-md-6">
-                        <div class="col-md-3">
-                            Time:
-                        </div>
-                        <div class="col-md-9">
-                            <span>{{ $start_time . ' - ' . $end_time }}</span>
+                    <div class="col-lg-6 mb-3">
+                        <div class="row">
+                            <div class="col-4 col-md-3">
+                                Time:
+                            </div>
+                            <div class="col-8 col-md-9">
+                                <span>{{ $start_time . ' - ' . $end_time }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
+
                 <div class="row py-3">
-                    <div class="row col-md-6">
-                        <div class="col-md-3">
-                            Description:
-                        </div>
-                        <div class="col-md-9">
-                            <span>{{ $description }}</span>
+                    <div class="col-lg-6 mb-3">
+                        <div class="row">
+                            <div class="col-4 col-md-3">
+                                Description:
+                            </div>
+                            <div class="col-8 col-md-9">
+                                <span>{{ $description }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -87,7 +103,7 @@
                 <hr>
 
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-12 col-lg-6 mb-3">
                         <label class="col-form-label">Attachments</label>
                         <div class="table-responsive">
                             <table class="table table-hover">
@@ -99,13 +115,13 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse($files as $index=>$file)
+                                    @forelse($files as $index => $file)
                                     <tr wire:key="{{ $file->id }}">
                                         <td>{{ $index+1 }}</td>
                                         <td>{{ $file->file_name }}</td>
                                         <td class="text-center">
                                             <button type="button" class="btn btn-dark btn-rounded btn-icon" wire:click="previewAttachment({{ $file->id }})">
-                                                <i class="mdi mdi mdi-eye "></i>
+                                                <i class="mdi mdi-eye"></i>
                                             </button>
                                         </td>
                                     </tr>
@@ -118,7 +134,7 @@
                             </table>
                         </div>
                     </div>
-                    <div class="col-md-6 d-flex justify-content-center align-items-center">
+                    <div class="col-12 col-lg-6 d-flex justify-content-center align-items-center">
                         @if ($file_data)
                         <embed wire:loading.remove src="data:application/pdf;base64,{{ $file_data }}" title="{{ $file_title }}" type="application/pdf" style="height: 70vh; width: 100%;">
                         @else

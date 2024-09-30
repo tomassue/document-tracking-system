@@ -57,25 +57,24 @@ class Calendar extends Component
     {
         $this->editMode = true;
 
-        $query = Incoming_Request_CPSO_Model::join('ref_category', 'ref_category.id', '=', 'incoming_request_cpso.incoming_category')
-            ->select(
-                'ref_category.category AS ref_category',
-                'incoming_request_cpso.office_or_barangay_or_organization',
-                'incoming_request_cpso.request_date',
-                'incoming_request_cpso.category',
-                'incoming_request_cpso.venue',
-                'incoming_request_cpso.start_time',
-                'incoming_request_cpso.end_time',
-                'incoming_request_cpso.description',
-                'incoming_request_cpso.files'
-            )
+        $query = Incoming_Request_CPSO_Model::select(
+            'incoming_request_cpso.incoming_category',
+            'incoming_request_cpso.office_or_barangay_or_organization',
+            'incoming_request_cpso.request_date',
+            'incoming_request_cpso.category',
+            'incoming_request_cpso.venue',
+            'incoming_request_cpso.start_time',
+            'incoming_request_cpso.end_time',
+            'incoming_request_cpso.description',
+            'incoming_request_cpso.files'
+        )
             ->where('incoming_request_cpso.incoming_request_id', $key)
             ->first();
 
         $document_history = Document_History_Model::where('document_id', $key)->latest()->first();
 
         $this->incoming_request_id                  = $query->incoming_request_id;
-        $this->incoming_request_category            = $query->ref_category;
+        $this->incoming_request_category            = $query->incoming_category;
         $this->status                               = $document_history->status;
         $this->office_or_barangay_or_organization   = $query->office_or_barangay_or_organization;
         $this->request_date                         = (new \DateTime($query->request_date))->format('M d, Y');
@@ -118,20 +117,18 @@ class Calendar extends Component
 
     public function loadIncomingRequest()
     {
-        $incoming_request = Incoming_Request_CPSO_Model::join('ref_category', 'ref_category.id', '=', 'incoming_request_cpso.incoming_category')
-            ->select(
-                'incoming_request_cpso.incoming_request_id',
-                'ref_category.category AS ref_category',
-                'incoming_request_cpso.office_or_barangay_or_organization',
-                'incoming_request_cpso.request_date',
-                'incoming_request_cpso.category',
-                'incoming_request_cpso.venue',
-                'incoming_request_cpso.start_time',
-                'incoming_request_cpso.end_time',
-                'incoming_request_cpso.description',
-                'incoming_request_cpso.files',
-                'incoming_request_cpso.created_at'
-            )
+        $incoming_request = Incoming_Request_CPSO_Model::select(
+            'incoming_request_cpso.incoming_request_id',
+            'incoming_request_cpso.office_or_barangay_or_organization',
+            'incoming_request_cpso.request_date',
+            'incoming_request_cpso.category',
+            'incoming_request_cpso.venue',
+            'incoming_request_cpso.start_time',
+            'incoming_request_cpso.end_time',
+            'incoming_request_cpso.description',
+            'incoming_request_cpso.files',
+            'incoming_request_cpso.created_at'
+        )
             ->whereNotNull('venue')
             ->where('venue', 'like', "%{$this->venue}%")
             ->get()

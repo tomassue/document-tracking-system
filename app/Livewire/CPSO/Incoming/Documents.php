@@ -85,81 +85,49 @@ class Documents extends Component
     {
         $this->validate();
 
-        if ($this->attachment) {
-            try {
-                DB::beginTransaction();
+        try {
+            DB::beginTransaction();
 
-                # Iterate over each file.
-                # Uploading small files is okay with BLOB data type. I encountered an error where uploading bigger size such as PDF won't upload in the database which is resulting an error.
-                foreach ($this->attachment as $file) {
-                    $file_data = File_Data_Model::create([
-                        'file_name' => $file->getClientOriginalName(),
-                        'file_size' => $file->getSize(),
-                        'file_type' => $file->extension(),
-                        'file' => file_get_contents($file->path()),
-                        'user_id' => Auth::user()->id
-                    ]);
-                    // Store the ID of the saved file
-                    $file_data_IDs[] = $file_data->id;
-                }
-
-                $incoming_documents_data = [
-                    'incoming_document_category' => $this->incoming_document_category,
-                    'date' => $this->date,
-                    'document_info' => $this->document_info,
-                    'attachment' => json_encode($file_data_IDs)
-                ];
-                $incoming_documents = Incoming_Documents_CPSO_Model::create($incoming_documents_data);
-
-                $document_history_data = [
-                    'document_id' => $incoming_documents->document_no,
-                    'status' => 'pending',
-                    'user_id' => Auth::user()->id,
-                    'remarks' => 'created_by'
-                ];
-                Document_History_Model::create($document_history_data);
-
-                DB::commit();
-
-                $this->clear();
-                $this->dispatch('hide-documentsModal');
-                $this->dispatch('show-success-save-message-toast');
-            } catch (\Exception $e) {
-                DB::rollBack();
-
-                // dd($e->getMessage());
-                $this->dispatch('show-something-went-wrong-toast');
+            # Iterate over each file.
+            # Uploading small files is okay with BLOB data type. I encountered an error where uploading bigger size such as PDF won't upload in the database which is resulting an error.
+            foreach ($this->attachment ?? [] as $file) {
+                $file_data = File_Data_Model::create([
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_size' => $file->getSize(),
+                    'file_type' => $file->extension(),
+                    'file' => file_get_contents($file->path()),
+                    'user_id' => Auth::user()->id
+                ]);
+                // Store the ID of the saved file
+                $file_data_IDs[] = $file_data->id;
             }
-        } else {
-            try {
-                DB::beginTransaction();
 
-                $incoming_documents_data = [
-                    'incoming_document_category' => $this->incoming_document_category,
-                    'date' => $this->date,
-                    'document_info' => $this->document_info
-                ];
-                $incoming_documents = Incoming_Documents_CPSO_Model::create($incoming_documents_data);
+            $incoming_documents_data = [
+                'incoming_document_category' => $this->incoming_document_category,
+                'date' => $this->date,
+                'document_info' => $this->document_info,
+                'attachment' => json_encode($file_data_IDs ?? [])
+            ];
+            $incoming_documents = Incoming_Documents_CPSO_Model::create($incoming_documents_data);
 
-                $document_history_data = [
-                    'document_id' => $incoming_documents->document_no,
-                    'status' => 'pending',
-                    'user_id' => Auth::user()->id,
-                    'remarks' => 'created_by'
-                ];
-                Document_History_Model::create($document_history_data);
+            $document_history_data = [
+                'document_id' => $incoming_documents->document_no,
+                'status' => 'pending',
+                'user_id' => Auth::user()->id,
+                'remarks' => 'created_by'
+            ];
+            Document_History_Model::create($document_history_data);
 
-                DB::commit();
+            DB::commit();
 
-                $this->clear();
-                $this->dispatch('hide-documentsModal');
-                $this->dispatch('show-success-save-message-toast');
-            } catch (\Exception $e) {
-                DB::rollBack();
+            $this->clear();
+            $this->dispatch('hide-documentsModal');
+            $this->dispatch('show-success-save-message-toast');
+        } catch (\Exception $e) {
+            DB::rollBack();
 
-                // dd($e->getMessage());
-                $this->dispatch('show-something-went-wrong-toast');
-            }
+            // dd($e->getMessage());
+            $this->dispatch('show-something-went-wrong-toast');
         }
     }
 

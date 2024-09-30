@@ -105,93 +105,55 @@ class Request extends Component
     {
         $this->validate();
 
-        if ($this->attachment) {
-            try {
-                DB::beginTransaction();
+        try {
+            DB::beginTransaction();
 
-                # Iterate over each file.
-                # Uploading small files is okay with BLOB data type. I encountered an error where uploading bigger size such as PDF won't upload in the database which is resulting an error.
-                foreach ($this->attachment as $file) {
-                    $file_data = File_Data_Model::create([
-                        'file_name' => $file->getClientOriginalName(),
-                        'file_size' => $file->getSize(),
-                        'file_type' => $file->extension(),
-                        'file' => file_get_contents($file->path()),
-                        'user_id' => Auth::user()->id
-                    ]);
-                    // Store the ID of the saved file
-                    $file_data_IDs[] = $file_data->id;
-                }
-
-                $incoming_request_data = [
-                    'incoming_request_id' => $this->generateUniqueNumber(),
-                    'incoming_category' => $this->incoming_category,
-                    'office_or_barangay_or_organization' => $this->office_barangay_organization,
-                    'request_date' => $this->request_date,
-                    'category' => $this->category,
-                    'venue' => $this->venue,
-                    'start_time' => $this->start_time,
-                    'end_time' => $this->end_time,
-                    'description' => $this->description,
-                    'files' => json_encode($file_data_IDs)
-                ];
-                $incoming_request = Incoming_Request_CPSO_Model::create($incoming_request_data);
-
-                $document_history_data = [
-                    'document_id' => $incoming_request->incoming_request_id,
-                    'status' => 'pending',
-                    'user_id' => Auth::user()->id,
-                    'remarks' => 'created_by'
-                ];
-                Document_History_Model::create($document_history_data);
-
-                DB::commit();
-
-                $this->clear();
-                $this->dispatch('hide-requestModal');
-                $this->dispatch('show-success-save-message-toast');
-            } catch (\Exception $e) {
-                DB::rollBack();
-
-                // dd($e->getMessage());
-                $this->dispatch('show-something-went-wrong-toast');
+            # Iterate over each file.
+            # Uploading small files is okay with BLOB data type. I encountered an error where uploading bigger size such as PDF won't upload in the database which is resulting an error.
+            foreach ($this->attachment ?? [] as $file) {
+                $file_data = File_Data_Model::create([
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_size' => $file->getSize(),
+                    'file_type' => $file->extension(),
+                    'file' => file_get_contents($file->path()),
+                    'user_id' => Auth::user()->id
+                ]);
+                // Store the ID of the saved file
+                $file_data_IDs[] = $file_data->id;
             }
-        } else {
-            try {
-                DB::beginTransaction();
 
-                $incoming_request_data = [
-                    'incoming_request_id' => $this->generateUniqueNumber(),
-                    'incoming_category' => $this->incoming_category,
-                    'office_or_barangay_or_organization' => $this->office_barangay_organization,
-                    'request_date' => $this->request_date,
-                    'category' => $this->category,
-                    'venue' => $this->venue,
-                    'start_time' => $this->start_time,
-                    'end_time' => $this->end_time,
-                    'description' => $this->description
-                    // FILES IS NULL SINCE FILES IS NOT REQUIRED
-                ];
-                $incoming_request = Incoming_Request_CPSO_Model::create($incoming_request_data);
+            $incoming_request_data = [
+                'incoming_request_id' => $this->generateUniqueNumber(),
+                'incoming_category' => $this->incoming_category,
+                'office_or_barangay_or_organization' => $this->office_barangay_organization,
+                'request_date' => $this->request_date,
+                'category' => $this->category,
+                'venue' => $this->venue,
+                'start_time' => $this->start_time,
+                'end_time' => $this->end_time,
+                'description' => $this->description,
+                'files' => json_encode($file_data_IDs ?? [])
+            ];
+            $incoming_request = Incoming_Request_CPSO_Model::create($incoming_request_data);
 
-                $document_history_data = [
-                    'document_id' => $incoming_request->incoming_request_id,
-                    'status' => 'pending',
-                    'user_id' => Auth::user()->id,
-                    'remarks' => 'created_by'
-                ];
-                Document_History_Model::create($document_history_data);
+            $document_history_data = [
+                'document_id' => $incoming_request->incoming_request_id,
+                'status' => 'pending',
+                'user_id' => Auth::user()->id,
+                'remarks' => 'created_by'
+            ];
+            Document_History_Model::create($document_history_data);
 
-                DB::commit();
+            DB::commit();
 
-                $this->clear();
-                $this->dispatch('hide-requestModal');
-                $this->dispatch('show-success-save-message-toast');
-            } catch (\Exception $e) {
-                DB::rollBack();
+            $this->clear();
+            $this->dispatch('hide-requestModal');
+            $this->dispatch('show-success-save-message-toast');
+        } catch (\Exception $e) {
+            DB::rollBack();
 
-                $this->dispatch('show-something-went-wrong-toast');
-            }
+            // dd($e->getMessage());
+            $this->dispatch('show-something-went-wrong-toast');
         }
     }
 

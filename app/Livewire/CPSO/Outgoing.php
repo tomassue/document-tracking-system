@@ -501,7 +501,11 @@ class Outgoing extends Component
             ->join('users', 'users.id', '=', 'latest_document_history.user_id')
             ->select('outgoing_documents.*', 'users.name as user_name', 'latest_document_history.status')
             ->orderBy('outgoing_documents.date', 'desc')
-            ->where('document_details', 'like', '%' . $this->search . '%')
+            // ->where('document_details', 'like', '%' . $this->search . '%')
+            ->where(function ($query) {
+                $query->where('document_details', 'like', '%' . $this->search . '%')
+                    ->orWhere('document_no', 'like', '%' . $this->search . '%');
+            })
             ->when($this->filter_status != NULL, function ($query) {
                 $query->where('latest_document_history.status', $this->filter_status);
             }, function ($query) {

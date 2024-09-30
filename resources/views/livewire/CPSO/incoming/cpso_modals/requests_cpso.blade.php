@@ -28,7 +28,7 @@
                     <div class="row">
                         <div class="col-lg-6">
                             <div class="form-group row">
-                                <label class="col-lg-3 col-form-label" style="padding-top: 0px;padding-bottom: 0px;">Office/Barangay/Organization</label>
+                                <label class="col-lg-3 col-form-label text-break" style="padding-top: 0px; padding-bottom: 0px;">Office/Barangay/Organization</label>
                                 <div class="col-lg-9">
                                     <input type="text" class="form-control" wire:model="office_barangay_organization" {{ $editMode ? 'disabled' : '' }}>
                                     @error('office_barangay_organization') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
