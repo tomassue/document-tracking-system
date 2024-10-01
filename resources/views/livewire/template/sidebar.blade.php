@@ -9,6 +9,7 @@
             </a>
             <div class="collapse" id="profile-options">
                 <ul class="nav flex-column sub-menu">
+                    <p class="pt-3 text-white">{{ Auth::user()->name . ' (' . Auth::user()->ref_office->office_name . ')' }}</p>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('change-password') }}">
                             Change password

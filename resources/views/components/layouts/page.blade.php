@@ -39,6 +39,10 @@
     <link rel="stylesheet" href="{{ asset('plugins/pickadate.js-3.6.2/lib/themes/classic.date.css') }}">
     <link rel="stylesheet" href="{{ asset('plugins/pickadate.js-3.6.2/lib/themes/classic.time.css') }}">
 
+    <!-- flatpickr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/airbnb.css">
+
     <!-- FilePond -->
     <link href="{{ asset('plugins/jquery-filepond-master/filepond.css') }}" rel="stylesheet" />
 
@@ -227,6 +231,14 @@
             background-color: #adb4bb !important;
             /* Your desired background color */
         }
+
+        /* Custom page links */
+        .page-item.active .page-link {
+            z-index: 3;
+            color: #fff;
+            background-color: #223E9C;
+            border-color: #223E9C;
+        }
     </style>
 </head>
 
@@ -298,6 +310,9 @@
     <script src="{{ asset('plugins/pickadate.js-3.6.2/lib/picker.js') }}"></script>
     <script src="{{ asset('plugins/pickadate.js-3.6.2/lib/picker.date.js') }}"></script>
     <script src="{{ asset('plugins/pickadate.js-3.6.2/lib/picker.time.js') }}"></script>
+
+    <!-- flatpickr -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
     <!-- summernote -->
     <script src="{{ asset('plugins/summernote/summernote-bs5.js') }}"></script>

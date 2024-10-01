@@ -68,7 +68,7 @@
                                 @endphp
 
                                 <label class="col-lg-3 col-form-label">Time</label>
-                                <div class="col-lg-4">
+                                <div style="display: none;" class="col-lg-4">
                                     <div wire:ignore>
                                         <input class="form-control remove-disabled-bg from-time" placeholder="From" required>
                                     </div>
@@ -76,8 +76,15 @@
                                     <span class="custom-invalid-feedback">{{ $timeError }}</span>
                                     @endif
                                 </div>
-                                <div class="col-lg-4" wire:ignore>
+                                <div style="display: none;" class="col-lg-4" wire:ignore>
                                     <input class="form-control remove-disabled-bg end-time" placeholder="To" required>
+                                </div>
+
+                                <div class="col-lg-4" wire:ignore>
+                                    <input class="form-control flatpickr-start-time" placeholder="Start">
+                                </div>
+                                <div class="col-lg-4" wire:ignore>
+                                    <input class="form-control flatpickr-end-time" placeholder="Start">
                                 </div>
                             </div>
                         </div>
@@ -130,8 +137,11 @@
                                                     <td>{{ $index+1 }}</td>
                                                     <td>{{ $file->file_name }}</td>
                                                     <td class="text-center">
-                                                        <button type="button" class="btn btn-dark btn-rounded btn-icon" wire:click="$dispatch('preview-attachment', { key: {{ $file->id }} } )">
-                                                            <i class="mdi mdi mdi-eye "></i>
+                                                        <button type="button" class="btn btn-dark btn-rounded btn-icon" style="display: {{ $file_data && ($file_id == $file->id) ? 'none' : 'inline-block' }}" wire:click="$dispatch('preview-attachment', { key: {{ $file->id }} } )">
+                                                            <i class="mdi mdi mdi-eye"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-dark btn-rounded btn-icon" style="display: {{ $file_data && ($file_id == $file->id) ? 'inline-block' : 'none' }}" wire:click="clearFileData">
+                                                            <i class="mdi mdi-eye-off"></i>
                                                         </button>
                                                     </td>
                                                 </tr>
@@ -372,6 +382,16 @@
 
             picker.set('select', key[0]);
         });
+    });
+
+    $(".flatpickr-start-time").flatpickr({
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "h:i K",
+        onChange: function(selectedDates, dateStr, instance) {
+            // Update the Livewire property with the selected time
+            @this.set('start_time', dateStr);
+        }
     });
 
     /* -------------------------------------------------------------------------- */

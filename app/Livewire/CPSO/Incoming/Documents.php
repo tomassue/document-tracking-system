@@ -40,7 +40,7 @@ class Documents extends Component
     public $search;
     public $editMode = false, $status;
     public $document_history = [];
-    public $files = [], $file_title, $file_data;
+    public $files = [], $file_id, $file_title, $file_data;
     public $edit_document_no, $document_no, $incoming_document_category, $document_info, $attachment = [], $date;
 
     public function mount($page_type = "")
@@ -160,10 +160,18 @@ class Documents extends Component
         $this->dispatch('show-viewDetailsDocumentsModal');
     }
 
+    // Closing attachment preview
+    public function clearFileData()
+    {
+        $this->reset('file_id', 'file_data');
+    }
+
     public function previewAttachment($key)
     {
         if ($key) {
             $file = File_Data_Model::findOrFail($key);
+
+            $this->file_id = $key;
 
             if ($file && $file->file) {
                 $this->file_title = $file->file_name;

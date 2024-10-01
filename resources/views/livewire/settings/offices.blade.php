@@ -35,7 +35,7 @@
                                             <td>{{ $key+1 }}</td>
                                             <td>{{ $item->office_name }}</td>
                                             <td>
-                                                <button type="button" class="btn btn-dark btn-icon-text" wire:click="edit({{ $item->id }})">
+                                                <button type="button" class="btn btn-sm btn-dark btn-icon-text" wire:click="edit({{ $item->id }})">
                                                     Edit
                                                     <i class="mdi mdi-file-check btn-icon-append"></i>
                                                 </button>

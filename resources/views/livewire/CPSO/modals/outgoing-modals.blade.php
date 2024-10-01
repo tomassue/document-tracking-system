@@ -211,13 +211,21 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @forelse($attachments as $index=>$file)
+                                                @forelse($attachments as $index => $file)
                                                 <tr wire:key="{{ $file->id }}">
-                                                    <td>{{ $index+1 }}</td>
+                                                    <td>{{ $index + 1 }}</td>
                                                     <td>{{ $file->file_name }}</td>
                                                     <td class="text-center">
-                                                        <button type="button" class="btn btn-dark btn-rounded btn-icon" wire:click="previewAttachment({{ $file->id }})">
-                                                            <i class="mdi mdi mdi-eye "></i>
+                                                        <!-- Preview button (eye icon) -->
+                                                        <button type="button" class="btn btn-dark btn-rounded btn-icon {{ $file_data && ($file_id == $file->id) ? 'd-none' : '' }}"
+                                                            wire:click="previewAttachment({{ $file->id }})">
+                                                            <i class="mdi mdi-eye"></i>
+                                                        </button>
+
+                                                        <!-- Clear button (eye-off icon) -->
+                                                        <button type="button" class="btn btn-dark btn-rounded btn-icon {{ $file_data && ($file_id == $file->id) ? '' : 'd-none' }}"
+                                                            wire:click="clearFileData">
+                                                            <i class="mdi mdi-eye-off"></i>
                                                         </button>
                                                     </td>
                                                 </tr>

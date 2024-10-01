@@ -11,7 +11,7 @@
         }],
         maxWidth: '100%',
         zIndex: 10,
-        popupDropboxBreakpoint: '3000px',
+        // popupDropboxBreakpoint: '3000px',
     });
 
     let payroll_type = document.querySelector('#outgoing_payroll_type_select');

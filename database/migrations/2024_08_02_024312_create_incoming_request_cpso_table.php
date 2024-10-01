@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('venue')->nullable(); //NOTE - IF category is 'venue'.
             $table->time('start_time');
             $table->time('end_time');
-            $table->longText('description');
+            $table->longText('description')->nullable();
             $table->string('files')->nullable();
             $table->timestamps();
         });

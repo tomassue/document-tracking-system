@@ -25,10 +25,11 @@ class Outgoing extends Component
     public $search;
     public $editMode = false;
     public $document_history = [];
-    public $file_title, $file_data;
+    public $file_id, $file_title, $file_data;
 
     /* --------------------------------- FILTER --------------------------------- */
     public $filter_status;
+    public $filter_category;
     /* ------------------------------- END FILTER ------------------------------- */
 
     /* ------- REUSABLE MODELS AND IF 'OTHERS' IS SELECTED IN THE CATEGORY ------ */
@@ -66,7 +67,7 @@ class Outgoing extends Component
             'destination' => 'required',
             'person_responsible' => 'required',
             'date' => 'required',
-            'document_details' => 'required',
+            // 'document_details' => 'required',
             // 'attachments' => 'required',
         ];
 
@@ -476,10 +477,18 @@ class Outgoing extends Component
         $this->dispatch('show-success-update-message-toast');
     }
 
+    // Closing attachment preview
+    public function clearFileData()
+    {
+        $this->reset('file_id', 'file_data');
+    }
+
     public function previewAttachment($key)
     {
         if ($key) {
             $file = File_Data_Model::findOrFail($key);
+
+            $this->file_id = $key;
 
             if ($file && $file->file) {
                 $this->file_title = $file->file_name;
@@ -499,7 +508,7 @@ class Outgoing extends Component
                         GROUP BY document_id
                     )) AS latest_document_history'), 'outgoing_documents.document_no', '=', 'latest_document_history.document_id')
             ->join('users', 'users.id', '=', 'latest_document_history.user_id')
-            ->select('outgoing_documents.*', 'users.name as user_name', 'latest_document_history.status')
+            ->select('outgoing_documents.*', 'users.name as user_name', 'latest_document_history.status', DB::raw("DATE_FORMAT(date, '%b %d, %Y') AS date"))
             ->orderBy('outgoing_documents.date', 'desc')
             // ->where('document_details', 'like', '%' . $this->search . '%')
             ->where(function ($query) {
@@ -511,7 +520,22 @@ class Outgoing extends Component
             }, function ($query) {
                 $query->whereNot('latest_document_history.status', 'done');
             })
-            ->get();
+            ->when($this->filter_category != null, function ($query) {
+                $categoryMap = [
+                    'procurement' => 'App\Models\OutgoingCategoryProcurementModel',
+                    'payroll' => 'App\Models\OutgoingCategoryPayrollModel',
+                    'voucher' => 'App\Models\OutgoingCategoryVoucherModel',
+                    'ris' => 'App\Models\OutgoingCategoryRISModel',
+                    'other' => 'App\Models\OutgoingCategoryOthersModel'
+                ];
+
+                if (isset($categoryMap[$this->filter_category])) {
+                    $query->whereHas('category', function ($categoryQuery) use ($categoryMap) {
+                        $categoryQuery->where('category_type', $categoryMap[$this->filter_category]);
+                    });
+                }
+            })
+            ->paginate(10);
 
         return $outgoing_documents;
     }

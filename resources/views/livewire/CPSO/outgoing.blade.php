@@ -41,6 +41,7 @@
                                     <thead>
                                         <tr>
                                             <th class="fw-bold">Category</th>
+                                            <th class="fw-bold">Date</th>
                                             <th class="fw-bold">Document No.</th>
                                             <th class="fw-bold">Document</th>
                                             <th class="fw-bold">Destination</th>
@@ -66,6 +67,7 @@
                                                 <span>Others</span>
                                                 @endif
                                             </td>
+                                            <td>{{ $item->date }}</td>
                                             <td>{{ $item->document_no }}</td>
                                             <td>{{ $item->document_details }}</td>
                                             <td>{{ $item->destination }}</td>
@@ -105,7 +107,7 @@
                                 </table>
                             </div>
                             <div class="mt-3">
-
+                                {{ $outgoing_documents->links() }}
                             </div>
                         </div>
                     </div>
@@ -359,6 +361,7 @@
 
     $wire.on('enable-plugins', () => {
         document.querySelector('#outgoing-category-select').enable();
+        document.querySelector('#outgoing_payroll_type_select').enable();
         $('.date').removeAttr('disabled');
         $('.documents-my-pond-attachment').each(function() {
             $(this).filepond('removeFiles');
@@ -400,27 +403,36 @@
         @this.set('filter_status', data);
     });
 
-    //TODO - HERE!!!
     VirtualSelect.init({
         ele: '#filter_category_select',
         placeholder: 'Category (All)',
         options: [{
-                label: 'Pending',
-                value: 'pending'
+                label: 'Procurement',
+                value: 'procurement'
             },
             {
-                label: 'Processed',
-                value: 'processed'
+                label: 'Payroll',
+                value: 'payroll'
             },
             {
-                label: 'Forwarded',
-                value: 'forwarded'
+                label: 'Voucher',
+                value: 'voucher'
             },
             {
-                label: 'Done',
-                value: 'done'
+                label: 'RIS',
+                value: 'ris'
+            },
+            {
+                label: 'Other',
+                value: 'other'
             }
         ],
+    });
+
+    let filter_category = document.querySelector('#filter_category_select');
+    filter_category.addEventListener('change', () => {
+        let data = filter_category.value;
+        @this.set('filter_category', data);
     });
 
     /* ------------------------------- END FILTER ------------------------------- */

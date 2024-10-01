@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('outgoing_documents', function (Blueprint $table) {
             $table->string('document_no')->primary();
             $table->string('date');
-            $table->string('document_details');
+            $table->string('document_details')->nullable();
             $table->string('destination');
             $table->string('person_responsible');
             $table->string('attachments'); //NOTE - FK to file_data table.

@@ -103,8 +103,11 @@
                                         <td>{{ $index+1 }}</td>
                                         <td>{{ $file->file_name }}</td>
                                         <td class="text-center">
-                                            <button type="button" class="btn btn-dark btn-rounded btn-icon" wire:click="previewAttachment({{ $file->id }})">
+                                            <button type="button" class="btn btn-dark btn-rounded btn-icon" style="display: {{ $file_data && ($file_id == $file->id) ? 'none' : 'inline-block' }}" wire:click="previewAttachment({{ $file->id }})">
                                                 <i class="mdi mdi mdi-eye "></i>
+                                            </button>
+                                            <button type="button" class="btn btn-dark btn-rounded btn-icon" style="display: {{ $file_data && ($file_id == $file->id) ? 'inline-block' : 'none' }}" wire:click="clearFileData">
+                                                <i class="mdi mdi-eye-off"></i>
                                             </button>
                                         </td>
                                     </tr>

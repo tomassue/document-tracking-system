@@ -39,7 +39,7 @@
                                             <td class="text-capitalize">{{ $item->document_type }}</td>
                                             <td class="text-uppercase">{{ $item->is_active }}</td>
                                             <td>
-                                                <button type="button" class="btn btn-dark btn-icon-text" wire:click="edit({{ $item->id }})">
+                                                <button type="button" class="btn btn-sm btn-dark btn-icon-text" wire:click="edit({{ $item->id }})">
                                                     Edit
                                                     <i class="mdi mdi-file-check btn-icon-append"></i>
                                                 </button>

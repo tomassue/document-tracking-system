@@ -44,7 +44,7 @@ class Request extends Component
     /* ------------------------------- END FILTER ------------------------------- */
 
     public $search, $incoming_category = 'request', $status, $office_barangay_organization, $request_date, $category, $venue, $start_time, $end_time, $description, $attachment = [];
-    public $file_title, $file_data;
+    public $file_id, $file_title, $file_data;
     public $editMode, $edit_document_id;
     public $document_history = [];
 
@@ -63,7 +63,7 @@ class Request extends Component
             'category' => 'required',
             'start_time' => 'required',
             'end_time' => 'required',
-            'description' => 'required',
+            // 'description' => 'required',
             // 'attachment' => 'required'
         ];
     }
@@ -103,6 +103,7 @@ class Request extends Component
 
     public function add()
     {
+        dd($this->start_time);
         $this->validate();
 
         try {
@@ -213,11 +214,19 @@ class Request extends Component
         $this->dispatch('show-success-update-message-toast');
     }
 
+    // Closing attachment preview
+    public function clearFileData()
+    {
+        $this->reset('file_id', 'file_data');
+    }
+
     #[On('preview-attachment')]
     public function previewAttachment($key)
     {
         if ($key) {
             $file = File_Data_Model::findOrFail($key);
+
+            $this->file_id = $key;
 
             if ($file && $file->file) {
                 $this->file_title = $file->file_name;

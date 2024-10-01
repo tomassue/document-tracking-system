@@ -44,11 +44,11 @@
                                                 </span>
                                             </td>
                                             <td>
-                                                <button type="button" class="btn btn-dark btn-icon-text" wire:click="edit({{ $item->id }})">
+                                                <button type="button" class="btn btn-sm btn-dark btn-icon-text" wire:click="edit({{ $item->id }})">
                                                     Edit
                                                     <i class="mdi mdi-file-check btn-icon-append"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-danger btn-icon-text text-white" wire:click="$dispatch('confirm-reset-password', { id: {{ $item->id }} })">
+                                                <button type="button" class="btn btn-sm btn-danger btn-icon-text text-white" wire:click="$dispatch('confirm-reset-password', { id: {{ $item->id }} })">
                                                     Reset &nbsp;
                                                     <i class="mdi mdi-account-key "></i>
                                                 </button>

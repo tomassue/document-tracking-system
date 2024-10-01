@@ -1,6 +1,6 @@
 <div>
     <!-- partial:./partials/_navbar.html -->
-    <nav class="navbar col-lg-12 col-12 px-0 py-0 py-lg-4 d-flex flex-row" style="background-color: white;">
+    <nav class="navbar col-lg-12 col-12 px-0 py-0 d-flex flex-row" style="background-color: white;">
         <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
             <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
                 <span class="mdi mdi-menu text-black"></span>
@@ -115,7 +115,9 @@
                 <span class="mdi mdi-menu text-black"></span>
             </button>
         </div>
-        <div class="navbar-menu-wrapper navbar-search-wrapper d-none d-lg-flex align-items-center border border-black">
+
+        <!-- DISPLAY NONE -->
+        <div class="navbar-menu-wrapper navbar-search-wrapper d-none d-lg-flex align-items-center border border-black" style="display: none !important;">
             <ul class="navbar-nav navbar-nav-right">
                 <li class="nav-item nav-profile dropdown">
                     <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" id="profileDropdown">
@@ -123,10 +125,10 @@
                         <span class="nav-profile-name">{{ Auth::user()->name . ' (' . Auth::user()->ref_office->office_name . ')' }}</span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
-                        <!-- <a class="dropdown-item">
-                        <i class="mdi mdi-settings text-primary"></i>
-                        Settings
-                    </a> -->
+                        <a class="dropdown-item">
+                            <i class="mdi mdi-settings text-primary"></i>
+                            Settings
+                        </a>
                         <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault();
                                                     document.getElementById('logout-form').submit();">
                             <i class="mdi mdi-logout text-primary"></i>
