@@ -129,7 +129,7 @@ class Calendar extends Component
             'incoming_request_cpso.files',
             'incoming_request_cpso.created_at'
         )
-            ->whereNotNull('venue')
+            ->where('venue', '!=', '')
             ->where('venue', 'like', "%{$this->venue}%")
             ->get()
             ->map(function ($item) {

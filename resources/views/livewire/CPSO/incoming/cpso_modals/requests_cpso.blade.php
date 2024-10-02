@@ -53,7 +53,7 @@
                                 <label class="col-lg-3 col-form-label">Category</label>
                                 <div class="col-lg-9">
                                     <div id="category-select" wire:ignore></div>
-                                    <div style="display: {{ $category == 'venue' ? 'display' : 'none' }}" class="mt-2">
+                                    <div style="display: {{ $category == '9' ? 'display' : 'none' }}" class="mt-2">
                                         <div id="venue-select" wire:ignore></div>
                                     </div>
                                     @error('category') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
@@ -62,32 +62,26 @@
                         </div>
 
                         <div class="col-lg-6 {{ $editMode ? '' : 'custom-input-bg' }}">
-                            <div class="form-group row">
+                            <div class="form-group row" style="pointer-events: {{ $editMode ? 'none' : '' }};">
                                 @php
                                 $timeError = $errors->first('start_time') ?: $errors->first('end_time');
                                 @endphp
 
                                 <label class="col-lg-3 col-form-label">Time</label>
-                                <div style="display: none;" class="col-lg-4">
+                                <div class="col-lg-4">
                                     <div wire:ignore>
-                                        <input class="form-control remove-disabled-bg from-time" placeholder="From" required>
+                                        <input class="form-control flatpickr-start-time" placeholder="Start">
                                     </div>
                                     @if ($timeError)
                                     <span class="custom-invalid-feedback">{{ $timeError }}</span>
                                     @endif
                                 </div>
-                                <div style="display: none;" class="col-lg-4" wire:ignore>
-                                    <input class="form-control remove-disabled-bg end-time" placeholder="To" required>
-                                </div>
-
                                 <div class="col-lg-4" wire:ignore>
-                                    <input class="form-control flatpickr-start-time" placeholder="Start">
-                                </div>
-                                <div class="col-lg-4" wire:ignore>
-                                    <input class="form-control flatpickr-end-time" placeholder="Start">
+                                    <input class="form-control flatpickr-end-time" placeholder="End">
                                 </div>
                             </div>
                         </div>
+
                     </div>
                     <div class="row">
                         <div class="col-lg-12">
@@ -120,7 +114,7 @@
 
                             @if ($editMode == true)
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-6" style="height: 560px; overflow: auto;">
                                     <label class="col-form-label">Attachments</label>
                                     <div class="table-responsive">
                                         <table class="table table-hover">
@@ -265,27 +259,7 @@
 
     VirtualSelect.init({
         ele: '#category-select',
-        options: [{
-                label: 'Equipment',
-                value: 'equipment'
-            },
-            {
-                label: 'Venue',
-                value: 'venue'
-            },
-            {
-                label: 'Vehicle',
-                value: 'vehicle'
-            },
-            {
-                label: 'Band',
-                value: 'band'
-            },
-            {
-                label: 'Others',
-                value: 'others'
-            }
-        ],
+        options: @json($categories),
         maxWidth: '100%',
         zIndex: 10,
         // popupDropboxBreakpoint: '3000px',
@@ -342,56 +316,43 @@
 
     /* -------------------------------------------------------------------------- */
 
-    $('.from-time').pickatime({
-        interval: 30,
-        editable: false
+    var startPicker = $(".flatpickr-start-time").flatpickr({
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "h:i K", // display in 12-hour format
+        onChange: function(selectedDates, dateStr, instance) {
+            if (selectedDates.length > 0) { // Check if there is a selected date
+                let timeIn24HourFormat = instance.formatDate(selectedDates[0], "H:i");
+                @this.set('start_time', timeIn24HourFormat);
+            } else {
+                // console.warn("No date selected for start time.");
+            }
+        }
     });
 
-    $('.from-time').on('change', function(event) {
-        let picker = $(this).pickatime('picker');
-        let selectedFromTime = picker.get('select', 'HH:i');
-        @this.set('start_time', selectedFromTime);
-    });
-
-    $wire.on('set-from-time', (key) => {
-        $('.from-time').each(function() {
-            let picker = $(this).pickatime('picker'); // Use pickatime instead of pickadate
-            picker.clear();
-            $('.from-time').attr('disabled', 'disabled');
-
-            picker.set('select', key[0]);
-        });
-    });
-
-    $('.end-time').pickatime({
-        interval: 30,
-        editable: false
-    });
-
-    $('.end-time').on('change', function(event) {
-        let picker = $(this).pickatime('picker');
-        let selectedEndTime = picker.get('select', 'HH:i');
-        @this.set('end_time', selectedEndTime);
-    });
-
-    $wire.on('set-end-time', (key) => {
-        $('.end-time').each(function() {
-            let picker = $(this).pickatime('picker');
-            picker.clear();
-            $('.end-time').attr('disabled', 'disabled');
-
-            picker.set('select', key[0]);
-        });
-    });
-
-    $(".flatpickr-start-time").flatpickr({
+    var endPicker = $('.flatpickr-end-time').flatpickr({
         enableTime: true,
         noCalendar: true,
         dateFormat: "h:i K",
         onChange: function(selectedDates, dateStr, instance) {
-            // Update the Livewire property with the selected time
-            @this.set('start_time', dateStr);
+            if (selectedDates.length > 0) { // Check if there is a selected date
+                let timeIn24HourFormat = instance.formatDate(selectedDates[0], "H:i");
+                @this.set('end_time', timeIn24HourFormat);
+            } else {
+                // console.warn("No date selected for end time.");
+            }
         }
+    });
+
+    $wire.on('set-start-time', (key) => {
+        // Update the Flatpickr instance with the new default date/time
+        startPicker.setDate(key, true); // Set the new default time and ensure formatting is applied. The div of this element is disabled through setting the pointer-events to none.
+
+    });
+
+    $wire.on('set-end-time', (key) => {
+        // Update the Flatpickr instance with the new default date/time
+        endPicker.setDate(key, true); // Set the new default time and ensure formatting is applied. The div of this element is disabled through setting the pointer-events to none.
     });
 
     /* -------------------------------------------------------------------------- */
@@ -439,14 +400,6 @@
             $(this).pickadate('picker').clear();
             $(this).removeAttr('disabled');
         });
-        $('.from-time').each(function() {
-            $(this).pickatime('picker').clear();
-            $(this).removeAttr('disabled');
-        });
-        $('.end-time').each(function() {
-            $(this).pickatime('picker').clear();
-            $(this).removeAttr('disabled');
-        });
         $('#summernote_description').each(function() {
             $(this).summernote('reset');
             $(this).summernote('enable');
@@ -459,6 +412,8 @@
         document.querySelector('#venue-select').reset();
         document.querySelector('#venue-select').enable();
 
+        startPicker.clear();
+        endPicker.clear();
     });
 </script>
 @endscript

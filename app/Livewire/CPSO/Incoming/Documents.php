@@ -34,7 +34,9 @@ class Documents extends Component
     public $page_type = "";
 
     /* --------------------------------- FILTER --------------------------------- */
-    public $filter_status;
+
+    public $filter_category, $filter_status;
+
     /* ------------------------------- END FILTER ------------------------------- */
 
     public $search;
@@ -272,6 +274,9 @@ class Documents extends Component
             }, function ($query) {
                 $query->whereNot('latest_document_history.status', 'done');
             })
+            ->when($this->filter_category != NULL, function ($query) {
+                $query->where('incoming_documents_cpso.incoming_document_category', $this->filter_category);
+            })
             ->orderBy('incoming_documents_cpso.date', 'ASC')
             ->paginate(10);
 
@@ -288,6 +293,7 @@ class Documents extends Component
         )
             ->where('document_type', 'incoming')
             ->where('is_active', 'yes')
+            ->whereNot('id', 9)
             ->get()
             ->map(function ($item) {
                 return [

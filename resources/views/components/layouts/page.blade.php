@@ -30,8 +30,11 @@
     <link rel="stylesheet" href="{{ asset('plugins/virtual-select/virtual-select.min.css') }}">
     <link rel="stylesheet" href="{{ asset('plugins/virtual-select/tooltip.min.css') }}">
 
-    <!-- Summernote -->
+    <!-- Popper -->
+    <!-- Floating UI is a library that helps you create “floating” elements such as tooltips, popovers, dropdowns, and more. -->
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+
+    <!-- Summernote -->
     <link href="{{ asset('plugins/summernote/summernote-bs5.css') }}" rel="stylesheet">
 
     <!-- pickadate -->
@@ -312,7 +315,7 @@
     <script src="{{ asset('plugins/pickadate.js-3.6.2/lib/picker.time.js') }}"></script>
 
     <!-- flatpickr -->
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="{{ asset('plugins/flatpickr-v4/flatpickr.js') }}"></script>
 
     <!-- summernote -->
     <script src="{{ asset('plugins/summernote/summernote-bs5.js') }}"></script>

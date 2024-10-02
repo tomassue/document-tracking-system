@@ -28,7 +28,11 @@
                                     <span class="">Filter</span>
                                 </div>
 
-                                <div class="col-md-2">
+                                <div class="col-sm-4 col-md-3 col-lg-2">
+                                    <div id="filter_category_select" wire:ignore></div>
+                                </div>
+
+                                <div class="col-sm-4 col-md-3 col-lg-2">
                                     <div id="filter_status_select" wire:ignore></div>
                                 </div>
                             </div>
@@ -136,6 +140,18 @@
     filter_status.addEventListener('change', () => {
         let data = filter_status.value;
         @this.set('filter_status', data);
+    });
+
+    VirtualSelect.init({
+        ele: '#filter_category_select',
+        placeholder: 'Category (All)',
+        options: @json($categories)
+    });
+
+    let filter_category = document.querySelector('#filter_category_select');
+    filter_category.addEventListener('change', () => {
+        let data = filter_category.value;
+        @this.set('filter_category', data);
     });
 
     /* ------------------------------- END FILTER ------------------------------- */

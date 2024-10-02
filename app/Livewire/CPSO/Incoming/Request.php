@@ -40,7 +40,9 @@ class Request extends Component
     public $page_type = "";
 
     /* --------------------------------- FILTER --------------------------------- */
-    public $filter_status;
+
+    public $filter_category, $filter_status;
+
     /* ------------------------------- END FILTER ------------------------------- */
 
     public $search, $incoming_category = 'request', $status, $office_barangay_organization, $request_date, $category, $venue, $start_time, $end_time, $description, $attachment = [];
@@ -62,7 +64,14 @@ class Request extends Component
             'request_date' => 'required',
             'category' => 'required',
             'start_time' => 'required',
-            'end_time' => 'required',
+            'end_time' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    if (strtotime($value) <= strtotime($this->start_time)) {
+                        $fail('The end time must be after the start time and cannot be the same.');
+                    }
+                },
+            ]
             // 'description' => 'required',
             // 'attachment' => 'required'
         ];
@@ -103,7 +112,6 @@ class Request extends Component
 
     public function add()
     {
-        dd($this->start_time);
         $this->validate();
 
         try {
@@ -176,8 +184,8 @@ class Request extends Component
         $this->dispatch('set-request-date', $incoming_request->request_date);
         $this->dispatch('set-category', $incoming_request->category);
         $this->dispatch('set-venue', $incoming_request->venue);
-        $this->dispatch('set-from-time', $this->timeToMinutes($incoming_request->start_time));
-        $this->dispatch('set-end-time', $this->timeToMinutes($incoming_request->end_time));
+        $this->dispatch('set-start-time', $incoming_request->start_time);
+        $this->dispatch('set-end-time', $incoming_request->end_time);
         $this->dispatch('set-description', $incoming_request->description);
 
         if ($incoming_request->files) {
@@ -271,11 +279,12 @@ class Request extends Component
                         FROM document_history
                         GROUP BY document_id
                     )) AS latest_document_history'), 'latest_document_history.document_id', '=', 'incoming_request_cpso.incoming_request_id')
+            ->join('ref_category', 'ref_category.id', '=', 'incoming_request_cpso.category')
             ->select(
                 'incoming_request_cpso.incoming_request_id AS id',
                 DB::raw("DATE_FORMAT(incoming_request_cpso.request_date, '%b %d, %Y') AS request_date"),
                 'incoming_request_cpso.office_or_barangay_or_organization',
-                'incoming_request_cpso.category',
+                'ref_category.category',
                 'incoming_request_cpso.venue',
                 'latest_document_history.status'
             )
@@ -292,6 +301,9 @@ class Request extends Component
             }, function ($query) {
                 // Exclude "booked" status by default
                 $query->where('latest_document_history.status', '!=', 'booked');
+            })
+            ->when($this->filter_category != NULL, function ($query) {
+                $query->where('incoming_request_cpso.category', $this->filter_category);
             })
             ->orderBy('incoming_request_cpso.request_date', 'ASC')
             ->paginate(10);
