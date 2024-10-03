@@ -52,3 +52,12 @@ Route::middleware(['is_active', 'auth', 'super_admin_access_only', 'updated_pass
 Route::group(['is_active', 'middleware' => 'auth'], function () {
     Route::get('/settings/change-password', ChangePassword::class)->name('change-password');
 });
+
+
+
+// Livewire::setScriptRoute(function ($handle) {
+//     return Route::get('/cdo-dts/livewire/livewire.js', $handle);
+// });
+// Livewire::setUpdateRoute(function ($handle) {
+//     return Route::post('/cdo-dts/livewire/update', $handle);
+// });

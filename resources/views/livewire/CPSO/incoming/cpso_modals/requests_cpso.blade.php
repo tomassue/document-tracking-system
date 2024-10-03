@@ -57,6 +57,7 @@
                                         <div id="venue-select" wire:ignore></div>
                                     </div>
                                     @error('category') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
+                                    @error('venue') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                 </div>
                             </div>
                         </div>

@@ -71,7 +71,8 @@ class Request extends Component
                         $fail('The end time must be after the start time and cannot be the same.');
                     }
                 },
-            ]
+            ],
+            'venue' => $this->category == '9' ? 'required' : 'nullable', // Conditionally require the 'venue' field if $this->venue is true
             // 'description' => 'required',
             // 'attachment' => 'required'
         ];
