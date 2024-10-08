@@ -15,7 +15,7 @@
                                     <input type="text" class="form-control" id="exampleInputSearch" placeholder="Search" wire:model.live="search">
                                 </div>
                                 <div class="col-md-1 text-end">
-                                    <button type="button" class="btn btn-inverse-success btn-icon" wire:click="$dispatch('show-categoryModal')">
+                                    <button type="button" class="btn btn-success btn-icon" wire:click="$dispatch('show-categoryModal')">
                                         <i class="mdi mdi mdi-plus"></i>
                                     </button>
                                 </div>
@@ -34,11 +34,15 @@
                                     <tbody>
                                         @forelse($categories as $index=>$item)
                                         <tr wire:key="{{ $item->id }}">
-                                            <td>{{ $index+1 }}</td>
-                                            <td class="text-capitalize">{{ $item->category }}</td>
-                                            <td class="text-capitalize">{{ $item->document_type }}</td>
-                                            <td class="text-uppercase">{{ $item->is_active }}</td>
-                                            <td>
+                                            <td class="small-td">{{ $index+1 }}</td>
+                                            <td class="text-capitalize small-td">{{ $item->category }}</td>
+                                            <td class="text-capitalize small-td">{{ $item->document_type }}</td>
+                                            <td class="text-uppercase small-td">
+                                                <span class="badge badge-pill {{ $item->is_active == 'yes' ? 'badge-success' : 'badge-danger' }}">
+                                                    {{ $item->is_active }}
+                                                </span>
+                                            </td>
+                                            <td class="small-td">
                                                 <button type="button" class="btn btn-sm btn-dark btn-icon-text" wire:click="edit({{ $item->id }})">
                                                     Edit
                                                     <i class="mdi mdi-file-check btn-icon-append"></i>

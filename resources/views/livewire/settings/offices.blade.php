@@ -15,7 +15,7 @@
                                     <input type="text" class="form-control" id="exampleInputSearch" placeholder="Search" wire:model.live="search">
                                 </div>
                                 <div class="col-md-1 text-end">
-                                    <button type="button" class="btn btn-inverse-success btn-icon" wire:click="$dispatch('show-officeModal')">
+                                    <button type="button" class="btn btn-success btn-icon" wire:click="$dispatch('show-officeModal')">
                                         <i class="mdi mdi mdi-plus"></i>
                                     </button>
                                 </div>
@@ -32,9 +32,9 @@
                                     <tbody>
                                         @forelse($ref_offices as $key=>$item)
                                         <tr wire:key="{{ $item->id }}">
-                                            <td>{{ $key+1 }}</td>
-                                            <td>{{ $item->office_name }}</td>
-                                            <td>
+                                            <td class="small-td">{{ $key+1 }}</td>
+                                            <td class="small-td">{{ $item->office_name }}</td>
+                                            <td class="small-td">
                                                 <button type="button" class="btn btn-sm btn-dark btn-icon-text" wire:click="edit({{ $item->id }})">
                                                     Edit
                                                     <i class="mdi mdi-file-check btn-icon-append"></i>

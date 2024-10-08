@@ -242,6 +242,11 @@
             background-color: #223E9C;
             border-color: #223E9C;
         }
+
+        /* Custom table td */
+        .small-td {
+            padding: 0.50rem 0.9375rem !important;
+        }
     </style>
 </head>
 

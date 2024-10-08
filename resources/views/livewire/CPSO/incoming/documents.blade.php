@@ -18,7 +18,7 @@
                                     <input type="text" class="form-control" id="exampleInputSearch" placeholder="Search" wire:model.live="search">
                                 </div>
                                 <div class="col-md-1 text-end">
-                                    <button type="button" class="btn btn-inverse-success btn-icon" wire:click="show_documentsModal">
+                                    <button type="button" class="btn btn-success btn-icon" wire:click="show_documentsModal">
                                         <i class="mdi mdi mdi-plus"></i>
                                     </button>
                                 </div>
