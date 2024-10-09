@@ -40,7 +40,6 @@ Route::middleware(['is_active', 'auth', 'updated_password', 'cpso_access_only'])
 /* -------------------------------------------------------------------------- */
 
 Route::middleware(['is_active', 'auth', 'super_admin_access_only', 'updated_password'])->group(function () {
-    Route::get('/settings/category', Category::class)->name('category');
     Route::get('/settings/offices', Offices::class)->name('offices');
     Route::get('/settings/user-management', UserManagement::class)->name('user-management');
 });
@@ -53,7 +52,9 @@ Route::group(['is_active', 'middleware' => 'auth'], function () {
     Route::get('/settings/change-password', ChangePassword::class)->name('change-password');
 });
 
-
+Route::middleware(['is_active', 'auth', 'updated_password'])->group(function () {
+    Route::get('/settings/category', Category::class)->name('category');
+});
 
 // Livewire::setScriptRoute(function ($handle) {
 //     return Route::get('/cdo-dts/livewire/livewire.js', $handle);

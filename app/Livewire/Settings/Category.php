@@ -3,13 +3,19 @@
 namespace App\Livewire\Settings;
 
 use App\Models\Ref_Category_Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+#[Title('Category | Document tracking system')]
 class Category extends Component
 {
+    use WithPagination;
+
+
     public $editMode = false;
     public $id_category;
 
@@ -19,9 +25,6 @@ class Category extends Component
     public $category;
     public $document_type;
     public $is_active;
-
-
-    use WithPagination;
 
     public function render()
     {
@@ -51,6 +54,7 @@ class Category extends Component
 
     public function add()
     {
+        dd(Auth::user()->id);
         $this->validate();
 
         try {
@@ -59,7 +63,8 @@ class Category extends Component
             Ref_Category_Model::create([
                 'category' => $this->category,
                 'document_type' => $this->document_type,
-                'is_active' => $this->is_active
+                'is_active' => $this->is_active,
+                'created_by' => Auth::user()->id
             ]);
 
             DB::commit();
@@ -78,6 +83,8 @@ class Category extends Component
     public function edit($id)
     {
         try {
+            // $find_office = 
+
             $category = Ref_Category_Model::findOrFail($id);
             $this->id_category = $id;
             $this->category = $category->category;
@@ -126,7 +133,7 @@ class Category extends Component
             'document_type',
             'is_active'
         )
-            ->get();
+            ->paginate(10);
 
         return $categories;
     }
@@ -135,5 +142,6 @@ class Category extends Component
     {
         $this->reset();
         $this->resetValidation();
+        $this->dispatch('clear-plugins');
     }
 }

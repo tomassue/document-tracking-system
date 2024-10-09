@@ -14,6 +14,7 @@ class Ref_Category_Model extends Model
     protected $fillable = [
         'category',
         'document_type',
-        'is_active'
+        'is_active',
+        'created_by'
     ];
 }

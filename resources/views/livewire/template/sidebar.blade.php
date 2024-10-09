@@ -68,7 +68,6 @@
         </li>
 
         <!-- /* -------------------------------------------------------------------------- */ -->
-        @if(Auth::user()->role == '0')
         <li class="nav-item">
             <a class="nav-link" data-bs-toggle="collapse" href="#settings-submenus" aria-expanded="false" aria-controls="settings-submenus">
                 <i class="mdi mdi-settings menu-icon"></i>
@@ -78,12 +77,13 @@
             <div class="collapse" id="settings-submenus">
                 <ul class="nav flex-column sub-menu">
                     <li class="nav-item"><a class="nav-link" href="{{ route('category') }}">Category</a></li>
+                    @if(Auth::user()->role == '0')
                     <li class="nav-item"><a class="nav-link" href="{{ route('offices') }}">Offices</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ route('user-management') }}">User Management</a></li>
+                    @endif
                 </ul>
             </div>
         </li>
-        @endif
         <!-- /* -------------------------------------------------------------------------- */ -->
 
         @endif

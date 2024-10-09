@@ -3,9 +3,11 @@
 namespace App\Livewire\Settings;
 
 use App\Models\Ref_Offices_Model;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+#[Title('Offices | Document tracking system')]
 class Offices extends Component
 {
     use WithPagination;

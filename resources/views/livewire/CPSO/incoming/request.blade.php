@@ -67,7 +67,7 @@
                                             badge-warning
                                             @elseif($item->status == 'forwarded')
                                             badge-dark
-                                            @elseif($item->status == 'booked')
+                                            @elseif($item->status == 'done')
                                             badge-success
                                             @endif
                                             ">
@@ -130,8 +130,8 @@
                 value: 'forwarded'
             },
             {
-                label: 'Booked',
-                value: 'booked'
+                label: 'Done',
+                value: 'done'
             }
         ],
     });

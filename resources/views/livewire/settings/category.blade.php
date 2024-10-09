@@ -58,7 +58,7 @@
                                 </table>
                             </div>
                             <div class="mt-3">
-
+                                {{ $categories->links() }}
                             </div>
                         </div>
                     </div>
@@ -120,8 +120,12 @@
     VirtualSelect.init({
         ele: '#document-type-select',
         options: [{
-                label: 'Incoming',
-                value: 'incoming'
+                label: 'Incoming Request',
+                value: 'incoming request'
+            },
+            {
+                label: 'Incoming Document',
+                value: 'incoming document'
             },
             {
                 label: 'Outgoing',

@@ -61,7 +61,7 @@
                     <div class="col-12 col-md-6">
                         <div class="row">
                             <div class="col-4 col-md-3">
-                                Request Date:
+                                Date:
                             </div>
                             <div class="col-8 col-md-9">
                                 <span>{{ $date }}</span>
@@ -179,14 +179,16 @@
                                 <label class="col-lg-3 col-form-label">Document No.</label>
                                 <div class="col-lg-9">
                                     <!-- Document No's input is system generated. Thus, it will be manipulated in our component -->
-                                    <input type="text" class="form-control" placeholder="{{ $document_no }}" disabled>
+                                    <!-- <input type="text" class="form-control" placeholder="{{ $document_no }}" disabled> -->
+                                    <input type="text" class="form-control" wire:model="document_no">
+                                    @error('document_no') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                 </div>
                             </div>
                         </div>
 
                         <div class="col-lg-6 {{ $editMode ? '' : 'custom-input-bg' }}">
                             <div class="form-group row">
-                                <label class="col-lg-3 col-form-label">Request Date</label>
+                                <label class="col-lg-3 col-form-label">Date</label>
                                 <div class="col-lg-9">
                                     <div wire:ignore>
                                         <input class="form-control document-incoming-date" required></input>

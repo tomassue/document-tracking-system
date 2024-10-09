@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('category');
             $table->string('document_type');
             $table->string('is_active');
+            $table->integer('created_by');
             $table->timestamps();
         });
     }

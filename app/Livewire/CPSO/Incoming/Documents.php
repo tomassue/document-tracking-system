@@ -62,6 +62,7 @@ class Documents extends Component
     public function rules()
     {
         return [
+            'document_no' => 'required|unique:incoming_documents_cpso,document_no',
             'incoming_document_category' => 'required',
             'document_info' => 'required',
             // 'attachment' => 'required',
@@ -105,6 +106,7 @@ class Documents extends Component
             }
 
             $incoming_documents_data = [
+                'document_no' => $this->document_no,
                 'incoming_document_category' => $this->incoming_document_category,
                 'date' => $this->date,
                 'document_info' => $this->document_info,
@@ -291,9 +293,9 @@ class Documents extends Component
             'document_type',
             'is_active'
         )
-            ->where('document_type', 'incoming')
+            ->where('document_type', 'incoming document')
             ->where('is_active', 'yes')
-            ->whereNot('id', 9)
+            // ->whereNot('id', 9)
             ->get()
             ->map(function ($item) {
                 return [
@@ -322,7 +324,7 @@ class Documents extends Component
         }
 
         $padLength = max(2, strlen((string)($newIdNumber)));
-        $this->document_no = 'MEMO-' . str_pad($newIdNumber, $padLength, '0', STR_PAD_LEFT);
+        // $this->document_no = 'MEMO-' . str_pad($newIdNumber, $padLength, '0', STR_PAD_LEFT);
 
         $this->dispatch('enable-plugins');
         $this->dispatch('show-documentsModal');

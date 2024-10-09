@@ -176,7 +176,7 @@ class Request extends Component
         $document_history = Document_History_Model::where('document_id', $key)->latest()->first(); //NOTE - latest() returns the most recent record based on the `created_by` column. This ia applicable to our document_history since we store multiple foreign keys to track updates and who updated them. We mainly want to return the latest status and populate it to our `status-select` when `editMode` is true.
 
         $this->dispatch('set-incoming_category', $incoming_request->incoming_category);
-        if ($document_history->status == 'booked') {
+        if ($document_history->status == 'done') {
             $this->dispatch('set-status-disabled', $document_history->status); // Since the status is DONE, we won't allow users to modify the document's status.
         } else {
             $this->dispatch('set-status-enable', $document_history->status);
@@ -300,8 +300,8 @@ class Request extends Component
             ->when($this->filter_status != NULL, function ($query) {
                 $query->where('latest_document_history.status', $this->filter_status);
             }, function ($query) {
-                // Exclude "booked" status by default
-                $query->where('latest_document_history.status', '!=', 'booked');
+                // Exclude "done" status by default
+                $query->where('latest_document_history.status', '!=', 'done');
             })
             ->when($this->filter_category != NULL, function ($query) {
                 $query->where('incoming_request_cpso.category', $this->filter_category);
@@ -320,7 +320,7 @@ class Request extends Component
             'document_type',
             'is_active'
         )
-            ->where('document_type', 'incoming')
+            ->where('document_type', 'incoming request')
             ->where('is_active', 'yes')
             ->get()
             ->map(function ($item) {

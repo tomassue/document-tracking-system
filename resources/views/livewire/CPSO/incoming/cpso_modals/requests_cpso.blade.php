@@ -203,8 +203,8 @@
                 value: 'forwarded'
             },
             {
-                label: 'Booked',
-                value: 'booked'
+                label: 'Done',
+                value: 'done'
             }
         ],
         maxWidth: '100%',
