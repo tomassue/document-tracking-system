@@ -37,9 +37,16 @@
                     @endif
 
                     <div data-mdb-input-init class="form-outline mb-4">
-                        <input type="email" id="email" class="form-control form-control-lg @error('email') is-invalid @enderror" placeholder="Enter a valid email address" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus />
+                        <!-- <input type="email" id="email" class="form-control form-control-lg @error('email') is-invalid @enderror" placeholder="Enter a valid email address" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus />
                         <label class="form-label" for="email">Email address</label>
                         @error('email')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                        @enderror -->
+                        <input type="text" id="username" class="form-control form-control-lg @error('username') is-invalid @enderror" placeholder="Enter username" name="username" value="{{ old('username') }}" required autocomplete="username" autofocus />
+                        <label class="form-label" for="username">Username</label>
+                        @error('username')
                         <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
                         </span>

@@ -36,7 +36,7 @@ class UserManagement extends Component
         return [
             'full_name' => 'required',
             'selectedRefOffice' => 'required',
-            'username' => 'required|email:rfc,dns|unique:users,email'
+            'username' => 'required|unique:users,username'
         ];
     }
 
@@ -53,9 +53,10 @@ class UserManagement extends Component
 
         $data_user = [
             'name' => $this->full_name,
-            'email' => $this->username,
+            'username' => $this->username,
             'password' => Hash::make('password'),
-            'role' => '1'
+            'role' => '1',
+            'is_active' => '1'
         ];
 
         $user = User::create($data_user);
@@ -84,7 +85,7 @@ class UserManagement extends Component
         $query_user = User::findOrFail($key);
         $this->user_id = $query_user->id; //NOTE - This will be used in update().
         $this->full_name = $query_user->name;
-        $this->username = $query_user->email;
+        $this->username = $query_user->username;
 
         $query_user_offices = User_Offices_Model::leftJoin('ref_offices', 'ref_offices.id', '=', 'user_offices.office_id')
             ->where('user_offices.user_id', $key)
@@ -104,14 +105,14 @@ class UserManagement extends Component
     {
         $rules = [
             'full_name' => 'required',
-            'username' => 'required|email:rfc,dns',
+            'username' => 'required',
         ];
 
         $this->validate($rules);
 
         $data_user = [
             'name' => $this->full_name,
-            'email' => $this->username,
+            'username' => $this->username,
             'is_active' => $this->is_active,
         ];
 

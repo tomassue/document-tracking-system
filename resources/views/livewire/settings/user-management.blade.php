@@ -95,7 +95,8 @@
                             </div>
                             <div class="form-group">
                                 <label for="exampleEmail">Username</label>
-                                <input type="email" class="form-control" id="exampleEmail" placeholder="username@mail.com" wire:model="username">
+                                <!-- <input type="email" class="form-control" id="exampleEmail" placeholder="username@mail.com" wire:model="username"> -->
+                                <input type="text" class="form-control" id="username" placeholder="Input username" wire:model="username">
                                 @error('username') <div class="custom-invalid-feedback"> {{ $message }} </div> @enderror
                             </div>
                             <div class="form-group" style="display: {{ $editMode ? 'block' : 'none' }};">
