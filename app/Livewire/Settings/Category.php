@@ -54,7 +54,6 @@ class Category extends Component
 
     public function add()
     {
-        dd(Auth::user()->id);
         $this->validate();
 
         try {

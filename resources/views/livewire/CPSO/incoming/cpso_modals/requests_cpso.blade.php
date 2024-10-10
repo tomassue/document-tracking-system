@@ -55,9 +55,9 @@
                                     <div id="category-select" wire:ignore></div>
                                     <div style="display: {{ $category == '9' ? 'display' : 'none' }}" class="mt-2">
                                         <div id="venue-select" wire:ignore></div>
+                                        @error('venue') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                     </div>
                                     @error('category') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
-                                    @error('venue') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                 </div>
                             </div>
                         </div>
