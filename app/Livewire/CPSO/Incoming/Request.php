@@ -314,12 +314,14 @@ class Request extends Component
 
     public function loadCategories()
     {
-        $categories = Ref_Category_Model::select(
-            'id',
-            'category',
-            'document_type',
-            'is_active'
-        )
+        $categories = Ref_Category_Model::join('user_offices', 'user_offices.user_id', '=', 'ref_category.created_by')
+            ->where('user_offices.office_id', Auth::user()->ref_office->id)
+            ->select(
+                'ref_category.id',
+                'ref_category.category',
+                'ref_category.document_type',
+                'ref_category.is_active'
+            )
             ->where('document_type', 'incoming request')
             ->where('is_active', 'yes')
             ->get()
