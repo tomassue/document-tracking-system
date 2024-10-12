@@ -185,27 +185,7 @@
 
     VirtualSelect.init({
         ele: '#outgoing-category-select',
-        options: [{
-                label: 'Procurement',
-                value: 'procurement'
-            },
-            {
-                label: 'Payroll',
-                value: 'payroll'
-            },
-            {
-                label: 'Voucher',
-                value: 'voucher'
-            },
-            {
-                label: 'RIS',
-                value: 'ris'
-            },
-            {
-                label: 'Other',
-                value: 'other'
-            }
-        ],
+        options: @json($categories),
         maxWidth: '100%',
         zIndex: 10,
         // popupDropboxBreakpoint: '3000px',

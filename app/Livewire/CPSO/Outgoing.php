@@ -10,6 +10,7 @@ use App\Models\OutgoingCategoryProcurementModel;
 use App\Models\OutgoingCategoryRISModel;
 use App\Models\OutgoingCategoryVoucherModel;
 use App\Models\OutgoingDocumentsModel;
+use App\Models\Ref_Category_Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Title;
@@ -72,21 +73,21 @@ class Outgoing extends Component
         ];
 
         $categorySpecificRules = match ($this->outgoing_category) {
-            'procurement' => [
+            '4' => [
                 'PR_no' => 'required',
                 'PO_no' => 'required',
             ],
-            'payroll' => [
+            '5' => [
                 'payroll_type' => 'required',
             ],
-            'voucher' => [
+            '6' => [
                 'voucher_name' => 'required',
             ],
-            'ris' => [
+            '7' => [
                 'document_name' => 'required',
                 'ppmp_code' => 'required',
             ],
-            'other' => [
+            '8' => [
                 'document_name' => 'required',
             ],
             default => [],
@@ -115,7 +116,8 @@ class Outgoing extends Component
     public function render()
     {
         $data = [
-            'outgoing_documents' => $this->loadOutgoingDocuments()
+            'outgoing_documents' => $this->loadOutgoingDocuments(),
+            'categories' => $this->loadCategories()
         ];
 
         return view('livewire.CPSO.outgoing', $data);
@@ -131,7 +133,7 @@ class Outgoing extends Component
     {
         $this->validate($this->rules(), [], $this->attributes()); //manually calling validation, ensure that you are referencing attributes() in the validate() method
 
-        if ($this->outgoing_category == 'procurement') {
+        if ($this->outgoing_category == '4') {
             try {
                 DB::beginTransaction();
 
@@ -189,10 +191,10 @@ class Outgoing extends Component
                 // $this->dispatch('show-something-went-wrong-toast');
                 dd($e->getMessage());
             }
-        } elseif ($this->outgoing_category == 'payroll') {
-            DB::beginTransaction();
-
+        } elseif ($this->outgoing_category == '5') {
             try {
+                DB::beginTransaction();
+
                 // Save attachments
                 foreach ($this->attachments ?? [] as $file) {
                     $file_data = File_Data_Model::create([
@@ -243,10 +245,10 @@ class Outgoing extends Component
 
                 $this->dispatch('show-something-went-wrong-toast');
             }
-        } elseif ($this->outgoing_category == 'voucher') {
-            DB::beginTransaction();
-
+        } elseif ($this->outgoing_category == '6') {
             try {
+                DB::beginTransaction();
+
                 // Save attachments
                 foreach ($this->attachments ?? [] as $file) {
                     $file_data = File_Data_Model::create([
@@ -296,10 +298,10 @@ class Outgoing extends Component
 
                 $this->dispatch('show-something-went-wrong-toast');
             }
-        } elseif ($this->outgoing_category == 'ris') {
-            DB::beginTransaction();
-
+        } elseif ($this->outgoing_category == '7') {
             try {
+                DB::beginTransaction();
+
                 // Save attachments
                 foreach ($this->attachments ?? [] as $file) {
                     $file_data = File_Data_Model::create([
@@ -350,10 +352,10 @@ class Outgoing extends Component
 
                 $this->dispatch('show-something-went-wrong-toast');
             }
-        } elseif ($this->outgoing_category == 'other') {
-            DB::beginTransaction();
-
+        } elseif ($this->outgoing_category == '8') {
             try {
+                DB::beginTransaction();
+
                 // Save attachments
                 foreach ($this->attachments ?? [] as $file) {
                     $file_data = File_Data_Model::create([
@@ -402,6 +404,60 @@ class Outgoing extends Component
                 DB::rollBack();
 
                 $this->dispatch('show-something-went-wrong-toast');
+            }
+        } else {
+            try {
+                DB::beginTransaction();
+
+                // Save attachments
+                foreach ($this->attachments ?? [] as $file) {
+                    $file_data = File_Data_Model::create([
+                        'file_name' => $file->getClientOriginalName(),
+                        'file_size' => $file->getSize(),
+                        'file_type' => $file->extension(),
+                        'file'      => file_get_contents($file->path()),
+                        'user_id'   => Auth::user()->id
+                    ]);
+                    // Store the ID of the saved file
+                    $file_data_IDs[] = $file_data->id;
+                }
+
+                // Save outgoing others
+                // $outgoing_category_others = OutgoingCategoryOthersModel::create([
+                //     'document_name' => $this->document_name
+                // ]);
+
+                // Save outgoing documents
+                $outgoing_documents = new OutgoingDocumentsModel([
+                    'date' => $this->date,
+                    'document_details' => $this->document_details,
+                    'destination' => $this->destination,
+                    'person_responsible' => $this->person_responsible,
+                    'attachments' => json_encode($file_data_IDs ?? [])
+                ]);
+
+                // $outgoing_category_others->outgoing_documents()->save($outgoing_documents);
+
+                // Save document history
+                Document_History_Model::create([
+                    'document_id' => $outgoing_documents->document_no,
+                    'status' => 'processing',
+                    'user_id' => Auth::user()->id,
+                    'remarks' => 'created_by'
+                ]);
+
+                // Commit the transaction if all is successful
+                DB::commit();
+
+                $this->clear();
+                $this->dispatch('hide-outgoingModal');
+                $this->dispatch('show-success-save-message-toast');
+            } catch (\Exception $e) {
+                // Rollback the transaction on failure
+                DB::rollBack();
+
+                dd($e->getMessage());
+                // $this->dispatch('show-something-went-wrong-toast');
             }
         }
     }
@@ -540,6 +596,30 @@ class Outgoing extends Component
         return $outgoing_documents;
     }
 
+    public function loadCategories()
+    {
+        // Outgoing Categories
+        $categories = Ref_Category_Model::join('user_offices', 'user_offices.user_id', '=', 'ref_category.created_by')
+            ->where('user_offices.office_id', Auth::user()->ref_office->id)
+            ->select(
+                'ref_category.id',
+                'ref_category.category',
+                'ref_category.document_type',
+                'ref_category.is_active'
+            )
+            ->where('document_type', 'outgoing')
+            ->where('is_active', 'yes')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'label' => $item->category,
+                    'value' => $item->id
+                ];
+            });
+
+        return $categories;
+    }
+
     public function history($key)
     {
         $this->document_history = []; //NOTE - Set this to empty to avoid data to stack.
@@ -567,7 +647,7 @@ class Outgoing extends Component
 
     public function clear()
     {
-        $this->resetExcept('filter_status');
+        $this->resetExcept('filter_category', 'filter_status');
         $this->resetValidation();
         $this->dispatch('clear_plugins');
     }

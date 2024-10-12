@@ -82,7 +82,7 @@
 
                         <div class="row">
                             <!-- /* ------------------------------- PROCUREMENT ------------------------------ */ -->
-                            <div class="col-lg-6" style="display: {{ ($outgoing_category == 'procurement' ? 'block' : 'none') }} ">
+                            <div class="col-lg-6" style="display: {{ ($outgoing_category == '4' ? 'block' : 'none') }} ">
                                 <div class="form-group row">
                                     <label class="col-lg-3 col-form-label">P.R. No.</label>
                                     <div class="col-lg-9">
@@ -94,7 +94,7 @@
                             <!-- /* ------------------------------- PROCUREMENT ------------------------------ */ -->
 
                             <!-- /* --------------------------------- PAYROLL -------------------------------- */ -->
-                            <div class="col-lg-6" style="display: {{ ($outgoing_category == 'payroll' ? 'block' : 'none') }} ">
+                            <div class="col-lg-6" style="display: {{ ($outgoing_category == '5' ? 'block' : 'none') }} ">
                                 <div class="form-group row">
                                     <label class="col-lg-3 col-form-label">Payroll Type</label>
                                     <div class="col-lg-9">
@@ -106,7 +106,7 @@
                             <!-- /* --------------------------------- PAYROLL -------------------------------- */ -->
 
                             <!-- /* --------------------------------- VOUCHER -------------------------------- */ -->
-                            <div class="col-lg-6" style="display: {{ ($outgoing_category == 'voucher' ? 'block' : 'none') }} ">
+                            <div class="col-lg-6" style="display: {{ ($outgoing_category == '6' ? 'block' : 'none') }} ">
                                 <div class="form-group row">
                                     <label class="col-lg-3 col-form-label">Voucher Name</label>
                                     <div class="col-lg-9">
@@ -118,7 +118,7 @@
                             <!-- /* --------------------------------- VOUCHER -------------------------------- */ -->
 
                             <!-- /* ------------------------------ OTHERS or RIS ----------------------------- */ -->
-                            <div class="col-lg-6" style="display: {{ ($outgoing_category == 'other' || $outgoing_category == 'ris' ? 'block' : 'none') }} ">
+                            <div class="col-lg-6" style="display: {{ ($outgoing_category == '8' || $outgoing_category == '7' ? 'block' : 'none') }} ">
                                 <div class="form-group row">
                                     <label class="col-lg-3 col-form-label">Document Name</label>
                                     <div class="col-lg-9">
@@ -142,7 +142,7 @@
 
                         <div class="row">
                             <!-- /* ------------------------------- PROCUREMENT ------------------------------ */ -->
-                            <div class="col-lg-6" style="display: {{ ($outgoing_category == 'procurement' ? 'block' : 'none') }} ">
+                            <div class="col-lg-6" style="display: {{ ($outgoing_category == '4' ? 'block' : 'none') }} ">
                                 <div class="form-group row">
                                     <label class="col-lg-3 col-form-label">P.O. No.</label>
                                     <div class="col-lg-9">
@@ -154,7 +154,7 @@
                             <!-- /* ------------------------------- PROCUREMENT ------------------------------ */ -->
 
                             <!-- /* ----------------------------------- RIS ---------------------------------- */ -->
-                            <div class="col-lg-6" style="display: {{ ($outgoing_category == 'ris' ? 'block' : 'none') }} ">
+                            <div class="col-lg-6" style="display: {{ ($outgoing_category == '7' ? 'block' : 'none') }} ">
                                 <div class="form-group row">
                                     <label class="col-lg-3 col-form-label">PPMP Code</label>
                                     <div class="col-lg-9">
