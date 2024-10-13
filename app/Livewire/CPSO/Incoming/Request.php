@@ -52,6 +52,7 @@ class Request extends Component
     /* ------------------------------- END OTHERS ------------------------------- */
 
     public $search, $incoming_category = 'request', $status, $office_barangay_organization, $request_date, $return_date, $category, $venue, $start_time, $end_time, $description, $attachment = [];
+    public $return_date_for_equipment_and_vehicle; // This is for when categories like the vehicle and equipment are updated to DONE, users should input the return date of those categories first.
     public $file_id, $file_title, $file_data;
     public $editMode, $edit_document_id;
     public $document_history = [];
@@ -78,13 +79,33 @@ class Request extends Component
                     }
                 },
             ],
-            'venue' => $this->category == '9' ? 'required' : 'nullable', // Conditionally require the 'venue' field if $this->venue is true
+            'venue' => $this->category == '9' ? 'required' : 'nullable', // Conditionally require the 'venue' field if category is 9
             // 'description' => 'required',
             // 'attachment' => 'required'
         ];
 
-        if ($this->category == '9' || $this->show_return_date) {
-            $rules['return_date'] = 'required';
+        // Conditionally require return_date if category is 9, and ensure it's after request_date
+        if ($this->category == '9') {
+            $rules['return_date'] = [
+                'required',
+                function ($attribute, $value, $fail) {
+                    if (strtotime($value) <= strtotime($this->request_date)) {
+                        $fail('The return date must be after the request date and cannot be the same.');
+                    }
+                },
+            ];
+        }
+
+        // Validate return_date_for_equipment_and_vehicle if show_return_date is true, ensuring it's after request_date
+        if ($this->show_return_date) {
+            $rules['return_date_for_equipment_and_vehicle'] = [
+                'required',
+                function ($attribute, $value, $fail) {
+                    if (strtotime($value) <= strtotime($this->request_date)) {
+                        $fail('The return date for equipment and vehicle must be after the request date and cannot be the same.');
+                    }
+                },
+            ];
         }
 
         return $rules;
@@ -94,7 +115,8 @@ class Request extends Component
     {
         return [
             'office_barangay_organization' => 'input',
-            'incoming_category' => 'input'
+            'incoming_category' => 'input',
+            'return_date_for_equipment_and_vehicle' => 'return date'
         ];
     }
 
@@ -190,12 +212,16 @@ class Request extends Component
         $document_history = Document_History_Model::where('document_id', $key)->latest()->first(); //NOTE - latest() returns the most recent record based on the `created_by` column. This ia applicable to our document_history since we store multiple foreign keys to track updates and who updated them. We mainly want to return the latest status and populate it to our `status-select` when `editMode` is true.
 
         $this->dispatch('set-incoming_category', $incoming_request->incoming_category);
+
         if ($document_history->status == 'done') {
             $this->dispatch('set-status-disabled', $document_history->status); // Since the status is DONE, we won't allow users to modify the document's status.
+            // $this->status = 'done';
         } else {
             $this->dispatch('set-status-enable', $document_history->status);
         }
+
         $this->office_barangay_organization = $incoming_request->office_or_barangay_or_organization;
+
         $this->dispatch('set-request-date', $incoming_request->request_date);
 
         if ($incoming_request->category == '14' || $incoming_request->category == '15') {
@@ -203,10 +229,15 @@ class Request extends Component
         }
 
         $this->dispatch('set-return-date', $incoming_request->return_date);
+
         $this->dispatch('set-category', $incoming_request->category);
+
         $this->dispatch('set-venue', $incoming_request->venue);
+
         $this->dispatch('set-start-time', $incoming_request->start_time);
+
         $this->dispatch('set-end-time', $incoming_request->end_time);
+
         $this->dispatch('set-description', $incoming_request->description);
 
         if ($incoming_request->files) {
@@ -229,19 +260,47 @@ class Request extends Component
     {
         $this->validate();
 
-        //NOTE - For now, we will update the status only and record the action in our document_history
-        $document_history = Document_History_Model::query();
-        $data = [
-            'document_id' => $this->edit_document_id,
-            'status' => $this->status,
-            'user_id' => Auth::user()->id,
-            'remarks' => 'updated_by'
-        ];
-        $document_history->create($data);
+        try {
+            DB::beginTransaction();
+            if ($this->show_return_date) {
+                $document_history = Document_History_Model::query();
+                $data = [
+                    'document_id' => $this->edit_document_id,
+                    'status' => $this->status,
+                    'user_id' => Auth::user()->id,
+                    'remarks' => 'updated_by'
+                ];
+                $document_history->create($data);
 
-        $this->dispatch('hide-requestModal');
-        $this->dispatch('show-success-update-message-toast');
-        $this->clear();
+                Incoming_Request_CPSO_Model::where('incoming_request_id', $this->edit_document_id)
+                    ->update([
+                        'return_date' => $this->return_date_for_equipment_and_vehicle
+                    ]);
+
+                $this->dispatch('hide-requestModal');
+                $this->dispatch('show-success-update-message-toast');
+                $this->clear();
+            } else {
+                // NOTE - For now, we will update the status only and record the action in our document_history
+                $document_history = Document_History_Model::query();
+                $data = [
+                    'document_id' => $this->edit_document_id,
+                    'status' => $this->status,
+                    'user_id' => Auth::user()->id,
+                    'remarks' => 'updated_by'
+                ];
+                $document_history->create($data);
+
+                $this->dispatch('hide-requestModal');
+                $this->dispatch('show-success-update-message-toast');
+                $this->clear();
+            }
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            dd($e->getMessage());
+        }
     }
 
     // Closing attachment preview

@@ -30,7 +30,7 @@
                                     <div wire:ignore>
                                         <input class="form-control return-date-for-equipments-and-vehicle" placeholder="" />
                                     </div>
-                                    @error('return_date') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
+                                    @error('return_date_for_equipment_and_vehicle') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                 </div>
                             </div>
                         </div>
@@ -55,7 +55,8 @@
                                     </div>
                                     @error('request_date') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                 </div>
-                                <div class="col-lg-4 {{ $editMode ? '' : 'custom-input-bg' }}" style="display: {{ $category == '9' ? '' : 'none' }}">
+                                {{ $return_date }}
+                                <div class="col-lg-4 {{ $editMode ? '' : 'custom-input-bg' }}" style="display: {{ ($category == '9' || !is_null($return_date)) ? '' : 'none' }};">
                                     <div wire:ignore>
                                         <input class="form-control return-date" placeholder="" />
                                     </div>
@@ -252,6 +253,13 @@
         }
     });
 
+    // Handling Pickadate (.return-date-for-equipments-and-vehicle) change event
+    $('.return-date-for-equipments-and-vehicle').on('change', function(event) {
+        let picker = $(this).pickadate('picker');
+        let selectedDate = picker.get('select', 'yyyy-mm-dd'); // Adjust format as needed
+        @this.set('return_date_for_equipment_and_vehicle', selectedDate);
+    });
+
     /* -------------------------------------------------------------------------- */
 
     $('.request-date').pickadate({
@@ -398,7 +406,6 @@
     $wire.on('set-start-time', (key) => {
         // Update the Flatpickr instance with the new default date/time
         startPicker.setDate(key, true); // Set the new default time and ensure formatting is applied. The div of this element is disabled through setting the pointer-events to none.
-
     });
 
     $wire.on('set-end-time', (key) => {
