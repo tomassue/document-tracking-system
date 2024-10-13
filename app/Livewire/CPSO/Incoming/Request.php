@@ -45,7 +45,13 @@ class Request extends Component
 
     /* ------------------------------- END FILTER ------------------------------- */
 
-    public $search, $incoming_category = 'request', $status, $office_barangay_organization, $request_date, $category, $venue, $start_time, $end_time, $description, $attachment = [];
+    /* --------------------------------- OTHERS --------------------------------- */
+
+    public $show_return_date = false; // This is for the return date input field when users are about to set the status to done for categories like equipment and vehicle.
+
+    /* ------------------------------- END OTHERS ------------------------------- */
+
+    public $search, $incoming_category = 'request', $status, $office_barangay_organization, $request_date, $return_date, $category, $venue, $start_time, $end_time, $description, $attachment = [];
     public $file_id, $file_title, $file_data;
     public $editMode, $edit_document_id;
     public $document_history = [];
@@ -58,7 +64,7 @@ class Request extends Component
 
     public function rules()
     {
-        return [
+        $rules = [
             'incoming_category' => 'required',
             'office_barangay_organization' => 'required',
             'request_date' => 'required',
@@ -76,6 +82,12 @@ class Request extends Component
             // 'description' => 'required',
             // 'attachment' => 'required'
         ];
+
+        if ($this->category == '9' || $this->show_return_date) {
+            $rules['return_date'] = 'required';
+        }
+
+        return $rules;
     }
 
     public function validationAttributes()
@@ -101,13 +113,14 @@ class Request extends Component
     {
         $this->resetExcept('page_type', 'filter_status'); // Since we need the page_type as what I mentioned, we will not clear the property.
         $this->resetValidation();
-        $this->dispatch('clear-plugins');
+        // $this->dispatch('clear-plugins');
+        $this->dispatch('refresh-plugin');
     }
 
     public function openRequestModal()
     {
         $this->clear();
-        $this->dispatch('refresh-plugin');
+        // $this->dispatch('refresh-plugin');
         $this->dispatch('show-requestModal');
     }
 
@@ -137,6 +150,7 @@ class Request extends Component
                 'incoming_category' => $this->incoming_category,
                 'office_or_barangay_or_organization' => $this->office_barangay_organization,
                 'request_date' => $this->request_date,
+                'return_date' => $this->return_date,
                 'category' => $this->category,
                 'venue' => $this->venue,
                 'start_time' => $this->start_time,
@@ -183,6 +197,12 @@ class Request extends Component
         }
         $this->office_barangay_organization = $incoming_request->office_or_barangay_or_organization;
         $this->dispatch('set-request-date', $incoming_request->request_date);
+
+        if ($incoming_request->category == '14' || $incoming_request->category == '15') {
+            $this->show_return_date = true;
+        }
+
+        $this->dispatch('set-return-date', $incoming_request->return_date);
         $this->dispatch('set-category', $incoming_request->category);
         $this->dispatch('set-venue', $incoming_request->venue);
         $this->dispatch('set-start-time', $incoming_request->start_time);
@@ -207,8 +227,9 @@ class Request extends Component
 
     public function update()
     {
-        //NOTE - For now, we will update the status only and record the action in our document_history
+        $this->validate();
 
+        //NOTE - For now, we will update the status only and record the action in our document_history
         $document_history = Document_History_Model::query();
         $data = [
             'document_id' => $this->edit_document_id,
@@ -218,9 +239,9 @@ class Request extends Component
         ];
         $document_history->create($data);
 
-        $this->clear();
         $this->dispatch('hide-requestModal');
         $this->dispatch('show-success-update-message-toast');
+        $this->clear();
     }
 
     // Closing attachment preview
@@ -281,6 +302,7 @@ class Request extends Component
                         GROUP BY document_id
                     )) AS latest_document_history'), 'latest_document_history.document_id', '=', 'incoming_request_cpso.incoming_request_id')
             ->join('ref_category', 'ref_category.id', '=', 'incoming_request_cpso.category')
+            ->where('ref_category.document_type', 'incoming request')
             ->select(
                 'incoming_request_cpso.incoming_request_id AS id',
                 DB::raw("DATE_FORMAT(incoming_request_cpso.request_date, '%b %d, %Y') AS request_date"),

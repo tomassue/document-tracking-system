@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('incoming_category');
             $table->string('office_or_barangay_or_organization');
             $table->string('request_date');
+            $table->string('return_date')->nullable();
             $table->string('category');
             $table->string('venue')->nullable(); //NOTE - IF category is 'venue'.
             $table->time('start_time');

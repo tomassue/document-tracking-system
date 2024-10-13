@@ -14,12 +14,23 @@
                     <p class="card-description">
                         <!-- Personal info -->
                     </p>
-                    <div class="row" style="display: {{ $editMode ? 'block' : 'none' }}">
-                        <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-lg-6" style="display: {{ $editMode ? '' : 'none' }}">
                             <div class="form-group row">
                                 <label class="col-lg-3 col-form-label">Status</label>
                                 <div class="col-lg-9">
                                     <div id="status-select" wire:ignore></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 custom-input-bg" style="display: {{ ($show_return_date && $status == 'done') ? '' : 'none' }};">
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Return Date</label>
+                                <div class="col-lg-9">
+                                    <div wire:ignore>
+                                        <input class="form-control return-date-for-equipments-and-vehicle" placeholder="" />
+                                    </div>
+                                    @error('return_date') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                 </div>
                             </div>
                         </div>
@@ -37,12 +48,18 @@
                         </div>
                         <div class="col-lg-6">
                             <div class="form-group row">
-                                <label class="col-lg-3 col-form-label">Request Date</label>
-                                <div class="col-lg-9 {{ $editMode ? '' : 'custom-input-bg' }}">
+                                <label class="col-lg-3 col-form-label">Date</label>
+                                <div class="col-lg-4 {{ $editMode ? '' : 'custom-input-bg' }}">
                                     <div wire:ignore>
-                                        <input class="form-control request-date" placeholder="Date" required />
+                                        <input class="form-control request-date" placeholder="" />
                                     </div>
                                     @error('request_date') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
+                                </div>
+                                <div class="col-lg-4 {{ $editMode ? '' : 'custom-input-bg' }}" style="display: {{ $category == '9' ? '' : 'none' }}">
+                                    <div wire:ignore>
+                                        <input class="form-control return-date" placeholder="" />
+                                    </div>
+                                    @error('return_date') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                 </div>
                             </div>
                         </div>
@@ -228,6 +245,13 @@
         document.querySelector('#status-select').setValue(key[0]);
     });
 
+    // This is for categories like equipment and vehicle. The input field will appear when user selects done.
+    $('.return-date-for-equipments-and-vehicle').pickadate({
+        klass: {
+            holder: 'picker__holder',
+        }
+    });
+
     /* -------------------------------------------------------------------------- */
 
     $('.request-date').pickadate({
@@ -251,6 +275,32 @@
 
             let request_date_key = key[0]; //NOTE - unset it from an array (key[0]);
             picker.set('select', request_date_key, {
+                format: 'yyyy-mm-dd'
+            }); //NOTE - you need the format, so that it will be correctly displayed in the input field.
+        });
+    });
+
+    $('.return-date').pickadate({
+        klass: {
+            holder: 'picker__holder',
+        }
+    });
+
+    // Handling Pickadate (.return-date) change event
+    $('.return-date').on('change', function(event) {
+        let picker = $(this).pickadate('picker');
+        let selectedDate = picker.get('select', 'yyyy-mm-dd'); // Adjust format as needed
+        @this.set('return_date', selectedDate);
+    });
+
+    $wire.on('set-return-date', (key) => {
+        $('.return-date').each(function() {
+            let picker = $(this).pickadate('picker'); //NOTE - clear out the values
+            picker.clear();
+            $('.return-date').attr('disabled', 'disabled');
+
+            let return_date_key = key[0]; //NOTE - unset it from an array (key[0]);
+            picker.set('select', return_date_key, {
                 format: 'yyyy-mm-dd'
             }); //NOTE - you need the format, so that it will be correctly displayed in the input field.
         });
@@ -398,6 +448,10 @@
     $wire.on('refresh-plugin', () => {
         document.querySelector('#status-select').reset();
         $('.request-date').each(function() {
+            $(this).pickadate('picker').clear();
+            $(this).removeAttr('disabled');
+        });
+        $('.return-date').each(function() {
             $(this).pickadate('picker').clear();
             $(this).removeAttr('disabled');
         });

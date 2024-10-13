@@ -472,30 +472,32 @@ class Outgoing extends Component
         $this->person_responsible   = $outgoing_category->person_responsible;
         $this->document_no          = $outgoing_category->document_no;
         $this->dispatch('set-date', $outgoing_category->date);
+
         if ($document_history->status == 'done') {
             $this->dispatch('set-outgoing-status-select-disable', $document_history->status);
         } else {
             $this->dispatch('set-outgoing-status-select-enable', $document_history->status);
         }
+
         $this->dispatch('set-document_details', $outgoing_category->document_details);
         $this->destination          = $outgoing_category->destination;
 
         if ($outgoing_category->category_type == "App\Models\OutgoingCategoryProcurementModel") {
-            $this->dispatch('set-outgoing-category-select', 'procurement');
+            $this->dispatch('set-outgoing-category-select', '4');
             $this->PR_no = $outgoing_category->category->pr_no;
             $this->PO_no = $outgoing_category->category->po_no;
         } elseif ($outgoing_category->category_type == "App\Models\OutgoingCategoryPayrollModel") {
-            $this->dispatch('set-outgoing-category-select', 'payroll');
+            $this->dispatch('set-outgoing-category-select', '5');
             $this->dispatch('set_payroll_type_select', $outgoing_category->category->payroll_type);
         } elseif ($outgoing_category->category_type == "App\Models\OutgoingCategoryVoucherModel") {
-            $this->dispatch('set-outgoing-category-select', 'voucher');
+            $this->dispatch('set-outgoing-category-select', '6');
             $this->voucher_name = $outgoing_category->category->voucher_name;
         } elseif ($outgoing_category->category_type == "App\Models\OutgoingCategoryRISModel") {
-            $this->dispatch('set-outgoing-category-select', 'ris');
+            $this->dispatch('set-outgoing-category-select', '7');
             $this->document_name = $outgoing_category->category->document_name;
             $this->ppmp_code = $outgoing_category->category->ppmp_code;
         } elseif ($outgoing_category->category_type == "App\Models\OutgoingCategoryOthersModel") {
-            $this->dispatch('set-outgoing-category-select', 'other');
+            $this->dispatch('set-outgoing-category-select', '8');
             $this->document_name = $outgoing_category->category->document_name;
         }
 

@@ -16,6 +16,7 @@ class Incoming_Request_CPSO_Model extends Model
         'incoming_category',
         'office_or_barangay_or_organization',
         'request_date',
+        'return_date',
         'category',
         'venue',
         'start_time',

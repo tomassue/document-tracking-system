@@ -127,10 +127,10 @@
                 label: 'Incoming Document',
                 value: 'incoming document'
             },
-            {
-                label: 'Outgoing',
-                value: 'outgoing'
-            }
+            // {
+            //     label: 'Outgoing',
+            //     value: 'outgoing'
+            // }
         ],
         maxWidth: '100%'
     });

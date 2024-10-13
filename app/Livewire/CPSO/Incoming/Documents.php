@@ -260,6 +260,7 @@ class Documents extends Component
                     GROUP BY document_id
                 )) AS latest_document_history'), 'latest_document_history.document_id', '=', 'incoming_documents_cpso.document_no')
             ->join('ref_category', 'ref_category.id', 'incoming_documents_cpso.incoming_document_category')
+            ->where('ref_category.document_type', 'incoming document')
             ->select(
                 'incoming_documents_cpso.document_no',
                 'ref_category.category AS incoming_document_category',
