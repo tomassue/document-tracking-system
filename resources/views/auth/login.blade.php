@@ -4,7 +4,7 @@
 <section class="vh-100">
     <div class="container-fluid h-custom">
         <div class="row d-flex justify-content-center align-items-center h-100">
-            <div class="col-md-9 col-lg-6 col-xl-5">
+            <div class="col-md-9 col-lg-6 col-xl-5 login-image">
                 <img src="{{ asset('images/other/login.png') }}" class="img-fluid" alt="Login">
             </div>
             <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
