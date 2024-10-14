@@ -97,7 +97,7 @@ class Request extends Component
             ];
         }
 
-        if ($this->show_return_date && $this->status == 'done') {
+        if ($this->show_return_date && $this->status == 'completed') {
             $rules['return_date_for_equipment_and_vehicle'] = [
                 'required',
                 function ($attribute, $value, $fail) {
@@ -141,7 +141,7 @@ class Request extends Component
         $this->resetExcept('page_type', 'filter_status'); // Since we need the page_type as what I mentioned, we will not clear the property.
         $this->resetValidation();
         // $this->dispatch('clear-plugins');
-        $this->dispatch('refresh-plugin');
+        // $this->dispatch('refresh-plugin');
     }
 
     public function updated($property)
@@ -154,7 +154,7 @@ class Request extends Component
     public function openRequestModal()
     {
         $this->clear();
-        // $this->dispatch('refresh-plugin');
+        $this->dispatch('refresh-plugin');
         $this->dispatch('show-requestModal');
     }
 
@@ -326,7 +326,6 @@ class Request extends Component
         }
     }
 
-    #[On('history')]
     public function history($key)
     {
         $this->document_history = []; //NOTE - Set this to empty to avoid data to stack.

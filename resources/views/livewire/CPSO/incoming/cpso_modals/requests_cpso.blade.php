@@ -23,7 +23,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-6 {{ ($status == 'done' && $show_return_date) ? 'custom-input-bg' : '' }}" style="display: {{ (($status == 'done' && $show_return_date) || $show_return_date) ? '' : 'none' }}; pointer-events: {{ ($status == 'done' && $show_return_date) ? '' : 'none' }};">
+                        <div class="col-lg-6 {{ ($status == 'completed' && $show_return_date) ? 'custom-input-bg' : '' }}" style="display: {{ (($status == 'completed' && $show_return_date) || $show_return_date) ? '' : 'none' }}; pointer-events: {{ ($status == 'completed' && $show_return_date) ? '' : 'none' }};">
                             <div class="form-group row">
                                 <label class="col-lg-3 col-form-label">Return Date</label>
                                 <div class="col-lg-9">

@@ -82,14 +82,14 @@
                                             </span>
                                         </td>
                                         <td>
-                                            <span role="button" wire:click="$dispatch('history', { key: '{{ $item->id }}' })">
+                                            <span role="button" wire:click="history('{{ $item->id }}')">
                                                 <i class="mdi mdi-history icon-md"></i>
                                             </span>
                                         </td>
                                     </tr>
                                     @empty
                                     <tr>
-                                        <td colspan="7" class="text-center">No data</td>
+                                        <td colspan="8" class="text-center">No data</td>
                                     </tr>
                                     @endforelse
                                 </tbody>
