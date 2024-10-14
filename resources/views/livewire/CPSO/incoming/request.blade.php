@@ -44,6 +44,7 @@
                                 <thead>
                                     <tr>
                                         <th class="fw-bold">Request Date</th>
+                                        <th class="fw-bold">Return Date</th>
                                         <th class="fw-bold">Office/Barangay/Organization</th>
                                         <th class="fw-bold">Category</th>
                                         <th class="fw-bold">Sub-category</th>
@@ -56,6 +57,7 @@
                                     @forelse($incoming_requests_cpso as $item)
                                     <tr wire:key="{{ $item->id }}">
                                         <td>{{ $item->request_date }}</td>
+                                        <td>{{ $item->return_date }}</td>
                                         <td>{{ $item->office_or_barangay_or_organization }}</td>
                                         <td class="text-capitalize">{{ $item->category }}</td>
                                         <td class="text-capitalize">{{ $item->venue }}</td>
@@ -67,7 +69,7 @@
                                             badge-warning
                                             @elseif($item->status == 'forwarded')
                                             badge-dark
-                                            @elseif($item->status == 'done')
+                                            @elseif($item->status == 'completed')
                                             badge-success
                                             @endif
                                             ">
@@ -130,8 +132,8 @@
                 value: 'forwarded'
             },
             {
-                label: 'Done',
-                value: 'done'
+                label: 'Completed',
+                value: 'completed'
             }
         ],
     });

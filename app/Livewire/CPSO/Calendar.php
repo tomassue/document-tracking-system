@@ -5,6 +5,7 @@ namespace App\Livewire\CPSO;
 use App\Models\Document_History_Model;
 use App\Models\File_Data_Model;
 use App\Models\Incoming_Request_CPSO_Model;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -117,28 +118,57 @@ class Calendar extends Component
 
     public function loadIncomingRequest()
     {
-        $incoming_request = Incoming_Request_CPSO_Model::select(
-            'incoming_request_cpso.incoming_request_id',
-            'incoming_request_cpso.office_or_barangay_or_organization',
-            'incoming_request_cpso.request_date',
-            'incoming_request_cpso.category',
-            'incoming_request_cpso.venue',
-            'incoming_request_cpso.start_time',
-            'incoming_request_cpso.end_time',
-            'incoming_request_cpso.description',
-            'incoming_request_cpso.files',
-            'incoming_request_cpso.created_at'
-        )
+        $incoming_request = Incoming_Request_CPSO_Model::join(DB::raw('(SELECT document_id, status
+            FROM document_history
+            WHERE id IN (
+                SELECT MAX(id)
+                FROM document_history
+                GROUP BY document_id
+            )) AS latest_document_history'), 'latest_document_history.document_id', '=', 'incoming_request_cpso.incoming_request_id')
+            ->select(
+                'incoming_request_cpso.incoming_request_id',
+                'incoming_request_cpso.office_or_barangay_or_organization',
+                'incoming_request_cpso.request_date',
+                'incoming_request_cpso.category',
+                'incoming_request_cpso.venue',
+                'incoming_request_cpso.start_time',
+                'incoming_request_cpso.end_time',
+                'incoming_request_cpso.description',
+                'incoming_request_cpso.files',
+                'incoming_request_cpso.created_at',
+                'latest_document_history.status'
+            )
             ->where('venue', '!=', '')
             ->where('venue', 'like', "%{$this->venue}%")
             ->get()
             ->map(function ($item) {
+                $backgroundColor = '#E4A11B'; // Default color
+
+                switch ($item->status) {
+                    case 'pending':
+                        $backgroundColor = '#E4A11B'; // Red
+                        break;
+                    case 'processed':
+                        $backgroundColor = '#3B71CA'; // Blue
+                        break;
+                    case 'forwarded':
+                        $backgroundColor = '#332D2D'; // Dark
+                        break;
+                    case 'done':
+                        $backgroundColor = '#14A44D'; // Green
+                        break;
+                    default:
+                        $backgroundColor = '#E4A11B';
+                        break;
+                }
+
                 return [
-                    'id'     => $item->incoming_request_id,
-                    'title'  => $item->office_or_barangay_or_organization,
-                    'start'  => $item->request_date . 'T' . $item->start_time,
-                    'end'    => $item->request_date . 'T' . $item->end_time,
-                    'allDay' => false
+                    'id'              => $item->incoming_request_id,
+                    'title'           => $item->office_or_barangay_or_organization,
+                    'start'           => $item->request_date . 'T' . $item->start_time,
+                    'end'             => $item->request_date . 'T' . $item->end_time,
+                    'allDay'          => false,
+                    'backgroundColor' => $backgroundColor
                 ];
             });
 

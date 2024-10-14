@@ -20,13 +20,13 @@ class Incoming_Documents_CPSO_Model extends Model
     ];
 
     // Set the primary key to 'document_no'
-    // protected $primaryKey = 'document_no';
+    protected $primaryKey = 'document_no';
 
     // Disable auto-incrementing since the primary key is a string
-    // public $incrementing = false;
+    public $incrementing = false;
 
     // Set the primary key type to string
-    protected $keyType = 'string';
+    // protected $keyType = 'string';
 
     // Define a starting point for the sequence
     // protected static $startingNumber = 34;

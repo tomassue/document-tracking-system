@@ -80,7 +80,7 @@
                                             badge-warning
                                             @elseif($item->status == 'forwarded')
                                             badge-dark
-                                            @elseif($item->status == 'done')
+                                            @elseif($item->status == 'completed')
                                             badge-success
                                             @endif
                                             ">
@@ -147,9 +147,6 @@
     VirtualSelect.init({
         ele: '#outgoing-status-select',
         options: [{
-            label: 'Done',
-            value: 'done'
-        }, {
             label: 'Processing',
             value: 'processing'
         }, {
@@ -158,10 +155,13 @@
         }, {
             label: 'Returned',
             value: 'returned'
+        }, {
+            label: 'Completed',
+            value: 'completed'
         }],
         maxWidth: '100%',
         zIndex: 10,
-        popupDropboxBreakpoint: '3000px',
+        // popupDropboxBreakpoint: '3000px',
     });
 
     let status = document.querySelector('#outgoing-status-select');
@@ -371,8 +371,8 @@
                 value: 'forwarded'
             },
             {
-                label: 'Done',
-                value: 'done'
+                label: 'Completed',
+                value: 'completed'
             }
         ],
     });

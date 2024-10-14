@@ -180,7 +180,7 @@
                                 <div class="col-lg-9">
                                     <!-- Document No's input is system generated. Thus, it will be manipulated in our component -->
                                     <!-- <input type="text" class="form-control" placeholder="{{ $document_no }}" disabled> -->
-                                    <input type="text" class="form-control" wire:model="document_no">
+                                    <input type="text" class="form-control" wire:model="document_no" {{ $editMode ? 'disabled' : '' }}>
                                     @error('document_no') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                 </div>
                             </div>
@@ -234,7 +234,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" wire:click="clear">Close</button>
-                <button type="submit" class="btn btn-primary" wire:loading.attr="disabled">{{ $editMode ? 'Update' : 'Save' }}</button>
+                <button type="submit" class="btn btn-primary" wire:loading.attr="disabled" style="display: {{ $hide_button_if_completed ? 'none' : '' }};">{{ $editMode ? 'Update' : 'Save' }}</button>
                 </form>
             </div>
         </div>
@@ -305,8 +305,8 @@
                 value: 'forwarded'
             },
             {
-                label: 'Done',
-                value: 'done'
+                label: 'Completed',
+                value: 'completed'
             }
         ],
         maxWidth: '100%',
@@ -383,8 +383,8 @@
                     value: 'forwarded'
                 },
                 {
-                    label: 'Done',
-                    value: 'done'
+                    label: 'Completed',
+                    value: 'completed'
                 }
             ],
             maxWidth: '100%',

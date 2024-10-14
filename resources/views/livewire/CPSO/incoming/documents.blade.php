@@ -67,7 +67,7 @@
                                             badge-warning
                                             @elseif($item->status == 'forwarded')
                                             badge-dark
-                                            @elseif($item->status == 'done')
+                                            @elseif($item->status == 'completed')
                                             badge-success
                                             @endif
                                             ">
@@ -135,8 +135,8 @@
                 value: 'forwarded'
             },
             {
-                label: 'Done',
-                value: 'done'
+                label: 'Completed',
+                value: 'completed'
             }
         ],
     });

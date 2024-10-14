@@ -23,13 +23,14 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-6 custom-input-bg" style="display: {{ ($show_return_date && $status == 'done') ? '' : 'none' }};">
+                        <div class="col-lg-6 {{ ($status == 'done' && $show_return_date) ? 'custom-input-bg' : '' }}" style="display: {{ (($status == 'done' && $show_return_date) || $show_return_date) ? '' : 'none' }}; pointer-events: {{ ($status == 'done' && $show_return_date) ? '' : 'none' }};">
                             <div class="form-group row">
                                 <label class="col-lg-3 col-form-label">Return Date</label>
                                 <div class="col-lg-9">
                                     <div wire:ignore>
                                         <input class="form-control return-date-for-equipments-and-vehicle" placeholder="" />
                                     </div>
+                                    <span class="text-muted" style="font-size: smaller;">Make sure to input here the return date before updating the status to DONE.</span>
                                     @error('return_date_for_equipment_and_vehicle') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                 </div>
                             </div>
@@ -55,8 +56,8 @@
                                     </div>
                                     @error('request_date') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                 </div>
-                                {{ $return_date }}
-                                <div class="col-lg-4 {{ $editMode ? '' : 'custom-input-bg' }}" style="display: {{ ($category == '9' || !is_null($return_date)) ? '' : 'none' }};">
+
+                                <div class="col-lg-4 {{ $editMode ? '' : 'custom-input-bg' }}" style="display: {{ $category == '9' ? '' : 'none' }};">
                                     <div wire:ignore>
                                         <input class="form-control return-date" placeholder="" />
                                     </div>
@@ -71,7 +72,7 @@
                                 <label class="col-lg-3 col-form-label">Category</label>
                                 <div class="col-lg-9">
                                     <div id="category-select" wire:ignore></div>
-                                    <div style="display: {{ $category == '9' ? 'display' : 'none' }}" class="mt-2">
+                                    <div style="display: {{ $category == '9' ? '' : 'none' }}" class="mt-2">
                                         <div id="venue-select" wire:ignore></div>
                                         @error('venue') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
                                     </div>
@@ -181,7 +182,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" wire:click="clear">Close</button>
-                <button type="submit" class="btn btn-primary" wire:loading.attr="disabled">{{ $editMode ? 'Update' : 'Save' }}</button>
+                <button type="submit" class="btn btn-primary" wire:loading.attr="disabled" style="display: {{ $hide_button_if_completed ? 'none' : '' }}">{{ $editMode ? 'Update' : 'Save' }}</button>
                 </form>
             </div>
         </div>
@@ -221,8 +222,8 @@
                 value: 'forwarded'
             },
             {
-                label: 'Done',
-                value: 'done'
+                label: 'Completed',
+                value: 'completed'
             }
         ],
         maxWidth: '100%',
@@ -258,6 +259,13 @@
         let picker = $(this).pickadate('picker');
         let selectedDate = picker.get('select', 'yyyy-mm-dd'); // Adjust format as needed
         @this.set('return_date_for_equipment_and_vehicle', selectedDate);
+    });
+
+    $wire.on('reset-return_date_for_equipment_and_vehicle', () => {
+        $('.return-date-for-equipments-and-vehicle').each(function() {
+            let picker = $(this).pickadate('picker'); //NOTE - clear out the values
+            picker.clear();
+        });
     });
 
     /* -------------------------------------------------------------------------- */
@@ -312,6 +320,17 @@
                 format: 'yyyy-mm-dd'
             }); //NOTE - you need the format, so that it will be correctly displayed in the input field.
         });
+
+        $('.return-date-for-equipments-and-vehicle').each(function() {
+            let picker = $(this).pickadate('picker'); //NOTE - clear out the values
+            picker.clear();
+            $('.return-date-for-equipments-and-vehicle').attr('disabled', 'disabled');
+
+            let return_date_key = key[0]; //NOTE - unset it from an array (key[0]);
+            picker.set('select', return_date_key, {
+                format: 'yyyy-mm-dd'
+            }); //NOTE - you need the format, so that it will be correctly displayed in the input field.
+        });
     });
 
     /* -------------------------------------------------------------------------- */
@@ -331,8 +350,8 @@
     });
 
     $wire.on('set-category', (key) => {
-        document.querySelector('#category-select').setValue(key[0]); //NOTE - a shorter code of what we did in #category-select (Edit Mode)
         document.querySelector('#category-select').disable();
+        document.querySelector('#category-select').setValue(key[0]); //NOTE - a shorter code of what we did in #category-select (Edit Mode)
     });
 
     /* -------------------------------------------------------------------------- */
@@ -459,6 +478,10 @@
             $(this).removeAttr('disabled');
         });
         $('.return-date').each(function() {
+            $(this).pickadate('picker').clear();
+            $(this).removeAttr('disabled');
+        });
+        $('.return-date-for-equipments-and-vehicle').each(function() {
             $(this).pickadate('picker').clear();
             $(this).removeAttr('disabled');
         });

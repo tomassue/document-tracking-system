@@ -32,6 +32,7 @@ class Documents extends Component
 
     // LINK - App\Livewire\CPSO\Incoming\Request.php#33
     public $page_type = "";
+    public $hide_button_if_completed;
 
     /* --------------------------------- FILTER --------------------------------- */
 
@@ -218,8 +219,9 @@ class Documents extends Component
         $document_history = Document_History_Model::where('document_id', $key)->latest()->first(); //NOTE - latest() returns the most recent record based on the `created_by` column. This ia applicable to our document_history since we store multiple foreign keys to track updates and who updated them. We mainly want to return the latest status and populate it to our `status-select` when `editMode` is true.
 
         $this->dispatch('set-incoming-category-documents-select', $incoming_documents->incoming_document_category);
-        if ($document_history->status == 'done') {
+        if ($document_history->status == 'completed') {
             $this->dispatch('set-document-status-select-disable', $document_history->status);
+            $this->hide_button_if_completed = true;
         } else {
             $this->dispatch('set-document-status-select-enable', $document_history->status);
         }
@@ -275,7 +277,7 @@ class Documents extends Component
             ->when($this->filter_status != NULL, function ($query) {
                 $query->where('latest_document_history.status', $this->filter_status);
             }, function ($query) {
-                $query->whereNot('latest_document_history.status', 'done');
+                $query->whereNot('latest_document_history.status', 'completed');
             })
             ->when($this->filter_category != NULL, function ($query) {
                 $query->where('incoming_documents_cpso.incoming_document_category', $this->filter_category);
@@ -317,16 +319,16 @@ class Documents extends Component
         //LINK - app\Models\Incoming_Documents_CPSO_Model.php#31
 
         // Get the last document_no
-        $lastDocumentNo = Incoming_Documents_CPSO_Model::orderBy('document_no', 'desc')->first();
+        // $lastDocumentNo = Incoming_Documents_CPSO_Model::orderBy('document_no', 'desc')->first();
 
-        if ($lastDocumentNo) {
-            $lastIdNumber = intval(substr($lastDocumentNo->document_no, 5));
-            $newIdNumber = $lastIdNumber + 1;
-        } else {
-            $newIdNumber = Incoming_Documents_CPSO_Model::getStartingNumber();
-        }
+        // if ($lastDocumentNo) {
+        //     $lastIdNumber = intval(substr($lastDocumentNo->document_no, 5));
+        //     $newIdNumber = $lastIdNumber + 1;
+        // } else {
+        //     $newIdNumber = Incoming_Documents_CPSO_Model::getStartingNumber();
+        // }
 
-        $padLength = max(2, strlen((string)($newIdNumber)));
+        // $padLength = max(2, strlen((string)($newIdNumber)));
         // $this->document_no = 'MEMO-' . str_pad($newIdNumber, $padLength, '0', STR_PAD_LEFT);
 
         $this->dispatch('enable-plugins');

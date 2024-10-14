@@ -77,7 +77,7 @@
 
         VirtualSelect.init({
             ele: '#venue',
-            placeholder: 'Venue',
+            placeholder: 'Venue (all)',
             options: [{
                     label: 'Tourism Hall',
                     value: 'tourism hall'
@@ -96,7 +96,7 @@
                 }
             ],
             zIndex: 10,
-            popupDropboxBreakpoint: '3000px',
+            // popupDropboxBreakpoint: '3000px',
         });
 
         let venue = document.querySelector('#venue');

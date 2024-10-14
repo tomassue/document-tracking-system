@@ -25,6 +25,7 @@ class Outgoing extends Component
 
     public $search;
     public $editMode = false;
+    public $hide_button_if_completed;
     public $document_history = [];
     public $file_id, $file_title, $file_data;
 
@@ -65,6 +66,7 @@ class Outgoing extends Component
     public function rules()
     {
         $commonRules = [
+            'document_no' => 'required',
             'destination' => 'required',
             'person_responsible' => 'required',
             'date' => 'required',
@@ -160,6 +162,7 @@ class Outgoing extends Component
 
                 // Save outgoing documents
                 $outgoing_documents = new OutgoingDocumentsModel([
+                    'document_no' => $this->document_no,
                     'date' => $this->date,
                     'document_details' => $this->document_details,
                     'destination' => $this->destination,
@@ -215,6 +218,7 @@ class Outgoing extends Component
 
                 // Save outgoing documents
                 $outgoing_documents = new OutgoingDocumentsModel([
+                    'document_no' => $this->document_no,
                     'date' => $this->date,
                     'document_details' => $this->document_details,
                     'destination' => $this->destination,
@@ -269,6 +273,7 @@ class Outgoing extends Component
 
                 // Save outgoing documents
                 $outgoing_documents = new OutgoingDocumentsModel([
+                    'document_no' => $this->document_no,
                     'date' => $this->date,
                     'document_details' => $this->document_details,
                     'destination' => $this->destination,
@@ -323,6 +328,7 @@ class Outgoing extends Component
 
                 // Save outgoing documents
                 $outgoing_documents = new OutgoingDocumentsModel([
+                    'document_no' => $this->document_no,
                     'date' => $this->date,
                     'document_details' => $this->document_details,
                     'destination' => $this->destination,
@@ -376,6 +382,7 @@ class Outgoing extends Component
 
                 // Save outgoing documents
                 $outgoing_documents = new OutgoingDocumentsModel([
+                    'document_no' => $this->document_no,
                     'date' => $this->date,
                     'document_details' => $this->document_details,
                     'destination' => $this->destination,
@@ -429,6 +436,7 @@ class Outgoing extends Component
 
                 // Save outgoing documents
                 $outgoing_documents = new OutgoingDocumentsModel([
+                    'document_no' => $this->document_no,
                     'date' => $this->date,
                     'document_details' => $this->document_details,
                     'destination' => $this->destination,
@@ -473,8 +481,9 @@ class Outgoing extends Component
         $this->document_no          = $outgoing_category->document_no;
         $this->dispatch('set-date', $outgoing_category->date);
 
-        if ($document_history->status == 'done') {
+        if ($document_history->status == 'completed') {
             $this->dispatch('set-outgoing-status-select-disable', $document_history->status);
+            $this->hide_button_if_completed = true;
         } else {
             $this->dispatch('set-outgoing-status-select-enable', $document_history->status);
         }
@@ -576,7 +585,7 @@ class Outgoing extends Component
             ->when($this->filter_status != NULL, function ($query) {
                 $query->where('latest_document_history.status', $this->filter_status);
             }, function ($query) {
-                $query->whereNot('latest_document_history.status', 'done');
+                $query->whereNot('latest_document_history.status', 'completed');
             })
             ->when($this->filter_category != null, function ($query) {
                 $categoryMap = [
@@ -660,17 +669,17 @@ class Outgoing extends Component
         $this->dispatch('enable-plugins'); //NOTE - enables the plugins again after editMode since we disable them during editMode.
 
         // Get the last document_no
-        $lastDocumentNo = OutgoingDocumentsModel::orderBy('document_no', 'desc')->first();
+        // $lastDocumentNo = OutgoingDocumentsModel::orderBy('document_no', 'desc')->first();
 
-        if ($lastDocumentNo) {
-            $lastIdNumber = intval(substr($lastDocumentNo->document_no, 9));
-            $newIdNumber = $lastIdNumber + 1;
-        } else {
-            $newIdNumber = OutgoingDocumentsModel::getStartingNumber();
-        }
+        // if ($lastDocumentNo) {
+        //     $lastIdNumber = intval(substr($lastDocumentNo->document_no, 9));
+        //     $newIdNumber = $lastIdNumber + 1;
+        // } else {
+        //     $newIdNumber = OutgoingDocumentsModel::getStartingNumber();
+        // }
 
-        $padLength = max(2, strlen((string)($newIdNumber)));
-        $this->document_no = 'DOCUMENT-' . str_pad($newIdNumber, $padLength, '0', STR_PAD_LEFT);
+        // $padLength = max(2, strlen((string)($newIdNumber)));
+        // $this->document_no = 'DOCUMENT-' . str_pad($newIdNumber, $padLength, '0', STR_PAD_LEFT);
 
         $this->dispatch('show-outgoingModal');
     }

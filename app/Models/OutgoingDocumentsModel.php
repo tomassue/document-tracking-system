@@ -33,40 +33,40 @@ class OutgoingDocumentsModel extends Model
     protected $keyType = 'string';
 
     // Define a starting point for the sequence
-    protected static $startingNumber = 1;
+    // protected static $startingNumber = 1;
 
     // Public static method to access the starting number
-    public static function getStartingNumber()
-    {
-        return self::$startingNumber;
-    }
+    // public static function getStartingNumber()
+    // {
+    //     return self::$startingNumber;
+    // }
 
     // Override the boot method to generate a custom ID
-    protected static function boot()
-    {
-        parent::boot();
+    // protected static function boot()
+    // {
+    //     parent::boot();
 
-        static::creating(function ($documentNo) {
-            // Get the last inserted document_no
-            $lastDocumentNo = self::orderBy('document_no', 'desc')->first();
+    //     static::creating(function ($documentNo) {
+    //         // Get the last inserted document_no
+    //         $lastDocumentNo = self::orderBy('document_no', 'desc')->first();
 
-            if ($lastDocumentNo) {
-                // Extract the numeric part of the document_no
-                $lastIdNumber = intval(substr($lastDocumentNo->document_no, 9));
-                // Increment the numeric part by 1
-                $newIdNumber = $lastIdNumber + 1;
-            } else {
-                // If no records exist, start from 1
-                $newIdNumber = 1;
-            }
+    //         if ($lastDocumentNo) {
+    //             // Extract the numeric part of the document_no
+    //             $lastIdNumber = intval(substr($lastDocumentNo->document_no, 9));
+    //             // Increment the numeric part by 1
+    //             $newIdNumber = $lastIdNumber + 1;
+    //         } else {
+    //             // If no records exist, start from 1
+    //             $newIdNumber = 1;
+    //         }
 
-            // Calculate dynamic padding length based on the number
-            $padLength = max(2, strlen((string)($newIdNumber)));
+    //         // Calculate dynamic padding length based on the number
+    //         $padLength = max(2, strlen((string)($newIdNumber)));
 
-            // Format the new document_no with dynamic padding
-            $documentNo->document_no = 'DOCUMENT-' . str_pad($newIdNumber, $padLength, '0', STR_PAD_LEFT);
-        });
-    }
+    //         // Format the new document_no with dynamic padding
+    //         $documentNo->document_no = 'DOCUMENT-' . str_pad($newIdNumber, $padLength, '0', STR_PAD_LEFT);
+    //     });
+    // }
 
     public function category(): MorphTo
     {

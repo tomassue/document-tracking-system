@@ -38,6 +38,7 @@ class Request extends Component
      * We can receive that data through the child component's mount() method.
      */
     public $page_type = "";
+    public $hide_button_if_completed;
 
     /* --------------------------------- FILTER --------------------------------- */
 
@@ -96,17 +97,21 @@ class Request extends Component
             ];
         }
 
-        // Validate return_date_for_equipment_and_vehicle if show_return_date is true, ensuring it's after request_date
-        if ($this->show_return_date) {
+        if ($this->show_return_date && $this->status == 'done') {
             $rules['return_date_for_equipment_and_vehicle'] = [
                 'required',
                 function ($attribute, $value, $fail) {
-                    if (strtotime($value) <= strtotime($this->request_date)) {
-                        $fail('The return date for equipment and vehicle must be after the request date and cannot be the same.');
+                    $requestDateTime = strtotime($this->request_date);
+                    $returnDateTime = strtotime($value);
+
+                    // Ensure return date is after request date, allowing within the same day
+                    if ($returnDateTime < $requestDateTime) {
+                        $fail('The return date for equipment and vehicle must be after the request date.');
                     }
                 },
             ];
         }
+
 
         return $rules;
     }
@@ -137,6 +142,13 @@ class Request extends Component
         $this->resetValidation();
         // $this->dispatch('clear-plugins');
         $this->dispatch('refresh-plugin');
+    }
+
+    public function updated($property)
+    {
+        if ($property === 'status') {
+            $this->dispatch('reset-return_date_for_equipment_and_vehicle');
+        }
     }
 
     public function openRequestModal()
@@ -213,8 +225,9 @@ class Request extends Component
 
         $this->dispatch('set-incoming_category', $incoming_request->incoming_category);
 
-        if ($document_history->status == 'done') {
+        if ($document_history->status == 'completed') {
             $this->dispatch('set-status-disabled', $document_history->status); // Since the status is DONE, we won't allow users to modify the document's status.
+            $this->hide_button_if_completed = true;
             // $this->status = 'done';
         } else {
             $this->dispatch('set-status-enable', $document_history->status);
@@ -228,7 +241,9 @@ class Request extends Component
             $this->show_return_date = true;
         }
 
-        $this->dispatch('set-return-date', $incoming_request->return_date);
+        if ($incoming_request->return_date) {
+            $this->dispatch('set-return-date', $incoming_request->return_date);
+        }
 
         $this->dispatch('set-category', $incoming_request->category);
 
@@ -262,39 +277,26 @@ class Request extends Component
 
         try {
             DB::beginTransaction();
-            if ($this->show_return_date) {
-                $document_history = Document_History_Model::query();
-                $data = [
-                    'document_id' => $this->edit_document_id,
-                    'status' => $this->status,
-                    'user_id' => Auth::user()->id,
-                    'remarks' => 'updated_by'
-                ];
-                $document_history->create($data);
+            // NOTE - For now, we will update the status only and record the action in our document_history
+            $document_history = Document_History_Model::query();
+            $data = [
+                'document_id' => $this->edit_document_id,
+                'status' => $this->status,
+                'user_id' => Auth::user()->id,
+                'remarks' => 'updated_by'
+            ];
+            $document_history->create($data);
 
+            if ($this->return_date_for_equipment_and_vehicle) {
                 Incoming_Request_CPSO_Model::where('incoming_request_id', $this->edit_document_id)
                     ->update([
                         'return_date' => $this->return_date_for_equipment_and_vehicle
                     ]);
-
-                $this->dispatch('hide-requestModal');
-                $this->dispatch('show-success-update-message-toast');
-                $this->clear();
-            } else {
-                // NOTE - For now, we will update the status only and record the action in our document_history
-                $document_history = Document_History_Model::query();
-                $data = [
-                    'document_id' => $this->edit_document_id,
-                    'status' => $this->status,
-                    'user_id' => Auth::user()->id,
-                    'remarks' => 'updated_by'
-                ];
-                $document_history->create($data);
-
-                $this->dispatch('hide-requestModal');
-                $this->dispatch('show-success-update-message-toast');
-                $this->clear();
             }
+
+            $this->dispatch('hide-requestModal');
+            $this->dispatch('show-success-update-message-toast');
+            $this->clear();
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -365,6 +367,7 @@ class Request extends Component
             ->select(
                 'incoming_request_cpso.incoming_request_id AS id',
                 DB::raw("DATE_FORMAT(incoming_request_cpso.request_date, '%b %d, %Y') AS request_date"),
+                DB::raw("DATE_FORMAT(incoming_request_cpso.return_date, '%b %d, %Y') AS return_date"),
                 'incoming_request_cpso.office_or_barangay_or_organization',
                 'ref_category.category',
                 'incoming_request_cpso.venue',
@@ -382,7 +385,7 @@ class Request extends Component
                 $query->where('latest_document_history.status', $this->filter_status);
             }, function ($query) {
                 // Exclude "done" status by default
-                $query->where('latest_document_history.status', '!=', 'done');
+                $query->where('latest_document_history.status', '!=', 'completed');
             })
             ->when($this->filter_category != NULL, function ($query) {
                 $query->where('incoming_request_cpso.category', $this->filter_category);
