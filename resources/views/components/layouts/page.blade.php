@@ -326,10 +326,16 @@
     <script src="{{ asset('plugins/summernote/summernote-bs5.js') }}"></script>
 
     <!-- FilePond -->
+    <!-- <script src="{{ asset('plugins/jquery-filepond-master/filepond.js') }}"></script>
     <script src="{{ asset('plugins/jquery-filepond-master/filepond.min.js') }}"></script>
     <script src="{{ asset('plugins/jquery-filepond-master/filepond.jquery.js') }}"></script>
+    <script src="{{ asset('plugins/jquery-filepond-master/filepond-plugin-file-validate-type.js') }}"></script> -->
+    <!-- FilePond -->
+    <script src="{{ asset('plugins/jquery-filepond-master/filepond.min.js') }}"></script>
     <script src="{{ asset('plugins/jquery-filepond-master/filepond-plugin-file-validate-type.js') }}"></script>
-    <script src="{{ asset('plugins/jquery-filepond-master/filepond.js') }}"></script>
+    <script src="{{ asset('plugins/jquery-filepond-master/filepond-plugin-file-validate-size.js') }}"></script>
+    <script src="{{ asset('plugins/jquery-filepond-master/filepond.jquery.js') }}"></script>
+
 
     <script>
         document.addEventListener('livewire:init', () => {

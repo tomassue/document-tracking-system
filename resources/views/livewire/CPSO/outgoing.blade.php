@@ -287,10 +287,19 @@
 
     /* -------------------------------------------------------------------------- */
 
+    // Register the plugin 
+    FilePond.registerPlugin(FilePondPluginFileValidateType); // for file type validation
+    FilePond.registerPlugin(FilePondPluginFileValidateSize); // for file size validation
+
     // Turn input element into a pond with configuration options
     $('.documents-my-pond-attachment').filepond({
         // required: true,
+        allowFileTypeValidation: true,
         acceptedFileTypes: ['application/pdf'],
+        labelFileTypeNotAllowed: 'File of invalid type',
+        allowFileSizeValidation: true,
+        maxFileSize: '10MB',
+        labelMaxFileSizeExceeded: 'File is too large',
         server: {
             // This will assign the data to the attachments[] property.
             process: (fieldName, file, metadata, load, error, progress, abort) => {
@@ -302,11 +311,9 @@
         }
     });
 
-
     /* -------------------------------------------------------------------------- */
     /*                              Reusable scripts                              */
     /* -------------------------------------------------------------------------- */
-
 
 
     /* -------------------------------------------------------------------------- */
