@@ -116,7 +116,12 @@
                                     <div class="client-info">
                                         <h5>Document Tracking System</h5>
                                         <p>
-                                            This system dsdsfdjskbhcbshduavyefuvaewy.
+                                            This system is developed to assist the
+                                            @if(Auth::user()->ref_office->id == '3')
+                                            City Public Services Office in managing schedules and requests for equipment, vehicles, bands, venues, and other services offered by the office. Additionally, this system helps the CPSO monitor outgoing documents such as memo requests, payroll, letters, procurement, etc.
+                                            @else
+                                            andjsaldasidbadbnjaskdbnasjk
+                                            @endif
                                         </p>
                                         <p>
                                             <br />
