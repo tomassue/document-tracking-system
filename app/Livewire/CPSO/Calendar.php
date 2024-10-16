@@ -22,6 +22,7 @@ class Calendar extends Component
     public $status;
     public $office_or_barangay_or_organization;
     public $request_date;
+    public $return_date;
     public $category;
     public $incoming_request_venue;
     public $start_time;
@@ -62,6 +63,7 @@ class Calendar extends Component
             'incoming_request_cpso.incoming_category',
             'incoming_request_cpso.office_or_barangay_or_organization',
             'incoming_request_cpso.request_date',
+            'incoming_request_cpso.return_date',
             'incoming_request_cpso.category',
             'incoming_request_cpso.venue',
             'incoming_request_cpso.start_time',
@@ -79,6 +81,7 @@ class Calendar extends Component
         $this->status                               = $document_history->status;
         $this->office_or_barangay_or_organization   = $query->office_or_barangay_or_organization;
         $this->request_date                         = (new \DateTime($query->request_date))->format('M d, Y');
+        $this->return_date                          = (new \DateTime($query->return_date))->format('M d, Y');
         $this->category                             = $query->category;
         $this->incoming_request_venue               = $query->venue;
         $this->start_time                           = (new \DateTime($query->start_time))->format('g:i A');
@@ -129,6 +132,7 @@ class Calendar extends Component
                 'incoming_request_cpso.incoming_request_id',
                 'incoming_request_cpso.office_or_barangay_or_organization',
                 'incoming_request_cpso.request_date',
+                'incoming_request_cpso.return_date',
                 'incoming_request_cpso.category',
                 'incoming_request_cpso.venue',
                 'incoming_request_cpso.start_time',
@@ -146,16 +150,16 @@ class Calendar extends Component
 
                 switch ($item->status) {
                     case 'pending':
-                        $backgroundColor = '#E4A11B'; // Red
+                        $backgroundColor = '#dc3545'; // Red
                         break;
                     case 'processed':
-                        $backgroundColor = '#3B71CA'; // Blue
+                        $backgroundColor = '#ffbf36'; // Yellow
                         break;
                     case 'forwarded':
-                        $backgroundColor = '#332D2D'; // Dark
+                        $backgroundColor = '#282f3a'; // Dark
                         break;
-                    case 'done':
-                        $backgroundColor = '#14A44D'; // Green
+                    case 'completed':
+                        $backgroundColor = '#00d082'; // Green
                         break;
                     default:
                         $backgroundColor = '#E4A11B';
@@ -166,7 +170,7 @@ class Calendar extends Component
                     'id'              => $item->incoming_request_id,
                     'title'           => $item->office_or_barangay_or_organization,
                     'start'           => $item->request_date . 'T' . $item->start_time,
-                    'end'             => $item->request_date . 'T' . $item->end_time,
+                    'end'             => $item->return_date . 'T' . $item->end_time,
                     'allDay'          => false,
                     'backgroundColor' => $backgroundColor
                 ];

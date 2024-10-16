@@ -269,6 +269,7 @@
 
     $('#document_details').summernote({
         toolbar: false,
+        disableDragAndDrop: true,
         tabsize: 2,
         height: 120,
         callbacks: {

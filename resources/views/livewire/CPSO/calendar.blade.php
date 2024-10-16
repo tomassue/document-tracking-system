@@ -35,7 +35,7 @@
     document.addEventListener('livewire:initialized', function() {
         var calendarEl = document.getElementById('calendar');
         var calendar = new FullCalendar.Calendar(calendarEl, {
-            timeZone: 'UTC',
+            timeZone: 'local',
             themeSystem: 'bootstrap5',
             initialView: 'dayGridMonth',
             height: 650,
@@ -46,12 +46,41 @@
             },
             selectable: true,
             events: @json($incoming_request),
+
+            // Customize the time display format to show both start and end times
+            eventTimeFormat: {
+                hour: 'numeric',
+                minute: '2-digit',
+                meridiem: 'short'
+            },
+
+            eventContent: function(arg) {
+                let startTime = FullCalendar.formatDate(arg.event.start, {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    meridiem: 'short'
+                });
+                let endTime = FullCalendar.formatDate(arg.event.end, {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    meridiem: 'short'
+                });
+
+                // Combine the start and end time in the display
+                let timeHtml = startTime + ' - ' + endTime;
+
+                return {
+                    html: '<div class="fc-event-time">' + timeHtml + '</div><div class="fc-event-title">' + arg.event.title + '</div>'
+                };
+            },
+
             eventClick: function(info) {
-                // Change to dayGridDay view on date click
+                // Trigger Livewire event to show details
                 $wire.dispatch('show-details', {
                     key: info.event.id
-                })
+                });
             },
+
             dateClick: function(info) {
                 // Change to dayGridDay view on date click
                 calendar.changeView('timeGridDay', info.dateStr);
@@ -104,6 +133,8 @@
             let data = venue.value;
             @this.set('venue', data);
         });
+
+        document.querySelector('#venue').setValue('tourism hall');
 
         /* -------------------------------------------------------------------------- */
 

@@ -27,7 +27,7 @@
                                     @if($status == 'pending') badge-danger
                                     @elseif($status == 'processed') badge-warning
                                     @elseif($status == 'forwarded') badge-dark
-                                    @elseif($status == 'done') badge-success
+                                    @elseif($status == 'completed') badge-success
                                     @endif
                                 ">
                                     {{ $status }}
@@ -58,7 +58,7 @@
                                 Request Date:
                             </div>
                             <div class="col-8 col-md-9 col-lg-9">
-                                <span>{{ $request_date }}</span>
+                                <span>{{ $request_date }} - {{ $return_date }}</span>
                             </div>
                         </div>
                     </div>

@@ -436,6 +436,7 @@
 
     $('#summernote_description').summernote({
         toolbar: false,
+        disableDragAndDrop: true,
         tabsize: 2,
         height: 120,
         callbacks: {
