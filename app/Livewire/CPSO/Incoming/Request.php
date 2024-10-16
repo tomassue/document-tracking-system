@@ -54,6 +54,7 @@ class Request extends Component
 
     public $search, $incoming_category = 'request', $status, $office_barangay_organization, $request_date, $return_date, $category, $venue, $start_time, $end_time, $description, $attachment = [];
     public $return_date_for_equipment_and_vehicle; // This is for when categories like the vehicle and equipment are updated to DONE, users should input the return date of those categories first.
+    public $notes; // For adding remarks or notes on every status updates.
     public $file_id, $file_title, $file_data;
     public $editMode, $edit_document_id;
     public $document_history = [];
@@ -90,8 +91,13 @@ class Request extends Component
             $rules['return_date'] = [
                 'required',
                 function ($attribute, $value, $fail) {
-                    if (strtotime($value) <= strtotime($this->request_date)) {
-                        $fail('The return date must be after the request date and cannot be the same.');
+                    if (strtotime($value) < strtotime($this->request_date)) {
+                        $fail('The return date must be after the request date.');
+                    } elseif (strtotime($value) == strtotime($this->request_date)) {
+                        // Optional: Allow the same day but compare times
+                        if (strtotime($this->end_time) <= strtotime($this->start_time)) {
+                            $fail('The return time must be after the request time when on the same day.');
+                        }
                     }
                 },
             ];
@@ -141,7 +147,6 @@ class Request extends Component
         $this->resetExcept('page_type', 'filter_status'); // Since we need the page_type as what I mentioned, we will not clear the property.
         $this->resetValidation();
         // $this->dispatch('clear-plugins');
-        // $this->dispatch('refresh-plugin');
     }
 
     public function updated($property)
@@ -162,56 +167,84 @@ class Request extends Component
     {
         $this->validate();
 
-        try {
-            DB::beginTransaction();
+        $overlap = Incoming_Request_CPSO_Model::where('venue', $this->venue)
+            ->where(function ($query) {
+                $query->where(function ($query) {
+                    // New booking starts during an existing booking
+                    $query->where('request_date', '<=', $this->request_date)
+                        ->where('return_date', '>=', $this->request_date)
+                        ->where('start_time', '<=', $this->start_time)
+                        ->where('end_time', '>=', $this->start_time);
+                })
+                    ->orWhere(function ($query) {
+                        // New booking ends during an existing booking
+                        $query->where('request_date', '<=', $this->return_date)
+                            ->where('return_date', '>=', $this->return_date)
+                            ->where('start_time', '<=', $this->end_time)
+                            ->where('end_time', '>=', $this->end_time);
+                    })
+                    ->orWhere(function ($query) {
+                        // New booking completely overlaps an existing booking
+                        $query->where('request_date', '>=', $this->request_date)
+                            ->where('return_date', '<=', $this->return_date);
+                    });
+            })
+            ->exists();
 
-            # Iterate over each file.
-            # Uploading small files is okay with BLOB data type. I encountered an error where uploading bigger size such as PDF won't upload in the database which is resulting an error.
-            foreach ($this->attachment ?? [] as $file) {
-                $file_data = File_Data_Model::create([
-                    'file_name' => $file->getClientOriginalName(),
-                    'file_size' => $file->getSize(),
-                    'file_type' => $file->extension(),
-                    'file' => file_get_contents($file->path()),
-                    'user_id' => Auth::user()->id
-                ]);
-                // Store the ID of the saved file
-                $file_data_IDs[] = $file_data->id;
+        if ($overlap) {
+            $this->dispatch('show-overlapping-venu-request-toast');
+        } else {
+            try {
+                DB::beginTransaction();
+
+                # Iterate over each file.
+                # Uploading small files is okay with BLOB data type. I encountered an error where uploading bigger size such as PDF won't upload in the database which is resulting an error.
+                foreach ($this->attachment ?? [] as $file) {
+                    $file_data = File_Data_Model::create([
+                        'file_name' => $file->getClientOriginalName(),
+                        'file_size' => $file->getSize(),
+                        'file_type' => $file->extension(),
+                        'file' => file_get_contents($file->path()),
+                        'user_id' => Auth::user()->id
+                    ]);
+                    // Store the ID of the saved file
+                    $file_data_IDs[] = $file_data->id;
+                }
+
+                $incoming_request_data = [
+                    'incoming_request_id' => $this->generateUniqueNumber(),
+                    'incoming_category' => $this->incoming_category,
+                    'office_or_barangay_or_organization' => $this->office_barangay_organization,
+                    'request_date' => $this->request_date,
+                    'return_date' => $this->return_date,
+                    'category' => $this->category,
+                    'venue' => $this->venue,
+                    'start_time' => $this->start_time,
+                    'end_time' => $this->end_time,
+                    'description' => $this->description,
+                    'files' => json_encode($file_data_IDs ?? [])
+                ];
+                $incoming_request = Incoming_Request_CPSO_Model::create($incoming_request_data);
+
+                $document_history_data = [
+                    'document_id' => $incoming_request->incoming_request_id,
+                    'status' => 'pending',
+                    'user_id' => Auth::user()->id,
+                    'remarks' => 'created_by'
+                ];
+                Document_History_Model::create($document_history_data);
+
+                DB::commit();
+
+                $this->clear();
+                $this->dispatch('hide-requestModal');
+                $this->dispatch('show-success-save-message-toast');
+            } catch (\Exception $e) {
+                DB::rollBack();
+
+                // dd($e->getMessage());
+                $this->dispatch('show-something-went-wrong-toast');
             }
-
-            $incoming_request_data = [
-                'incoming_request_id' => $this->generateUniqueNumber(),
-                'incoming_category' => $this->incoming_category,
-                'office_or_barangay_or_organization' => $this->office_barangay_organization,
-                'request_date' => $this->request_date,
-                'return_date' => $this->return_date,
-                'category' => $this->category,
-                'venue' => $this->venue,
-                'start_time' => $this->start_time,
-                'end_time' => $this->end_time,
-                'description' => $this->description,
-                'files' => json_encode($file_data_IDs ?? [])
-            ];
-            $incoming_request = Incoming_Request_CPSO_Model::create($incoming_request_data);
-
-            $document_history_data = [
-                'document_id' => $incoming_request->incoming_request_id,
-                'status' => 'pending',
-                'user_id' => Auth::user()->id,
-                'remarks' => 'created_by'
-            ];
-            Document_History_Model::create($document_history_data);
-
-            DB::commit();
-
-            $this->clear();
-            $this->dispatch('hide-requestModal');
-            $this->dispatch('show-success-save-message-toast');
-        } catch (\Exception $e) {
-            DB::rollBack();
-
-            // dd($e->getMessage());
-            $this->dispatch('show-something-went-wrong-toast');
         }
     }
 
@@ -219,6 +252,8 @@ class Request extends Component
     {
         $this->editMode = true;
         $this->edit_document_id = $key;
+
+        $this->dispatch('refresh-plugin');
 
         $incoming_request = Incoming_Request_CPSO_Model::where('incoming_request_id', $key)->first();
         $document_history = Document_History_Model::where('document_id', $key)->latest()->first(); //NOTE - latest() returns the most recent record based on the `created_by` column. This ia applicable to our document_history since we store multiple foreign keys to track updates and who updated them. We mainly want to return the latest status and populate it to our `status-select` when `editMode` is true.
@@ -228,6 +263,7 @@ class Request extends Component
         if ($document_history->status == 'completed') {
             $this->dispatch('set-status-disabled', $document_history->status); // Since the status is DONE, we won't allow users to modify the document's status.
             $this->hide_button_if_completed = true;
+            $this->dispatch('set-notes');
             // $this->status = 'done';
         } else {
             $this->dispatch('set-status-enable', $document_history->status);
@@ -283,7 +319,8 @@ class Request extends Component
                 'document_id' => $this->edit_document_id,
                 'status' => $this->status,
                 'user_id' => Auth::user()->id,
-                'remarks' => 'updated_by'
+                'remarks' => 'updated_by',
+                'notes' => $this->notes
             ];
             $document_history->create($data);
 
@@ -301,7 +338,7 @@ class Request extends Component
         } catch (\Exception $e) {
             DB::rollBack();
 
-            dd($e->getMessage());
+            $this->dispatch('show-something-went-wrong-toast');
         }
     }
 
@@ -335,11 +372,19 @@ class Request extends Component
             ->select(
                 DB::raw("DATE_FORMAT(document_history.created_at, '%b %d, %Y %h:%i%p') AS history_date_time"),
                 'document_history.status',
-                DB::raw("CASE
-                WHEN document_history.remarks = 'created_by' THEN 'Created by'
-                WHEN document_history.remarks = 'updated_by' THEN 'Updated by'
-                ELSE 'Unknown'
-                END AS remarks"),
+                DB::raw("
+                    CASE
+                        WHEN document_history.remarks = 'created_by' THEN 'Created by'
+                        WHEN document_history.remarks = 'updated_by' THEN 'Updated by'
+                        ELSE 'Unknown'
+                    END AS remarks
+                "),
+                DB::raw("
+                    CASE
+                        WHEN document_history.notes IS NULL THEN ''
+                        ELSE document_history.notes
+                    END AS notes
+                "),
                 'users.name'
             )
             ->orderBy('document_history.updated_at', 'DESC')

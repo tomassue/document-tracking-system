@@ -47,12 +47,32 @@
             selectable: true,
             events: @json($incoming_request),
 
-            // Customize the time display format to show both start and end times
-            eventTimeFormat: {
-                hour: 'numeric',
-                minute: '2-digit',
-                meridiem: 'short'
-            },
+            // // Customize the time display format to show both start and end times
+            // eventTimeFormat: {
+            //     hour: 'numeric',
+            //     minute: '2-digit',
+            //     meridiem: 'short'
+            // },
+
+            // eventContent: function(arg) {
+            //     let startTime = FullCalendar.formatDate(arg.event.start, {
+            //         hour: 'numeric',
+            //         minute: '2-digit',
+            //         meridiem: 'short'
+            //     });
+            //     let endTime = FullCalendar.formatDate(arg.event.end, {
+            //         hour: 'numeric',
+            //         minute: '2-digit',
+            //         meridiem: 'short'
+            //     });
+
+            //     // Combine the start and end time in the display
+            //     let timeHtml = startTime + ' - ' + endTime;
+
+            //     return {
+            //         html: '<div class="fc-event-time">' + timeHtml + '</div><div class="fc-event-title">' + arg.event.title + '</div>'
+            //     };
+            // },
 
             eventContent: function(arg) {
                 let startTime = FullCalendar.formatDate(arg.event.start, {
@@ -67,11 +87,26 @@
                 });
 
                 // Combine the start and end time in the display
-                let timeHtml = startTime + ' - ' + endTime;
+                let timeHtml = `${startTime} - ${endTime}`;
 
+                // Return the HTML structure with the dot and background color
                 return {
-                    html: '<div class="fc-event-time">' + timeHtml + '</div><div class="fc-event-title">' + arg.event.title + '</div>'
+                    html: `
+                        <div class="fc-event-main" style="background-color: ${arg.event.backgroundColor}; color: #fff; padding: 5px; border-radius: 4px; overflow: hidden; display: flex; align-items: top;">
+                            <div class="fc-event-dot" style="margin-right: 5px;"></div>
+                            <div class="fc-event-time" style="margin-right: 10px;">${timeHtml}</div>
+                            <div class="fc-event-title">${arg.event.title}</div>
+                        </div>
+                    `
                 };
+            },
+
+            eventDidMount: function(info) {
+                // This ensures that the dot (event indicator) is visible
+                const dotEl = info.el.querySelector('.fc-event-dot');
+                if (dotEl) {
+                    dotEl.style.display = 'inline-block'; // Ensure the dot is displayed
+                }
             },
 
             eventClick: function(info) {

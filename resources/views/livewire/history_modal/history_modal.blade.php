@@ -17,7 +17,8 @@
                             @foreach ($document_history as $item)
                             <li class="event" style="margin-bottom: 0px;" data-date="{{ $item->history_date_time }}">
                                 <h3 class="text-capitalize">{{ $item->status }}</h3>
-                                <p>{{ $item->remarks . ' ' . $item->name }}</p>
+                                <p>{{ $item->notes }}</p>
+                                <p class="text-secondary">{{ $item->remarks . ' ' . $item->name }}</p>
                             </li>
                             @endforeach
                         </ul>

@@ -15,6 +15,7 @@ class Document_History_Model extends Model
         'document_id',
         'status',
         'user_id',
-        'remarks'
+        'remarks',
+        'notes'
     ];
 }

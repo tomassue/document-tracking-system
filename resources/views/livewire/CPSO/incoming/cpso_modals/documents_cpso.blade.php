@@ -220,6 +220,19 @@
                         </div>
                     </div>
 
+                    <div class="row">
+                        <div class="col-lg-12" style="display: {{ $editMode ? '' : 'none' }}">
+                            <div class="form-group row">
+                                <label class="col-lg-12 col-form-label">Remarks/Notes</label>
+                                <div class="col-lg-12">
+                                    <div wire:ignore>
+                                        <div id="summernote_notes"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row" style="display: {{ $editMode ? 'none' : 'block' }}">
                         <div class="col-md-12">
                             <div class="form-group row">
@@ -329,6 +342,25 @@
     $wire.on('set-document-status-select-disable', (key) => {
         document.querySelector('#document-status-select').disable();
         document.querySelector('#document-status-select').setValue(key[0]);
+    });
+
+    $('#summernote_notes').summernote({
+        toolbar: false,
+        disableDragAndDrop: true,
+        tabsize: 2,
+        height: 120,
+        callbacks: {
+            onChange: function(contents, $editable) {
+                // Create a temporary div element to strip out HTML tags
+                var plainText = $('<div>').html(contents).text();
+                @this.set('notes', plainText);
+            }
+        }
+    });
+
+    $wire.on('set-notes', (key) => {
+        $('#summernote_notes').summernote('code', key[0]);
+        $('#summernote_notes').summernote('disable');
     });
 
     /* -------------------------------------------------------------------------- */
@@ -441,6 +473,10 @@
             $(this).filepond('removeFiles');
         });
 
+        $('#summernote_notes').each(function() {
+            $(this).summernote('reset');
+        });
+
         // console.log('cleared');
     });
 
@@ -449,6 +485,10 @@
     $wire.on('enable-plugins', () => {
         document.querySelector('#incoming-category-documents-select').enable();
         $('.document-incoming-date').removeAttr('disabled');
+        $('#summernote_notes').each(function() {
+            $(this).summernote('reset');
+            $(this).summernote('enable');
+        });
     });
 </script>
 @endscript

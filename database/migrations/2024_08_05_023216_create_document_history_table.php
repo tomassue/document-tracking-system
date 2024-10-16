@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('status');
             $table->string('user_id');
             $table->string('remarks'); //NOTE - created by, updated by.
+            $table->longText('notes')->nullable();
             $table->timestamps();
         });
     }

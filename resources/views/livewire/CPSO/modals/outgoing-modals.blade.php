@@ -166,6 +166,17 @@
                             </div>
                             <!-- /* ----------------------------------- RIS ---------------------------------- */ -->
 
+                            <div class="col-lg-6" style="display: {{ $editMode ? 'block' : 'none' }}">
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label">Remarks/Notes</label>
+                                    <div class="col-lg-9">
+                                        <div wire:ignore>
+                                            <div id="summernote_notes"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
 
                         <div class="row">

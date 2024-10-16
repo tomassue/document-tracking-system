@@ -181,6 +181,29 @@
         document.querySelector('#outgoing-status-select').setValue(key[0]);
     });
 
+    $('#summernote_notes').summernote({
+        toolbar: false,
+        disableDragAndDrop: true,
+        tabsize: 2,
+        height: 120,
+        callbacks: {
+            onChange: function(contents, $editable) {
+                // Create a temporary div element to strip out HTML tags
+                var plainText = $('<div>').html(contents).text();
+                @this.set('notes', plainText);
+            }
+        }
+    });
+
+    $wire.on('set-notes', (key) => {
+        $('#summernote_notes').summernote('code', key[0]);
+        $('#summernote_notes').summernote('disable');
+    });
+
+    $wire.on('set_notes-enabled', () => {
+        $('#summernote_notes').summernote('enable');
+    })
+
     /* -------------------------------------------------------------------------- */
 
     VirtualSelect.init({
@@ -332,6 +355,10 @@
         });
 
         $('#document_details').filepond('removeFiles');
+
+        $('#summernote_notes').each(function() {
+            $(this).summernote('reset');
+        });
 
         // Clear FilePond
         $('.documents-my-pond-attachment').each(function() {

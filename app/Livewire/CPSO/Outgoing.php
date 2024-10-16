@@ -26,6 +26,7 @@ class Outgoing extends Component
     public $search;
     public $editMode = false;
     public $hide_button_if_completed;
+    public $notes; // For remarks or notes on every update.
     public $document_history = [];
     public $file_id, $file_title, $file_data;
 
@@ -484,8 +485,10 @@ class Outgoing extends Component
         if ($document_history->status == 'completed') {
             $this->dispatch('set-outgoing-status-select-disable', $document_history->status);
             $this->hide_button_if_completed = true;
+            $this->dispatch('set-notes');
         } else {
             $this->dispatch('set-outgoing-status-select-enable', $document_history->status);
+            $this->dispatch('set_notes-enabled');
         }
 
         $this->dispatch('set-document_details', $outgoing_category->document_details);
@@ -532,16 +535,26 @@ class Outgoing extends Component
             'status' => 'required'
         ]);
 
-        Document_History_Model::create([
-            'document_id' => $this->document_no,
-            'status' => $this->status,
-            'user_id' => Auth::user()->id,
-            'remarks' => 'updated_by'
-        ]);
+        try {
+            DB::beginTransaction();
 
-        $this->clear();
-        $this->dispatch('hide-outgoingModal');
-        $this->dispatch('show-success-update-message-toast');
+            Document_History_Model::create([
+                'document_id' => $this->document_no,
+                'status' => $this->status,
+                'user_id' => Auth::user()->id,
+                'remarks' => 'updated_by',
+                'notes' => $this->notes
+            ]);
+
+            $this->clear();
+            $this->dispatch('hide-outgoingModal');
+            $this->dispatch('show-success-update-message-toast');
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $this->dispatch('show-something-went-wrong-toast');
+        }
     }
 
     // Closing attachment preview
@@ -640,11 +653,19 @@ class Outgoing extends Component
             ->select(
                 DB::raw("DATE_FORMAT(document_history.created_at, '%b %d, %Y %h:%i%p') AS history_date_time"),
                 'document_history.status',
-                DB::raw("CASE
-                WHEN document_history.remarks = 'created_by' THEN 'Created by'
-                WHEN document_history.remarks = 'updated_by' THEN 'Updated by'
-                ELSE 'Unknown'
-                END AS remarks"),
+                DB::raw("
+                    CASE
+                        WHEN document_history.remarks = 'created_by' THEN 'Created by'
+                        WHEN document_history.remarks = 'updated_by' THEN 'Updated by'
+                        ELSE 'Unknown'
+                    END AS remarks
+                "),
+                DB::raw("
+                    CASE
+                        WHEN document_history.notes IS NULL THEN ''
+                        ELSE document_history.notes
+                    END AS notes
+                "),
                 'users.name'
             )
             ->orderBy('document_history.updated_at', 'DESC')

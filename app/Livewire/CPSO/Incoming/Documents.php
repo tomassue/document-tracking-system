@@ -42,6 +42,7 @@ class Documents extends Component
 
     public $search;
     public $editMode = false, $status;
+    public $notes; // For remarks or notes on every update.
     public $document_history = [];
     public $files = [], $file_id, $file_title, $file_data;
     public $edit_document_no, $document_no, $incoming_document_category, $document_info, $attachment = [], $date;
@@ -83,6 +84,7 @@ class Documents extends Component
         $this->resetExcept('page_type', 'filter_status');
         $this->resetValidation();
         $this->dispatch('clear-plugins');
+        $this->dispatch('enable-plugins');
     }
 
     public function add()
@@ -194,11 +196,19 @@ class Documents extends Component
             ->select(
                 DB::raw("DATE_FORMAT(document_history.created_at, '%b %d, %Y %h:%i%p') AS history_date_time"),
                 'document_history.status',
-                DB::raw("CASE
-                WHEN document_history.remarks = 'created_by' THEN 'Created by'
-                WHEN document_history.remarks = 'updated_by' THEN 'Updated by'
-                ELSE 'Unknown'
-                END AS remarks"),
+                DB::raw("
+                    CASE
+                        WHEN document_history.remarks = 'created_by' THEN 'Created by'
+                        WHEN document_history.remarks = 'updated_by' THEN 'Updated by'
+                        ELSE 'Unknown'
+                    END AS remarks
+                "),
+                DB::raw("
+                    CASE
+                        WHEN document_history.notes IS NULL THEN ''
+                        ELSE document_history.notes
+                    END AS notes
+                "),
                 'users.name'
             )
             ->orderBy('document_history.updated_at', 'DESC')
@@ -222,6 +232,7 @@ class Documents extends Component
         if ($document_history->status == 'completed') {
             $this->dispatch('set-document-status-select-disable', $document_history->status);
             $this->hide_button_if_completed = true;
+            $this->dispatch('set-notes');
         } else {
             $this->dispatch('set-document-status-select-enable', $document_history->status);
         }
@@ -235,20 +246,30 @@ class Documents extends Component
 
     public function update()
     {
-        //NOTE - For now, we will update the status only and record the action in our document_history
+        try {
+            DB::beginTransaction();
 
-        $document_history = Document_History_Model::query();
-        $document_history_data = [
-            'document_id' => $this->edit_document_no,
-            'status' => $this->status,
-            'user_id' => Auth::user()->id,
-            'remarks' => 'updated_by'
-        ];
-        $document_history->create($document_history_data);
+            //NOTE - For now, we will update the status only and record the action in our document_history
+            $document_history = Document_History_Model::query();
+            $document_history_data = [
+                'document_id' => $this->edit_document_no,
+                'status' => $this->status,
+                'user_id' => Auth::user()->id,
+                'remarks' => 'updated_by',
+                'notes' => $this->notes
+            ];
+            $document_history->create($document_history_data);
 
-        $this->clear();
-        $this->dispatch('hide-documentsModal');
-        $this->dispatch('show-success-update-message-toast');
+            $this->clear();
+            $this->dispatch('hide-documentsModal');
+            $this->dispatch('show-success-update-message-toast');
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            $this->dispatch('show-something-went-wrong-toast');
+        }
     }
 
     public function loadIncomingDocumentsCPSO()

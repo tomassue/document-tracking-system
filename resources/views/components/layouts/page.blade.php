@@ -391,6 +391,14 @@
                 });
             });
 
+            Livewire.on('show-overlapping-venu-request-toast', (event) => {
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: "There's already a request made for this venue during the specified time."
+                });
+            });
+
             /* -------------------------------------------------------------------------- */
 
             /**
