@@ -10,6 +10,7 @@ use App\Livewire\Settings\Category;
 use App\Livewire\Settings\ChangePassword;
 use App\Livewire\Settings\Offices;
 use App\Livewire\Settings\UserManagement;
+use App\Livewire\Settings\Venues;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -54,6 +55,7 @@ Route::group(['is_active', 'middleware' => 'auth'], function () {
 
 Route::middleware(['is_active', 'auth', 'updated_password'])->group(function () {
     Route::get('/settings/category', Category::class)->name('category');
+    Route::get('/settings/venue', Venues::class)->name('venues');
 });
 
 // Livewire::setScriptRoute(function ($handle) {

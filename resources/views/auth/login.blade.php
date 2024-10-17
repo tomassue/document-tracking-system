@@ -18,8 +18,7 @@
 
                     <div class="d-flex flex-row align-items-center justify-content-center justify-content-lg-center">
                         <p class="lead fw-normal mb-0 me-3 text-center" style="color: #0d3858; font-family: 'Oswald'; font-size: 85px; line-height: 82px; text-shadow: 2px 2px 8px #69829f;">
-                            <span style="font-size: 120px;">DOCUMENT</span>
-                            TRACKING SYSTEM
+                            <span style="font-size: 120px;">MANAGEMENT</span> SYSTEM
                         </p>
                     </div>
 
