@@ -8,7 +8,7 @@
             <div class="navbar-brand-wrapper">
                 <!-- <a class="navbar-brand brand-logo" href="index.html"><img src="images/logo.svg" alt="logo" /></a>
             <a class="navbar-brand brand-logo-mini" href="index.html"><img src="images/logo-mini.svg" alt="logo" /></a> -->
-                <h1 class="font-weight-bold mb-0 d-none d-md-block mt-1 ps-2 text-black">DOCUMENT TRACKING SYSTEM</h1>
+                <h1 class="font-weight-bold mb-0 d-none d-md-block mt-1 ps-2 text-black">CPSO MANAGEMENT SYSTEM</h1>
             </div>
             <!-- <h4 class="font-weight-bold mb-0 d-none d-md-block mt-1">Welcome back, Brandon Haynes</h4> -->
             <ul class="navbar-nav navbar-nav-right">

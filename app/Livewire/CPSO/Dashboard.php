@@ -14,7 +14,7 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 
-#[Title('Dashboard | Document Tracking System')]
+#[Title('Dashboard | CPSO Management System')]
 class Dashboard extends Component
 {
     public $dashboard = "dashboard";

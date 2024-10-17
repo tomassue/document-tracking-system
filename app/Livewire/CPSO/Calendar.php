@@ -5,12 +5,13 @@ namespace App\Livewire\CPSO;
 use App\Models\Document_History_Model;
 use App\Models\File_Data_Model;
 use App\Models\Incoming_Request_CPSO_Model;
+use App\Models\Ref_Venue_Model;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Title('Calendar | Document Tracking System')]
+#[Title('Calendar | CPSO Management System')]
 class Calendar extends Component
 {
     public $venue; //NOTE - Filter select
@@ -36,7 +37,8 @@ class Calendar extends Component
     public function render()
     {
         $data = [
-            'incoming_request' => $this->loadIncomingRequest()
+            'incoming_request' => $this->loadIncomingRequest(),
+            'filter_venues' => $this->loadVenues()
         ];
 
         return view('livewire.CPSO.calendar', $data);
@@ -119,6 +121,20 @@ class Calendar extends Component
         $this->dispatch('filter-calendar', $this->loadIncomingRequest());
     }
 
+    public function loadVenues()
+    {
+        // Filter select
+        $venues = Ref_Venue_Model::all()
+            ->map(function ($item) {
+                return [
+                    'label' => $item->venue,
+                    'value' => $item->id
+                ];
+            });
+
+        return $venues;
+    }
+
     public function loadIncomingRequest()
     {
         $incoming_request = Incoming_Request_CPSO_Model::join(DB::raw('(SELECT document_id, status
@@ -128,13 +144,14 @@ class Calendar extends Component
                 FROM document_history
                 GROUP BY document_id
             )) AS latest_document_history'), 'latest_document_history.document_id', '=', 'incoming_request_cpso.incoming_request_id')
+            ->join('ref_venues', 'ref_venues.id', '=', 'incoming_request_cpso.venue')
             ->select(
                 'incoming_request_cpso.incoming_request_id',
                 'incoming_request_cpso.office_or_barangay_or_organization',
                 'incoming_request_cpso.request_date',
                 'incoming_request_cpso.return_date',
                 'incoming_request_cpso.category',
-                'incoming_request_cpso.venue',
+                'ref_venues.venue',
                 'incoming_request_cpso.start_time',
                 'incoming_request_cpso.end_time',
                 'incoming_request_cpso.description',
@@ -142,8 +159,8 @@ class Calendar extends Component
                 'incoming_request_cpso.created_at',
                 'latest_document_history.status'
             )
-            ->where('venue', '!=', '')
-            ->where('venue', 'like', "%{$this->venue}%")
+            ->where('incoming_request_cpso.venue', '!=', '')
+            ->where('incoming_request_cpso.venue', 'like', "%{$this->venue}%")
             ->get()
             ->map(function ($item) {
                 $backgroundColor = '#E4A11B'; // Default color

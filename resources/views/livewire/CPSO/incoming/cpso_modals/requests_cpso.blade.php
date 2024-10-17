@@ -50,7 +50,12 @@
                     <div class="row">
                         <div class="col-lg-6">
                             <div class="form-group row">
-                                <label class="col-lg-3 col-form-label text-break" style="padding-top: 0px; padding-bottom: 0px;">Office/Barangay/Organization</label>
+                                <label class="col-lg-3 col-form-label text-break"
+                                    data-toggle="tooltip"
+                                    title="Office/Barangay/Organization"
+                                    style="padding-top: 0px; padding-bottom: 0px;">
+                                    Office/Brgy/Org
+                                </label>
                                 <div class="col-lg-9">
                                     <input type="text" class="form-control" wire:model="office_barangay_organization" {{ $editMode ? 'disabled' : '' }}>
                                     @error('office_barangay_organization') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
@@ -412,23 +417,7 @@
     VirtualSelect.init({
         ele: '#venue-select',
         placeholder: 'Select venue',
-        options: [{
-                label: 'Tourism Hall',
-                value: 'tourism hall'
-            },
-            {
-                label: 'Mini Park',
-                value: 'mini park'
-            },
-            {
-                label: 'Amphitheater',
-                value: 'amphitheater'
-            },
-            {
-                label: 'Quadrangle',
-                value: 'quadrangle'
-            }
-        ],
+        options: @json($venues),
         maxWidth: '100%',
         zIndex: 10,
         // popupDropboxBreakpoint: '3000px',

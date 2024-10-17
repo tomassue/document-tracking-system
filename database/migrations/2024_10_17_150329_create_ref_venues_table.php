@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('ref_venues', function (Blueprint $table) {
             $table->id();
             $table->string('venue');
+            $table->string('is_active');
             $table->timestamps();
         });
     }

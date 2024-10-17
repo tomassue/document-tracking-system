@@ -14,7 +14,7 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 
-#[Title('Documents | Document Tracking System')]
+#[Title('Documents | CPSO Management System')]
 class Documents extends Component
 {
     /**

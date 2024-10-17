@@ -142,23 +142,7 @@
         VirtualSelect.init({
             ele: '#venue',
             placeholder: 'Venue (all)',
-            options: [{
-                    label: 'Tourism Hall',
-                    value: 'tourism hall'
-                },
-                {
-                    label: 'Mini Park',
-                    value: 'mini park'
-                },
-                {
-                    label: 'Amphitheater',
-                    value: 'amphitheater'
-                },
-                {
-                    label: 'Quadrangle',
-                    value: 'quadrangle'
-                }
-            ],
+            options: @json($filter_venues),
             zIndex: 10,
             // popupDropboxBreakpoint: '3000px',
         });
@@ -169,7 +153,7 @@
             @this.set('venue', data);
         });
 
-        document.querySelector('#venue').setValue('tourism hall');
+        document.querySelector('#venue').setValue('1');
 
         /* -------------------------------------------------------------------------- */
 

@@ -18,7 +18,7 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 
-#[Title('Outgoing | Document Tracking System')]
+#[Title('Outgoing | CPSO Management System')]
 class Outgoing extends Component
 {
     use WithPagination, WithFileUploads;

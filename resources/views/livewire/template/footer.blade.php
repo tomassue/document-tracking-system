@@ -114,7 +114,7 @@
                             <div class="row">
                                 <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6 mt-2">
                                     <div class="client-info">
-                                        <h5>Document Tracking System</h5>
+                                        <h5>CPSO Management System</h5>
                                         <p>
                                             This system is developed to assist the
                                             @if(Auth::user()->ref_office->id == '3')

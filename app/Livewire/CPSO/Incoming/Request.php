@@ -7,6 +7,7 @@ use App\Models\File_Data_Model;
 use App\Models\Incoming_Request_CPSO_Model;
 use App\Models\NumberMessageModel;
 use App\Models\Ref_Category_Model;
+use App\Models\Ref_Venue_Model;
 use App\Models\SmsSenderModel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +17,7 @@ use Livewire\WithPagination;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 
-#[Title('Request | Document Tracking System')]
+#[Title('Request | CPSO Management System')]
 class Request extends Component
 {
     /**
@@ -140,7 +141,8 @@ class Request extends Component
 
         $data = [
             'incoming_requests_cpso' => $this->loadIncomingRequestsCPSO(),
-            'categories' => $this->loadCategories()
+            'categories' => $this->loadCategories(),
+            'venues' => $this->loadVenues()
         ];
 
         return view('livewire.CPSO.incoming.request', $data);
@@ -332,9 +334,23 @@ class Request extends Component
 
     public function update()
     {
-        // $this->validate();
+        $this->validate();
 
-        $check_contact_person_contact_number = Incoming_Request_CPSO_Model::where('incoming_request_id', $this->edit_document_id)->first();
+        $check_contact_person_contact_number = Incoming_Request_CPSO_Model::leftJoin('ref_venues', 'ref_venues.id', '=', 'incoming_request_cpso.venue')
+            ->leftJoin('ref_category', 'ref_category.id', '=', 'incoming_request_cpso.category')
+            ->where('incoming_request_cpso.incoming_request_id', $this->edit_document_id)
+            ->select(
+                'incoming_request_cpso.contact_person_number',
+                'incoming_request_cpso.contact_person',
+                'incoming_request_cpso.office_or_barangay_or_organization',
+                'ref_category.category',
+                'ref_venues.venue',
+                DB::raw("DATE_FORMAT(incoming_request_cpso.request_date, '%b %d, %Y') AS request_date"),
+                DB::raw("DATE_FORMAT(incoming_request_cpso.return_date, '%b %d, %Y') AS return_date"),
+                'incoming_request_cpso.start_time',
+                'incoming_request_cpso.end_time',
+            )
+            ->first();
 
         if ($check_contact_person_contact_number) {
             try {
@@ -343,11 +359,21 @@ class Request extends Component
                 $sms = new SmsSenderModel();
                 $blaster = new NumberMessageModel();
 
-                $welcome = "DOCUMENT TRACKING SYSTEM (CPSO) INFO:";
+                // Generate the SMS message
+                $return_date_message = $check_contact_person_contact_number->return_date
+                    ? "\nReturn Date: " . $check_contact_person_contact_number->return_date
+                    : "\nReturn Date: Not specified";
+
+                $welcome = "CPSO Management System INFO:";
                 $sms->trans_id = time() . '-' . mt_rand();
                 $sms->received_id = "DOCUMENT-TRACKING-SYSTEM-CPSO";
                 $sms->recipient = $check_contact_person_contact_number->contact_person_number;
-                $sms->recipient_message = $welcome . " \nFOR TESTING ONLY.";
+                $sms->recipient_message = $welcome . " \nGood day " . $check_contact_person_contact_number->contact_person . "!" .
+                    "\n\nRequest: " . strtoupper($check_contact_person_contact_number->category) .
+                    "\nRequest Date: " . $check_contact_person_contact_number->request_date .
+                    $return_date_message .
+                    "\nRequest Status: " . strtoupper($this->status) .
+                    "\n\nPLEASE DON'T REPLY.";
                 $sms->save();
 
                 $blaster->user_id = $check_contact_person_contact_number->contact_person;
@@ -386,7 +412,7 @@ class Request extends Component
                 // $this->dispatch('show-something-went-wrong-toast');
             }
         } else {
-            dd('WAY ');
+            $this->dispatch('show-something-went-wrong-toast');
         }
     }
 
@@ -455,6 +481,7 @@ class Request extends Component
                         GROUP BY document_id
                     )) AS latest_document_history'), 'latest_document_history.document_id', '=', 'incoming_request_cpso.incoming_request_id')
             ->join('ref_category', 'ref_category.id', '=', 'incoming_request_cpso.category')
+            ->leftJoin('ref_venues', 'ref_venues.id', '=', 'incoming_request_cpso.venue')
             ->where('ref_category.document_type', 'incoming request')
             ->select(
                 'incoming_request_cpso.incoming_request_id AS id',
@@ -462,7 +489,7 @@ class Request extends Component
                 DB::raw("DATE_FORMAT(incoming_request_cpso.return_date, '%b %d, %Y') AS return_date"),
                 'incoming_request_cpso.office_or_barangay_or_organization',
                 'ref_category.category',
-                'incoming_request_cpso.venue',
+                'ref_venues.venue',
                 'latest_document_history.status'
             )
             ->where('incoming_request_cpso.office_or_barangay_or_organization', 'like', '%' . $this->search . '%')
@@ -487,6 +514,21 @@ class Request extends Component
             ->paginate(10);
 
         return $incoming_requests_cpso;
+    }
+
+    public function loadVenues()
+    {
+        // For the venues option
+        $venues = Ref_Venue_Model::where('is_active', 'yes')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'label' => $item->venue,
+                    'value' => $item->id
+                ];
+            });
+
+        return $venues;
     }
 
     public function loadCategories()
