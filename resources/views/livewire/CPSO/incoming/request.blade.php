@@ -71,6 +71,8 @@
                                             badge-dark
                                             @elseif($item->status == 'completed')
                                             badge-success
+                                            @elseif($item->status == 'cancelled')
+                                            badge-secondary
                                             @endif
                                             ">
                                                 {{ $item->status }}
@@ -134,6 +136,10 @@
             {
                 label: 'Completed',
                 value: 'completed'
+            },
+            {
+                label: 'Cancelled',
+                value: 'cancelled'
             }
         ],
     });

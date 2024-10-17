@@ -5,7 +5,9 @@ namespace App\Livewire\CPSO\Incoming;
 use App\Models\Document_History_Model;
 use App\Models\File_Data_Model;
 use App\Models\Incoming_Request_CPSO_Model;
+use App\Models\NumberMessageModel;
 use App\Models\Ref_Category_Model;
+use App\Models\SmsSenderModel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -52,7 +54,7 @@ class Request extends Component
 
     /* ------------------------------- END OTHERS ------------------------------- */
 
-    public $search, $incoming_category = 'request', $status, $office_barangay_organization, $request_date, $return_date, $category, $venue, $start_time, $end_time, $description, $attachment = [];
+    public $search, $incoming_category = 'request', $status, $office_barangay_organization, $request_date, $return_date, $category, $venue, $start_time, $end_time, $contact_person, $contact_person_number, $description, $attachment = [];
     public $return_date_for_equipment_and_vehicle; // This is for when categories like the vehicle and equipment are updated to DONE, users should input the return date of those categories first.
     public $notes; // For adding remarks or notes on every status updates.
     public $file_id, $file_title, $file_data;
@@ -82,6 +84,8 @@ class Request extends Component
                 },
             ],
             'venue' => $this->category == '9' ? 'required' : 'nullable', // Conditionally require the 'venue' field if category is 9
+            'contact_person' => 'required',
+            'contact_person_number' => 'required|phone:PH'
             // 'description' => 'required',
             // 'attachment' => 'required'
         ];
@@ -167,7 +171,20 @@ class Request extends Component
     {
         $this->validate();
 
-        $overlap = Incoming_Request_CPSO_Model::where('venue', $this->venue)
+        $overlap = Incoming_Request_CPSO_Model::join(
+            DB::raw('(SELECT document_id, status
+                    FROM document_history
+                    WHERE id IN (
+                        SELECT MAX(id)
+                        FROM document_history
+                        GROUP BY document_id
+                    )) AS latest_document_history'),
+            'latest_document_history.document_id',
+            '=',
+            'incoming_request_cpso.incoming_request_id'
+        )
+            ->where('venue', $this->venue)
+            ->whereIn('latest_document_history.status', ['pending', 'processed', 'forwarded']) // Only consider relevant statuses
             ->where(function ($query) {
                 $query->where(function ($query) {
                     // New booking starts during an existing booking
@@ -182,12 +199,12 @@ class Request extends Component
                             ->where('return_date', '>=', $this->return_date)
                             ->where('start_time', '<=', $this->end_time)
                             ->where('end_time', '>=', $this->end_time);
-                    })
-                    ->orWhere(function ($query) {
-                        // New booking completely overlaps an existing booking
-                        $query->where('request_date', '>=', $this->request_date)
-                            ->where('return_date', '<=', $this->return_date);
                     });
+                // ->orWhere(function ($query) {
+                //     // New booking completely overlaps an existing booking
+                //     $query->where('request_date', '>=', $this->request_date)
+                //         ->where('return_date', '<=', $this->return_date);
+                // });
             })
             ->exists();
 
@@ -221,6 +238,8 @@ class Request extends Component
                     'venue' => $this->venue,
                     'start_time' => $this->start_time,
                     'end_time' => $this->end_time,
+                    'contact_person' => $this->contact_person,
+                    'contact_person_number' => $this->contact_person_number,
                     'description' => $this->description,
                     'files' => json_encode($file_data_IDs ?? [])
                 ];
@@ -260,7 +279,7 @@ class Request extends Component
 
         $this->dispatch('set-incoming_category', $incoming_request->incoming_category);
 
-        if ($document_history->status == 'completed') {
+        if ($document_history->status == 'completed' || $document_history->status == 'cancelled') {
             $this->dispatch('set-status-disabled', $document_history->status); // Since the status is DONE, we won't allow users to modify the document's status.
             $this->hide_button_if_completed = true;
             $this->dispatch('set-notes');
@@ -289,6 +308,10 @@ class Request extends Component
 
         $this->dispatch('set-end-time', $incoming_request->end_time);
 
+        $this->contact_person = $incoming_request->contact_person;
+
+        $this->contact_person_number = $incoming_request->contact_person_number;
+
         $this->dispatch('set-description', $incoming_request->description);
 
         if ($incoming_request->files) {
@@ -309,36 +332,61 @@ class Request extends Component
 
     public function update()
     {
-        $this->validate();
+        // $this->validate();
 
-        try {
-            DB::beginTransaction();
-            // NOTE - For now, we will update the status only and record the action in our document_history
-            $document_history = Document_History_Model::query();
-            $data = [
-                'document_id' => $this->edit_document_id,
-                'status' => $this->status,
-                'user_id' => Auth::user()->id,
-                'remarks' => 'updated_by',
-                'notes' => $this->notes
-            ];
-            $document_history->create($data);
+        $check_contact_person_contact_number = Incoming_Request_CPSO_Model::where('incoming_request_id', $this->edit_document_id)->first();
 
-            if ($this->return_date_for_equipment_and_vehicle) {
-                Incoming_Request_CPSO_Model::where('incoming_request_id', $this->edit_document_id)
-                    ->update([
-                        'return_date' => $this->return_date_for_equipment_and_vehicle
-                    ]);
+        if ($check_contact_person_contact_number) {
+            try {
+                DB::beginTransaction();
+
+                $sms = new SmsSenderModel();
+                $blaster = new NumberMessageModel();
+
+                $welcome = "DOCUMENT TRACKING SYSTEM (CPSO) INFO:";
+                $sms->trans_id = time() . '-' . mt_rand();
+                $sms->received_id = "DOCUMENT-TRACKING-SYSTEM-CPSO";
+                $sms->recipient = $check_contact_person_contact_number->contact_person_number;
+                $sms->recipient_message = $welcome . " \nFOR TESTING ONLY.";
+                $sms->save();
+
+                $blaster->user_id = $check_contact_person_contact_number->contact_person;
+                $blaster->phone_number = $check_contact_person_contact_number->contact_person_number;
+                $blaster->sms_trans_id = $sms->trans_id;
+                $blaster->sms_status = "SAVED";
+                $blaster->save();
+
+                // NOTE - For now, we will update the status only and record the action in our document_history
+                $document_history = Document_History_Model::query();
+                $data = [
+                    'document_id' => $this->edit_document_id,
+                    'status' => $this->status,
+                    'user_id' => Auth::user()->id,
+                    'remarks' => 'updated_by',
+                    'notes' => $this->notes
+                ];
+                $document_history->create($data);
+
+                if ($this->return_date_for_equipment_and_vehicle) {
+                    Incoming_Request_CPSO_Model::where('incoming_request_id', $this->edit_document_id)
+                        ->update([
+                            'return_date' => $this->return_date_for_equipment_and_vehicle
+                        ]);
+                }
+
+                $this->dispatch('hide-requestModal');
+                $this->dispatch('show-success-update-message-toast');
+                $this->clear();
+
+                DB::commit();
+            } catch (\Exception $e) {
+                DB::rollBack();
+
+                dd($e->getMessage());
+                // $this->dispatch('show-something-went-wrong-toast');
             }
-
-            $this->dispatch('hide-requestModal');
-            $this->dispatch('show-success-update-message-toast');
-            $this->clear();
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollBack();
-
-            $this->dispatch('show-something-went-wrong-toast');
+        } else {
+            dd('WAY ');
         }
     }
 
@@ -429,7 +477,8 @@ class Request extends Component
                 $query->where('latest_document_history.status', $this->filter_status);
             }, function ($query) {
                 // Exclude "done" status by default
-                $query->where('latest_document_history.status', '!=', 'completed');
+                $query->where('latest_document_history.status', '!=', 'completed')
+                    ->where('latest_document_history.status', '!=', 'cancelled');
             })
             ->when($this->filter_category != NULL, function ($query) {
                 $query->where('incoming_request_cpso.category', $this->filter_category);

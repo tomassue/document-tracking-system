@@ -21,6 +21,8 @@ class Incoming_Request_CPSO_Model extends Model
         'venue',
         'start_time',
         'end_time',
+        'contact_person',
+        'contact_person_number',
         'description',
         'files'
     ];

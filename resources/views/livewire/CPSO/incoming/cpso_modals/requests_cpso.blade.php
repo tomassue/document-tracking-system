@@ -111,7 +111,27 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Contact Person</label>
+                                <div class="col-lg-9">
+                                    <input type="text" class="form-control" wire:model="contact_person" {{ $editMode ? 'disabled' : '' }}>
+                                    @error('contact_person') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
+                                </div>
+                            </div>
+                        </div>
 
+                        <div class="col-lg-6">
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label">Contact Number</label>
+                                <div class="col-lg-9">
+                                    <input type="text" class="form-control" oninput="this.value = '09' + this.value.slice(2);" placeholder="09XXXXXXXXX" wire:model="contact_person_number" {{ $editMode ? 'disabled' : '' }}>
+                                    @error('contact_person_number') <span class="custom-invalid-feedback">{{ $message }}</span> @enderror
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="row">
                         <div class="col-lg-12">
@@ -234,6 +254,10 @@
             {
                 label: 'Completed',
                 value: 'completed'
+            },
+            {
+                label: 'Cancelled',
+                value: 'cancelled'
             }
         ],
         maxWidth: '100%',

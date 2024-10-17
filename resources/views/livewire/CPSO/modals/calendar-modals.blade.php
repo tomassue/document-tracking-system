@@ -28,6 +28,7 @@
                                     @elseif($status == 'processed') badge-warning
                                     @elseif($status == 'forwarded') badge-dark
                                     @elseif($status == 'completed') badge-success
+                                    @elseif($status == 'cancelled') badge-secondary
                                     @endif
                                 ">
                                     {{ $status }}

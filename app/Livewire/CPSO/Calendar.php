@@ -161,6 +161,9 @@ class Calendar extends Component
                     case 'completed':
                         $backgroundColor = '#00d082'; // Green
                         break;
+                    case 'cancelled':
+                        $backgroundColor = '#6c757d'; // Grey
+                        break;
                     default:
                         $backgroundColor = '#E4A11B';
                         break;
@@ -168,7 +171,7 @@ class Calendar extends Component
 
                 return [
                     'id'              => $item->incoming_request_id,
-                    'title'           => $item->office_or_barangay_or_organization,
+                    'title'           => $item->office_or_barangay_or_organization . ' | ' . strtoupper($item->venue),
                     'start'           => $item->request_date . 'T' . $item->start_time,
                     'end'             => $item->return_date . 'T' . $item->end_time,
                     'allDay'          => false,
