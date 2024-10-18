@@ -368,12 +368,12 @@ class Request extends Component
                 $sms->trans_id = time() . '-' . mt_rand();
                 $sms->received_id = "DOCUMENT-TRACKING-SYSTEM-CPSO";
                 $sms->recipient = $check_contact_person_contact_number->contact_person_number;
-                $sms->recipient_message = $welcome . " \nGood day " . $check_contact_person_contact_number->contact_person . "!" .
+                $sms->recipient_message = $welcome . " \n\nGood day " . $check_contact_person_contact_number->contact_person . "!" .
                     "\n\nRequest: " . strtoupper($check_contact_person_contact_number->category) .
                     "\nRequest Date: " . $check_contact_person_contact_number->request_date .
                     $return_date_message .
                     "\nRequest Status: " . strtoupper($this->status) .
-                    "\n\nPLEASE DON'T REPLY.";
+                    "\n\nThis is a system-generated message. PLEASE DON'T REPLY.";
                 $sms->save();
 
                 $blaster->user_id = $check_contact_person_contact_number->contact_person;

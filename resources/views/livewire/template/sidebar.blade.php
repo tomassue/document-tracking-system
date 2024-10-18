@@ -38,7 +38,7 @@
             <a class="nav-link" href="{{ route('dashboard') }}">
                 <i class="mdi mdi-view-quilt menu-icon"></i>
                 <span class="menu-title">Dashboard</span>
-                <div class="badge badge-info badge-pill">2</div>
+                <!-- <div class="badge badge-info badge-pill">2</div> -->
             </a>
         </li>
         <li class="nav-item">

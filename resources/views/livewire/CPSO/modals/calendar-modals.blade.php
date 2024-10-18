@@ -45,7 +45,7 @@
                         <div class="row">
                             <div class="col-4 col-md-3 col-lg-3" style="word-break: break-word; white-space: normal;">
                                 <span class="d-inline-block text-truncate" style="max-width: 100px;">
-                                    Office/Barangay/Organization:
+                                    Office/Brgy/Org:
                                 </span>
                             </div>
                             <div class="col-8 col-md-9 col-lg-9">

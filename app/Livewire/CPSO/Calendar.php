@@ -61,18 +61,19 @@ class Calendar extends Component
     {
         $this->editMode = true;
 
-        $query = Incoming_Request_CPSO_Model::select(
-            'incoming_request_cpso.incoming_category',
-            'incoming_request_cpso.office_or_barangay_or_organization',
-            'incoming_request_cpso.request_date',
-            'incoming_request_cpso.return_date',
-            'incoming_request_cpso.category',
-            'incoming_request_cpso.venue',
-            'incoming_request_cpso.start_time',
-            'incoming_request_cpso.end_time',
-            'incoming_request_cpso.description',
-            'incoming_request_cpso.files'
-        )
+        $query = Incoming_Request_CPSO_Model::join('ref_venues', 'ref_venues.id', '=', 'incoming_request_cpso.venue')
+            ->select(
+                'incoming_request_cpso.incoming_category',
+                'incoming_request_cpso.office_or_barangay_or_organization',
+                'incoming_request_cpso.request_date',
+                'incoming_request_cpso.return_date',
+                'incoming_request_cpso.category',
+                'ref_venues.venue',
+                'incoming_request_cpso.start_time',
+                'incoming_request_cpso.end_time',
+                'incoming_request_cpso.description',
+                'incoming_request_cpso.files'
+            )
             ->where('incoming_request_cpso.incoming_request_id', $key)
             ->first();
 
