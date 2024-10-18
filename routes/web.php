@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\GeneratePDFController;
 use App\Http\Controllers\HomeController;
 use App\Livewire\CPSO\Calendar;
 use App\Livewire\CPSO\Dashboard;
@@ -33,6 +34,8 @@ Route::middleware(['is_active', 'auth', 'updated_password', 'cpso_access_only'])
     Route::get('/incoming/documents', Documents::class)->name('documents');
     Route::get('/outgoing', Outgoing::class)->name('outgoing');
     Route::get('/calendar', Calendar::class)->name('calendar');
+
+    Route::get('/generate-pdf', [GeneratePDFController::class, 'venueSchedulePDF'])->name('venue.schedule.pdf')->middleware('signed');
 });
 
 

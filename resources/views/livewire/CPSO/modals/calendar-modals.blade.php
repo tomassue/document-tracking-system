@@ -177,7 +177,14 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" wire:click="clear">Close</button>
-                <button type="submit" class="btn btn-primary">Print</button>
+                <!-- <button type="submit" class="btn btn-primary">Print</button> -->
+
+                <!-- Generate signed URL -->
+                @if($p_venue && $p_date)
+                @if($signedUrl)
+                <a href="{{ $signedUrl }}" target="_blank" class="btn btn-info">View Venue Schedule PDF</a>
+                @endif
+                @endif
             </div>
             </form>
         </div>

@@ -10,8 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\URL;
 
 #[Title('Calendar | CPSO Management System')]
 class Calendar extends Component
@@ -44,7 +43,8 @@ class Calendar extends Component
     {
         $data = [
             'incoming_request' => $this->loadIncomingRequest(),
-            'filter_venues' => $this->loadVenues()
+            'filter_venues' => $this->loadVenues(),
+            'signedUrl' => $this->generateSignedUrl()
         ];
 
         return view('livewire.CPSO.calendar', $data);
@@ -128,21 +128,42 @@ class Calendar extends Component
         $this->dispatch('filter-calendar', $this->loadIncomingRequest());
     }
 
+    public function generateSignedUrl()
+    {
+        if ($this->p_venue && $this->p_date) {
+            $signedUrl = URL::temporarySignedRoute(
+                'venue.schedule.pdf',
+                now()->addMinutes(5), // Set expiration time in seconds
+                ['venue' => $this->p_venue, 'date' => $this->p_date]
+            );
+
+            return $signedUrl;
+        }
+
+        return null; // Return null if venue or date is not set
+    }
+
     public function print()
     {
-        $venues = Incoming_Request_CPSO_Model::where('venue', $this->p_venue)
-            ->where('request_date', $this->p_date)
-            ->get();
+        // $venues = Incoming_Request_CPSO_Model::where('venue', $this->p_venue)
+        //     ->where('request_date', $this->p_date)
+        //     ->get();
 
-        $data = [
-            'venues' => $venues
-        ];
+        // $data = [
+        //     'venues' => $venues
+        // ];
 
-        $pdf = Pdf::loadView('livewire.CPSO.pdf.venue-schedule', $data);
+        // $pdf = Pdf::loadView('livewire.CPSO.pdf.venue-schedule', $data);
 
-        return response()->streamDownload(function () use ($pdf) {
-            echo $pdf->stream();
-        }, 'name.pdf');
+        // return response()->streamDownload(function () use ($pdf) {
+        //     echo $pdf->stream();
+        // }, 'name.pdf');
+
+        // Redirect to a route that generates the PDF
+        return redirect()->route('generate.pdf', [
+            'venue' => $this->p_venue,
+            'date' => $this->p_date
+        ]);
     }
 
     public function loadVenues()
