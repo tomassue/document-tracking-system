@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\App;
 
 #[Title('Calendar | CPSO Management System')]
 class Calendar extends Component
@@ -32,6 +34,10 @@ class Calendar extends Component
     public $files = [];
     public $file_title;
     public $file_data;
+    /* ---------------------------------- PRINT --------------------------------- */
+    public $p_venue;
+    public $p_date;
+    /* -------------------------------- PRINT PDF ------------------------------- */
 
 
     public function render()
@@ -120,6 +126,23 @@ class Calendar extends Component
     public function updateCalendar()
     {
         $this->dispatch('filter-calendar', $this->loadIncomingRequest());
+    }
+
+    public function print()
+    {
+        $venues = Incoming_Request_CPSO_Model::where('venue', $this->p_venue)
+            ->where('request_date', $this->p_date)
+            ->get();
+
+        $data = [
+            'venues' => $venues
+        ];
+
+        $pdf = Pdf::loadView('livewire.CPSO.pdf.venue-schedule', $data);
+
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf->stream();
+        }, 'name.pdf');
     }
 
     public function loadVenues()

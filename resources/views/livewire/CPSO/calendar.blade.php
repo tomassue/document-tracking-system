@@ -7,7 +7,17 @@
                 <div class="col-lg-12 grid-margin stretch-card">
                     <div class="card">
                         <div class="card-body">
-                            <div id="venue" wire:ignore></div>
+                            <div class="row align-items-center justify-content-between">
+                                <div class="col-lg-2">
+                                    <div id="venue" wire:ignore></div>
+                                </div>
+                                <div class="col-lg-2 text-end">
+                                    <button type="button" class="btn btn-info btn-icon-text" wire:click="$dispatch('show-printVenueScheduleModal')">
+                                        Print
+                                        <i class="mdi mdi-printer btn-icon-append"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -131,9 +141,9 @@
                 calendar.addEventSource(events);
                 calendar.refetchEvents();
                 // console.log('refreshed');
-                console.log(events);
+                // console.log(events);
             } catch (e) {
-                console.error('Error parsing meetings data', e)
+                // console.error('Error parsing meetings data', e)
             }
         });
 
@@ -159,6 +169,38 @@
 
         $wire.on('show-details', () => {
             $('#viewDetailsModal').modal('show');
+        });
+
+        /* -------------------------------------------------------------------------- */
+
+        $wire.on('show-printVenueScheduleModal', () => {
+            $('#printVenueScheduleModal').modal('show');
+        });
+
+        /* -------------------------------------------------------------------------- */
+
+        VirtualSelect.init({
+            ele: '#p_venue',
+            options: @json($filter_venues),
+            maxWidth: '100%',
+            zIndex: 10,
+            // popupDropboxBreakpoint: '3000px',
+        });
+
+        let p_venue = document.querySelector('#p_venue');
+        p_venue.addEventListener('change', () => {
+            let data = p_venue.value;
+            @this.set('p_venue', data);
+        });
+
+        /* -------------------------------------------------------------------------- */
+
+        $("#p_date").flatpickr({
+            dateFormat: "Y-m-d",
+            allowInput: false, // Disable typing in the input
+            onChange: function(selectedDates, dateStr, instance) {
+                @this.set('p_date', dateStr);
+            }
         });
     });
 </script>

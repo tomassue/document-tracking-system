@@ -1,3 +1,4 @@
+<!-- viewDetailsModal -->
 <div class="modal fade" id="viewDetailsModal" tabindex="-1" aria-labelledby="viewDetailsModalLabel" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" wire:ignore.self>
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
@@ -151,3 +152,35 @@
         </div>
     </div>
 </div>
+<!-- viewDetailsModal -->
+
+<!-- printVenueScheduleModal -->
+<div class="modal fade" id="printVenueScheduleModal" tabindex="-1" aria-labelledby="printVenueScheduleModalLabel" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" wire:ignore.self>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="printVenueScheduleModalLabel">Print Venue Schedule</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" wire:click="clear"></button>
+            </div>
+            <div class="modal-body">
+                <form class="forms-sample" data-bitwarden-watching="1" wire:submit="print">
+                    <div class="form-group">
+                        <label for="exampleInputOffice">Venue</label>
+                        <div id="p_venue" wire:ignore></div>
+                        @error('p_venue') <div class="custom-invalid-feedback"> {{ $message }} </div> @enderror
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputOffice">Select Date</label>
+                        <input type="text" class="form-control" id="p_date" data-input readonly style="background-color: unset;">
+                        @error('p_date') <div class="custom-invalid-feedback"> {{ $message }} </div> @enderror
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" wire:click="clear">Close</button>
+                <button type="submit" class="btn btn-primary">Print</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- printVenueScheduleModal -->
